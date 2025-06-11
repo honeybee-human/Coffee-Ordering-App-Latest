@@ -8,6 +8,7 @@ import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { Alert, AlertDescription } from './ui/alert';
 import { CartItem, GroupMember, PaymentInfo, Order } from '../types';
+import { v4 as uuidv4 } from 'uuid';
 
 interface CheckoutPageProps {
   cartItems: CartItem[];
@@ -165,16 +166,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       }
 
       const order: Order = {
-        id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: uuidv4(),
         items: cartItems,
         totalAmount: finalTotal,
         orderDate: new Date(),
         status: 'pending',
         groupMembers: groupMembers,
-        estimatedTime: Math.floor(Math.random() * 20) + 10 // 10-30 minutes
-        ,
-        orderNumber: '',
-        groupId: ''
+        estimatedTime: Math.floor(Math.random() * 10) + 5, // 5-15 minutes
+        orderNumber: Math.floor(Math.random() * 1000).toString().padStart(3, '0'),
+        groupId: '', // This will be set by the business logic
+        paymentInfo: paymentInfo
       };
 
       onOrderComplete(order);

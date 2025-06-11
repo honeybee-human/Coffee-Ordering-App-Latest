@@ -294,7 +294,7 @@ const storeImplementation: StateCreator<
       const existingFavorite = favorites.find(fav => 
         fav.type === type && 
         fav.item.id === item.id &&
-        JSON.stringify(fav.customizations) === JSON.stringify(customizations)
+        JSON.stringify(fav.customizations) === JSON.stringify(customizations || (type === 'coffee' ? { syrups: [], milk: 'whole' } : { removedIngredients: [] }))
       );
       if (existingFavorite) {
         removeFromFavorites(existingFavorite.id);

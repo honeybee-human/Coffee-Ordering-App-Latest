@@ -28,13 +28,13 @@ export const useNavigation = () => {
     setIsMobileMenuOpen(false);
   }, []);
   
-  const navigateToCoffeeDetail = useCallback((coffeeId: string, initialCustomizations?: any) => {
-    setAppState({ currentPage: 'coffee-detail', selectedItemId: coffeeId, initialCustomizations });
+  const navigateToCoffeeDetail = useCallback((coffeeId: string, initialCoffeeCustomizations?: any) => {
+    setAppState({ currentPage: 'coffee-detail', selectedItemId: coffeeId, initialCoffeeCustomizations });
     setIsMobileMenuOpen(false);
   }, []);
   
-  const navigateToPastryDetail = useCallback((pastryId: string, initialCustomizations?: any) => {
-    setAppState({ currentPage: 'pastry-detail', selectedItemId: pastryId, initialCustomizations });
+  const navigateToPastryDetail = useCallback((pastryId: string, initialPastryCustomizations?: any) => {
+    setAppState({ currentPage: 'pastry-detail', selectedItemId: pastryId, initialPastryCustomizations });
     setIsMobileMenuOpen(false);
   }, []);
   

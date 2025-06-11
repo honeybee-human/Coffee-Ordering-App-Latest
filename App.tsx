@@ -6,11 +6,11 @@ import { OrderCompleteModal } from './components/OrderCompleteModal';
 import { Header } from './components/layout/Header';
 import { PageRouter } from './components/layout/PageRouter';
 import AppProviders from './components/AppProviders';
+import { BrowserRouter } from 'react-router-dom';
 
 // Import Zustand stores
 import { useAppStore } from './store/useAppStore';
 import { useNavigationStore } from './store/useNavigationStore';
-import { useModalsStore } from './store/useModalsStore';
 import { useAllergensStore } from './store/useAllergensStore';
 import { useBusinessLogic } from './store/useBusinessLogic';
 
@@ -19,7 +19,8 @@ import { coffeeMenu, pastryMenu } from './data/menu';
 
 
 import { normalizeAllergens } from './utils/allergens';
-import { CartItem, FavoriteItem, Order, GroupMember } from './types';
+import { CartItem, FavoriteItem, Order, GroupMember, Coffee, Pastry } from './types';
+import { useModalsStore } from './store/useModalsStore';
 
 /**
  * STORAGE SYSTEM: Bean & Bite now uses Zustand for state management
@@ -102,13 +103,13 @@ function AppContent() {
   };
 
   // Helper function to toggle favorite status
-  const toggleFavorite = (type: 'coffee' | 'pastry', item: FavoriteItem) => {
-    const existingFavorite = findExistingFavorite(favorites, type, item.id, item.customizations);
+  const toggleFavorite = (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: any) => {
+    const existingFavorite = findExistingFavorite(favorites, type, item.id, customizations);
   
     if (existingFavorite) {
       removeFromFavorites(existingFavorite.id);
     } else {
-      addToFavorites(item.item, type);
+      addToFavorites(item, type, customizations);
     }
   };
 
@@ -286,7 +287,7 @@ function AppContent() {
         onNavigateToCheckout={navigateToCheckout}
         cartItemCount={cartCount}
       />
-      
+      <div className="p-20">
       <PageRouter
         appState={appState}
         setAppState={setAppState}
@@ -349,6 +350,7 @@ function AppContent() {
         onProceed={proceedWithAllergen} 
         onClose={closeAllergenWarningModal} 
       />
+    </div>
     </div>
   );
 }

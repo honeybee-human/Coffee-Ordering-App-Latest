@@ -1,5 +1,5 @@
 import React from 'react';
-import { AppState, Group, FavoriteItem, Order, CartItem, GroupMember } from '../../types';
+import { AppState, Group, FavoriteItem, Order, CartItem, GroupMember, Pastry } from '../../types';
 import { CoffeeDetailPage } from '../CoffeeDetailPage';
 import { PastryDetailPage } from '../PastryDetailPage';
 import { Cart } from '../Cart';
@@ -8,6 +8,7 @@ import { OrderHistoryPage } from '../OrderHistoryPage';
 import { FavoritesPage } from '../FavoritesPage';
 import { GroupManagement } from '../GroupManagement';
 import { MenuPage } from './MenuPage';
+import { pastryMenu } from '../../data/menu';
 
 interface PageRouterProps {
   appState: AppState;
@@ -113,9 +114,14 @@ export const PageRouter: React.FC<PageRouterProps> = ({
           setAppState({ currentPage: 'menu' });
           return null;
         }
+        const selectedPastry = pastryMenu.find((p: Pastry) => p.id === appState.selectedItemId);
+        if (!selectedPastry) {
+          setAppState({ currentPage: 'menu' });
+          return null;
+        }
         return (
           <PastryDetailPage
-            pastryId={appState.selectedItemId}
+            pastry={selectedPastry}
             groupMembers={activeGroup?.members || []}
             onBack={onNavigateToMenu}
             onAddToCart={onAddToCart}
@@ -124,8 +130,8 @@ export const PageRouter: React.FC<PageRouterProps> = ({
               onAllergenConflict(allergens, affectedMembers, itemName, addCallback);
             }}
             onToggleFavorite={onToggleFavorite}
-            isItemFavorited={isItemFavorited}
-            initialCustomizations={appState.initialPastryCustomizations}
+            selectedGroup={activeGroup || null}
+            isFavorited={isItemFavorited('pastry', appState.selectedItemId)}
           />
         );
       case 'cart':
@@ -155,6 +161,7 @@ export const PageRouter: React.FC<PageRouterProps> = ({
             orders={orderHistory}
             onBack={onNavigateToMenu}
             onReorder={onReorder}
+            getAllAllergens={getAllAllergens}
           />
         );
       case 'favorites':

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { useAppStore } from './useAppStore';
 import { useNavigationStore } from './useNavigationStore';
-import { useModalsStore } from './useModalsStore';
+
 import { useAllergensStore } from './useAllergensStore';
 import { 
   Group, 
@@ -15,6 +15,7 @@ import {
   CoffeeCustomization,
   PastryCustomization
 } from '../types';
+import { useModalsStore } from './useModalsStore';
 
 /**
  * Custom hook that provides all business logic functions
@@ -193,8 +194,10 @@ export const useBusinessLogic = () => {
     // Show order complete modal
     modalsStore.showOrderCompleteModal(orderNumber, estimatedTime);
     
-    // Don't navigate to menu here, let the modal handle navigation
-    // navigationStore.navigateToMenu();
+    // Navigate to order history after a short delay
+    setTimeout(() => {
+      navigationStore.navigateToOrderHistory();
+    }, 1000);
   };
 
   const reorderFromHistory = (orderId: string): void => {

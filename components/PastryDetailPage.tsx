@@ -7,42 +7,45 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { PastryCustomizationComponent } from './PastryCustomization';
 import { pastryMenu } from '../data/menu';
 import { pastryImages } from './Menu';
-import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType } from '../types';
+import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType, Pastry } from '../types';
 import { getComprehensiveAllergens } from '../utils/allergens';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Group } from '../types';
 
 interface PastryDetailPageProps {
-  pastryId: string;
-  groupMembers: GroupMember[];
+  pastry: Pastry;
   onBack: () => void;
   onAddToCart: (item: CartItem) => void;
+  onToggleFavorite: (type: 'pastry', item: Pastry, customizations?: PastryCustomizationType) => void;
   onAllergenConflict: (allergens: string[], affectedMembers: string[], itemName: string, addCallback: () => void) => void;
-  onToggleFavorite: (type: 'coffee' | 'pastry', item: any, customizations?: any) => void;
-  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: any) => boolean;
-  initialCustomizations?: PastryCustomizationType;
+  selectedGroup: Group | null;
+  groupMembers: GroupMember[];
+  isFavorited: boolean;
 }
 
 export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
-  pastryId,
-  groupMembers,
+  pastry,
   onBack,
   onAddToCart,
-  onAllergenConflict,
   onToggleFavorite,
-  isItemFavorited,
-  initialCustomizations
+  onAllergenConflict,
+  selectedGroup,
+  groupMembers,
+  isFavorited,
 }) => {
-  const pastry = pastryMenu.find(p => p.id === pastryId);
-  const [customizations, setCustomizations] = useState<PastryCustomizationType>(
-    initialCustomizations || {
-      removedIngredients: []
-    }
-  );
+  const [customizations, setCustomizations] = useState<PastryCustomizationType>({
+    removedIngredients: []
+  });
+  const [selectedMember, setSelectedMember] = useState<string>('');
+  const [showNoGroupModal, setShowNoGroupModal] = useState(false);
 
   useEffect(() => {
-    if (initialCustomizations) {
-      setCustomizations(initialCustomizations);
-    }
-  }, [initialCustomizations]);
+    // Reset customizations when pastry changes
+    setCustomizations({
+      removedIngredients: []
+    });
+  }, [pastry]);
 
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
@@ -66,7 +69,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
     );
   }
 
-  const pastryIndex = pastryMenu.findIndex(p => p.id === pastryId);
+  const pastryIndex = pastryMenu.findIndex(p => p.id === pastry.id);
   const imageUrl = pastryImages[pastryIndex % pastryImages.length];
   
   const comprehensiveAllergens = getComprehensiveAllergens({
@@ -78,15 +81,18 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
     !pastry.allergens.includes(allergen) && groupAllergens.includes(allergen)
   );
 
-  const isFavorited = isItemFavorited('pastry', pastry.id, customizations);
-
   const handleAddToCart = () => {
+    if (!selectedGroup) {
+      setShowNoGroupModal(true);
+      return;
+    }
     const cartItem: CartItem = {
       id: `pastry-${Date.now()}-${Math.random()}`,
       type: 'pastry',
       item: pastry,
       customizations,
-      quantity: 1
+      quantity: 1,
+      assignedTo: selectedMember || undefined
     };
     
     // Check for allergen conflicts
@@ -234,6 +240,28 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                   <span className="text-lg">Price:</span>
                   <span className="text-2xl font-bold text-primary">${pastry.price.toFixed(2)}</span>
                 </div>
+
+                {selectedGroup && selectedGroup.members.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Assign to Group Member</Label>
+                    <Select
+                      value={selectedMember}
+                      onValueChange={setSelectedMember}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a member" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No assignment</SelectItem>
+                        {selectedGroup.members.map((member) => (
+                          <SelectItem key={member.name} value={member.name}>
+                            {member.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <Button 
                   onClick={handleAddToCart}

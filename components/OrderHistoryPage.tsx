@@ -5,17 +5,20 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Order, CartItem } from '../types';
+import { GroupOrderSummary } from './GroupOrderSummary';
 
 interface OrderHistoryPageProps {
   orders: Order[];
   onBack: () => void;
   onReorder: (orderId: string) => void;
+  getAllAllergens: (item: CartItem) => string[];
 }
 
 export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
   orders,
   onBack,
-  onReorder
+  onReorder,
+  getAllAllergens
 }) => {
   const getStatusIcon = (status: Order['status']) => {
     switch (status) {
@@ -113,6 +116,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
 
       <div className="space-y-4">
         {orders.map((order) => (
+          <>
           <Card key={order.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -120,7 +124,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
                   <div className="flex items-center gap-2">
                     {getStatusIcon(order.status)}
                     <CardTitle className="text-base">
-                      Order #{order.id.slice(-8).toUpperCase()}
+                      Order #{order.orderNumber}
                     </CardTitle>
                   </div>
                   <Badge variant={getStatusColor(order.status) as any}>
@@ -129,9 +133,8 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
                 </div>
                 <div className="text-right">
                   <p className="text-sm text-muted-foreground">
-                    {order.orderDate.toLocaleDateString()} at {order.orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </p>
-                  <p className="font-medium">${order.total.toFixed(2)}</p>
+                  {new Date(order.orderDate).toLocaleDateString()} at {new Date(order.orderDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}                  </p>
+                  <p className="font-medium">${order.totalAmount.toFixed(2)}</p>
                 </div>
               </div>
             </CardHeader>
@@ -143,10 +146,10 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <span>{item.item.name}</span>
-                          {item.forPerson && (
+                          {item.assignedTo && (
                             <Badge variant="outline" className="text-xs">
                               <User className="h-3 w-3 mr-1" />
-                              {item.forPerson}
+                              {item.assignedTo}
                             </Badge>
                           )}
                         </div>
@@ -170,7 +173,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
 
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>Payment: {order.paymentMethod}</span>
+                  <span>Payment: {order.paymentInfo?.cardNumber.slice(-4) || 'N/A'}</span>
                   {order.estimatedTime && (
                     <span>Est. {order.estimatedTime} min</span>
                   )}
@@ -189,6 +192,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
               </div>
             </CardContent>
           </Card>
+                  </>
         ))}
       </div>
     </div>

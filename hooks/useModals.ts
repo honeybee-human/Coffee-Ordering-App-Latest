@@ -6,10 +6,11 @@ import { ModalState } from '../types';
  * Handles: add to cart modal, order complete modal, allergen warning modal
  */
 export const useModals = () => {
-  const [modalState, setModalState] = useState<ModalState>({
-    addToCart: { isOpen: false, itemName: '' },
-    orderComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 }
-  });
+    const [modalState, setModalState] = useState<ModalState>({
+      addToCart: { isOpen: false, itemName: '' },
+      orderComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 },
+      allergenWarning: { isOpen: false, itemId: '', itemType: 'coffee', allergens: [] },
+    });
 
   const [allergenWarning, setAllergenWarning] = useState<{
     isOpen: boolean;
@@ -86,6 +87,24 @@ export const useModals = () => {
     setAllergenWarning(prev => ({ ...prev, isOpen: false }));
   }, []);
 
+  // Assign Order Modal handlers
+  const showAssignOrderModal = useCallback((itemId: string) => {
+    setModalState(prev => ({
+      ...prev,
+      assignOrder: {
+        isOpen: true,
+        itemId
+      }
+    }));
+  }, []);
+
+  const closeAssignOrderModal = useCallback(() => {
+    setModalState(prev => ({
+      ...prev,
+      assignOrder: { isOpen: false, itemId: '' }
+    }));
+  }, []);
+
   return {
     modalState,
     allergenWarning,
@@ -95,6 +114,8 @@ export const useModals = () => {
     closeOrderCompleteModal,
     showAllergenWarning,
     proceedWithAllergen,
-    closeAllergenWarning
+    closeAllergenWarning,
+    showAssignOrderModal,
+    closeAssignOrderModal
   };
 };
