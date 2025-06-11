@@ -5,14 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { CoffeeCustomizationComponent } from './CoffeeCustomization';
+import { GroupMemberAssignment } from './GroupMemberAssignment';
 import { coffeeMenu } from '../data/menu';
 import { coffeeImages } from './Menu';
-import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType, Group } from '../types';
+import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '../types';
 import { getComprehensiveAllergens } from '../utils/allergens';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useNavigate } from 'react-router-dom';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 
 interface CoffeeDetailPageProps {
   coffeeId: string;
@@ -42,10 +39,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
       milk: 'Whole Milk'
     }
   );
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
-  const [showNoGroupModal, setShowNoGroupModal] = useState(false);
-  const navigate = useNavigate();
-  const [selectedMember, setSelectedMember] = useState<string>('');
+  const [selectedPerson, setSelectedPerson] = useState<string>('');
 
   useEffect(() => {
     if (initialCustomizations) {
@@ -56,7 +50,9 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
     groupMembers.forEach(member => {
-      member.allergens.forEach(allergen => allergenSet.add(allergen));
+      if (member.allergens) {
+        member.allergens.forEach(allergen => allergenSet.add(allergen));
+      }
     });
     return Array.from(allergenSet);
   }, [groupMembers]);
@@ -87,38 +83,21 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
     !coffee.allergens.includes(allergen) && groupAllergens.includes(allergen)
   );
 
+  // Get all allergens for this coffee item (original + detected)
+  const allItemAllergens = [...coffee.allergens, ...comprehensiveAllergens];
+
   const isFavorited = isItemFavorited('coffee', coffee.id, customizations);
 
   const handleAddToCart = () => {
-    if (!selectedGroup) {
-      setShowNoGroupModal(true);
-      return;
-    }
     const cartItem: CartItem = {
       id: `coffee-${Date.now()}-${Math.random()}`,
       type: 'coffee',
       item: coffee,
       customizations,
       quantity: 1,
-      assignedTo: selectedMember || undefined
+      assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
     };
-    
-    // Check for allergen conflicts
-    const itemAllergens = comprehensiveAllergens;
-    const affectedMemberNames = groupMembers
-      .filter(member => member.allergens.some(allergen => itemAllergens.includes(allergen)))
-      .map(member => member.name);
-    
-    if (affectedMemberNames.length > 0) {
-      // If there are allergen conflicts, show the warning
-      onAllergenConflict(itemAllergens, affectedMemberNames, coffee.name, () => {
-        // This callback will be executed if the user proceeds despite the warning
-        onAddToCart(cartItem);
-      });
-    } else {
-      // No conflicts, add to cart directly
-      onAddToCart(cartItem);
-    }
+    onAddToCart(cartItem);
   };
 
   const handleToggleFavorite = () => {
@@ -155,10 +134,6 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
       </div>
     );
   };
-
-  function handleAssign(name: string): void {
-    throw new Error('Function not implemented.');
-  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -208,75 +183,19 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
               </div>
             )}
           </div>
-
-
-          <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Choose which group member this item is for:
-          </p>
-          <div className="grid gap-2">
-            {groupMembers.length > 0 ? (
-              groupMembers.map((member) => (
-                <Button
-                  key={member.name}
-                  variant="outline"
-                  className="justify-start"
-                  onClick={() => handleAssign(member.name)}
-                >
-                  {member.name}
-                </Button>
-              ))
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No group members available. Please add members to your group first.
-              </p>
-            )}
-          </div>
-        </div>
-
-
+          
+          {/* Person Assignment using the new component */}
+          <GroupMemberAssignment
+            groupMembers={groupMembers}
+            selectedPerson={selectedPerson}
+            onPersonChange={setSelectedPerson}
+            itemAllergens={allItemAllergens}
+          />
         </div>
 
         {/* Customization & Order */}
         <div className="space-y-6">
-          {/* Direct customization without extra card wrapper */}
-          <CoffeeCustomizationComponent
-            customization={customizations}
-            onChange={setCustomizations}
-          />
-
-          {/* Price & Add to Cart */}
-          <Card className="border-primary/20">
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-lg">Price:</span>
-                  <span className="text-2xl font-bold text-primary">${totalPrice.toFixed(2)}</span>
-                </div>
-
-                {selectedGroup && selectedGroup.members.length > 0 && (
-                  <div className="space-y-2">
-                    <Label>Assign to Group Member</Label>
-                    <Select
-                      value={selectedMember}
-                      onValueChange={setSelectedMember}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a member" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">No assignment</SelectItem>
-                        {selectedGroup.members.map((member) => (
-                          <SelectItem key={member.name} value={member.name}>
-                            {member.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                <Button 
+        <Button 
                   onClick={handleAddToCart}
                   className="w-full"
                   size="lg"
@@ -284,9 +203,13 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
                   <Plus className="h-5 w-5 mr-2" />
                   Add to Cart
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Direct customization without extra card wrapper */}
+          <CoffeeCustomizationComponent
+            customization={customizations}
+            onChange={setCustomizations}
+          />
+
+
 
           {/* Order Summary */}
           <Card className="bg-muted/50">
@@ -312,32 +235,19 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
                   <span>+${(syrup.pumps * 0.10).toFixed(2)}</span>
                 </div>
               ))}
+
+              {selectedPerson && selectedPerson !== "unassigned" && (
+                <div className="pt-2 border-t border-border">
+                  <div className="flex justify-between items-center text-sm text-muted-foreground">
+                    <span>• Assigned to:</span>
+                    <span>{selectedPerson}</span>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
-
-      <Dialog open={showNoGroupModal} onOpenChange={setShowNoGroupModal}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>No Group Selected</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <p>You need to create and select a group before adding items to your cart.</p>
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setShowNoGroupModal(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => {
-                setShowNoGroupModal(false);
-                navigate('/groups');
-              }}>
-                Go to Groups
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

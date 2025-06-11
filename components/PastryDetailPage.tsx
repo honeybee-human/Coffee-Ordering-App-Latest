@@ -12,6 +12,7 @@ import { getComprehensiveAllergens } from '../utils/allergens';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Group } from '../types';
+import { GroupMemberAssignment } from './GroupMemberAssignment';
 
 interface PastryDetailPageProps {
   pastry: Pastry;
@@ -39,6 +40,9 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   });
   const [selectedMember, setSelectedMember] = useState<string>('');
   const [showNoGroupModal, setShowNoGroupModal] = useState(false);
+  const [selectedPerson, setSelectedPerson] = useState<string>('');
+
+  
 
   useEffect(() => {
     // Reset customizations when pastry changes
@@ -80,6 +84,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   const relevantDetectedAllergens = comprehensiveAllergens.filter(allergen => 
     !pastry.allergens.includes(allergen) && groupAllergens.includes(allergen)
   );
+  const allItemAllergens = [...pastry.allergens, ...comprehensiveAllergens];
 
   const handleAddToCart = () => {
     if (!selectedGroup) {
@@ -193,36 +198,59 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                   <CardTitle className="text-lg">Ingredients</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex flex-wrap gap-2">
-                    {pastry.removableIngredients.map((ingredient: string) => (
-                      <Badge 
-                        key={ingredient} 
-                        variant="secondary" 
-                        className={`text-xs ${
-                          customizations.removedIngredients.includes(ingredient)
-                            ? 'bg-muted text-muted-foreground line-through'
-                            : ''
-                        }`}
-                      >
-                        {ingredient}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Allergen Information - same style as product cards */}
+                {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
+<>
+                <p className="text-sm text-muted-foreground mb-3">
+                  The following ingredients can be removed from your pastry:
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {pastry.removableIngredients.map((ingredient: string) => (
+                    <Badge 
+                      key={ingredient} 
+                      variant="outline" 
+                      className="text-xs"
+                    >
+                      {ingredient}
+                    </Badge>
+                  ))}
+                </div>
+                </>
+          )}
+                 
+                              {/* Allergen Information - same style as product cards */}
             {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
               <div className="pt-3">
                 {renderAllergenTags()}
               </div>
             )}
+
+
+                </CardContent>
+              </Card>
+            )}
+
+
           </div>
+ 
         </div>
 
         {/* Customization & Order */}
         <div className="space-y-6">
+        <GroupMemberAssignment
+            groupMembers={groupMembers}
+            selectedPerson={selectedPerson}
+            onPersonChange={setSelectedPerson}
+            itemAllergens={allItemAllergens}
+          />
+        <Button 
+                  onClick={handleAddToCart}
+                  className="w-full"
+                  size="lg"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add to Cart
+                </Button>
+
           {/* Direct customization without extra card wrapper - only show if there are removable ingredients */}
           {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
             <PastryCustomizationComponent
@@ -232,55 +260,13 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
             />
           )}
 
-          {/* Price & Add to Cart */}
-          <Card className="border-primary/20">
-            <CardContent className="pt-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-lg">Price:</span>
-                  <span className="text-2xl font-bold text-primary">${pastry.price.toFixed(2)}</span>
-                </div>
-
-                {selectedGroup && selectedGroup.members.length > 0 && (
-                  <div className="space-y-2">
-                    <Label>Assign to Group Member</Label>
-                    <Select
-                      value={selectedMember}
-                      onValueChange={setSelectedMember}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a member" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="">No assignment</SelectItem>
-                        {selectedGroup.members.map((member) => (
-                          <SelectItem key={member.name} value={member.name}>
-                            {member.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                <Button 
-                  onClick={handleAddToCart}
-                  className="w-full"
-                  size="lg"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Order Summary */}
           <Card className="bg-muted/50">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+              
               <div className="flex justify-between items-center">
                 <span className="font-medium">{pastry.name}</span>
                 <span>${pastry.price.toFixed(2)}</span>
@@ -299,30 +285,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
             </CardContent>
           </Card>
 
-          {/* Customization Options Info */}
-          {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Customization Options</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-3">
-                  The following ingredients can be removed from your pastry:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {pastry.removableIngredients.map((ingredient: string) => (
-                    <Badge 
-                      key={ingredient} 
-                      variant="outline" 
-                      className="text-xs"
-                    >
-                      {ingredient}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          
         </div>
       </div>
     </div>
