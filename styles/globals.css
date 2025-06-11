@@ -1,0 +1,251 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 14px;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  
+  /* Coffee-inspired color palette with light gold accent */
+  --background: #fefcf8;
+  --foreground: #0d0703;
+  --card: #ffffff;
+  --card-foreground: #0d0703;
+  --popover: #ffffff;
+  --popover-foreground: #0d0703;
+  --primary: #2d1505;
+  --primary-foreground: #ffffff;
+  --secondary: #f5f1eb;
+  --secondary-foreground: #2d1505;
+  --muted: #f0ede6;
+  --muted-foreground: #5d4a3d;
+  --accent: #d4af37;
+  --accent-foreground: #0d0703;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(45, 21, 5, 0.15);
+  --input: transparent;
+  --input-background: #f8f5f0;
+  --switch-background: #d4c4b0;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --ring: #2d1505;
+  --chart-1: #2d1505;
+  --chart-2: #d4af37;
+  --chart-3: #d2b48c;
+  --chart-4: #5d2f0a;
+  --chart-5: #cd853f;
+  --radius: 0.75rem;
+  --sidebar: #fefcf8;
+  --sidebar-foreground: #0d0703;
+  --sidebar-primary: #2d1505;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f5f1eb;
+  --sidebar-accent-foreground: #2d1505;
+  --sidebar-border: rgba(45, 21, 5, 0.15);
+  --sidebar-ring: #2d1505;
+  
+  /* Coffee shop atmosphere gradients with light gold */
+  --warm-gradient: linear-gradient(135deg, #fefcf8 0%, #f5f1eb 100%);
+  --coffee-gradient: linear-gradient(135deg, #2d1505 0%, #5d2f0a 100%);
+  --accent-gradient: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+}
+
+.dark {
+  --background: #0a0502;
+  --foreground: #f5f1eb;
+  --card: #0d0703;
+  --card-foreground: #f5f1eb;
+  --popover: #0d0703;
+  --popover-foreground: #f5f1eb;
+  --primary: #d4af37;
+  --primary-foreground: #0a0502;
+  --secondary: #1a0f08;
+  --secondary-foreground: #f5f1eb;
+  --muted: #1a0f08;
+  --muted-foreground: #a0938b;
+  --accent: #d4af37;
+  --accent-foreground: #0a0502;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(245, 241, 235, 0.15);
+  --input: #1a0f08;
+  --ring: #d4af37;
+  --font-weight-medium: 500;
+  --font-weight-normal: 400;
+  --chart-1: #d4af37;
+  --chart-2: #2d1505;
+  --chart-3: #d2b48c;
+  --chart-4: #5d2f0a;
+  --chart-5: #cd853f;
+  --sidebar: #0a0502;
+  --sidebar-foreground: #f5f1eb;
+  --sidebar-primary: #d4af37;
+  --sidebar-primary-foreground: #0a0502;
+  --sidebar-accent: #1a0f08;
+  --sidebar-accent-foreground: #f5f1eb;
+  --sidebar-border: rgba(245, 241, 235, 0.15);
+  --sidebar-ring: #d4af37;
+  
+  /* Dark mode gradients */
+  --warm-gradient: linear-gradient(135deg, #0a0502 0%, #0d0703 100%);
+  --coffee-gradient: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+  --accent-gradient: linear-gradient(135deg, #d4af37 0%, #b8941f 100%);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    background: var(--warm-gradient);
+    min-height: 100vh;
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: var(--text-3xl);
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      line-height: 1.3;
+      letter-spacing: -0.01em;
+    }
+
+    h3 {
+      font-size: var(--text-xl);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.4;
+    }
+
+    h4 {
+      font-size: var(--text-lg);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.4;
+    }
+
+    p {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.6;
+    }
+
+    label {
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.4;
+    }
+
+    button {
+      font-size: var(--text-sm);
+      font-weight: var(--font-weight-medium);
+      line-height: 1.4;
+      letter-spacing: 0.01em;
+    }
+
+    input {
+      font-size: var(--text-base);
+      font-weight: var(--font-weight-normal);
+      line-height: 1.5;
+    }
+  }
+}
+
+/* Custom coffee shop styles */
+@layer components {
+  .coffee-card {
+    @apply bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(245, 241, 235, 0.8) 100%);
+  }
+  
+  .coffee-header {
+    @apply bg-card/95 backdrop-blur-md border-b border-border/30;
+    background: var(--coffee-gradient);
+    color: white;
+  }
+  
+  .warm-bg {
+    background: var(--warm-gradient);
+  }
+  
+  .accent-gradient {
+    background: var(--accent-gradient);
+  }
+  
+  /* Navigation styling for better UX */
+  .nav-button {
+    @apply relative overflow-hidden transition-all duration-300 hover:scale-105;
+  }
+  
+  .nav-button::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-accent/20 to-accent/10 opacity-0 transition-opacity duration-300;
+    border-radius: inherit;
+  }
+  
+  .nav-button:hover::before {
+    @apply opacity-100;
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}
