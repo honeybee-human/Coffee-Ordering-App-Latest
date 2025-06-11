@@ -6,6 +6,7 @@ import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { CartItem, GroupMember } from '../types';
 import { GroupOrderSummary } from './GroupOrderSummary';
+import { combineIdenticalItems } from '../utils/cart-helpers';
 
 interface CartProps {
   cartItems: CartItem[];
@@ -147,7 +148,8 @@ export const Cart: React.FC<CartProps> = ({
         </TabsList>
 
         <TabsContent value="items" className="space-y-4">
-          {cartItems.map((item) => {
+          {/* Combine identical items with the same customizations */}
+          {combineIdenticalItems(cartItems).map((item) => {
             const { conflicts, affectedMembers } = getAllergenConflicts(item);
             const hasAllergenConflict = conflicts.length > 0;
             

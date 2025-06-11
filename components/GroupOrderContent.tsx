@@ -3,6 +3,7 @@ import { User, Users, AlertTriangle } from 'lucide-react';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { CartItem, GroupMember } from '../types';
+import { groupAndCombineItems } from '../utils/cart-helpers';
 
 interface GroupOrderContentProps {
   cartItems: CartItem[];
@@ -32,27 +33,9 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
     return itemPrice;
   };
 
-  // Group items by person
+  // Group items by person and combine identical items
   const groupedItems = React.useMemo(() => {
-    const groups: { [key: string]: CartItem[] } = {
-      unassigned: []
-    };
-
-    // Initialize groups for each member
-    groupMembers.forEach(member => {
-      groups[member.name] = [];
-    });
-
-    // Group items
-    cartItems.forEach(item => {
-      if (item.assignedTo && groups[item.assignedTo]) {
-        groups[item.assignedTo].push(item);
-      } else {
-        groups.unassigned.push(item);
-      }
-    });
-
-    return groups;
+    return groupAndCombineItems(cartItems, groupMembers);
   }, [cartItems, groupMembers]);
 
   // Calculate totals for each person

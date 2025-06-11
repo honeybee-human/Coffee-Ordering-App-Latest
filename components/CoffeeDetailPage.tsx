@@ -217,6 +217,9 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
               <CardTitle className="text-lg">Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
+            <div className="font-medium">
+                  Total: ${(coffee.price + customizations.syrups.reduce((total, syrup) => total + (syrup.pumps * 0.10), 0)).toFixed(2)}
+                </div>
               <div className="flex justify-between items-center">
                 <span className="font-medium">{coffee.name}</span>
                 <span>${coffee.price.toFixed(2)}</span>
