@@ -89,7 +89,23 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
       customizations,
       quantity: 1
     };
-    onAddToCart(cartItem);
+    
+    // Check for allergen conflicts
+    const itemAllergens = comprehensiveAllergens;
+    const affectedMemberNames = groupMembers
+      .filter(member => member.allergens.some(allergen => itemAllergens.includes(allergen)))
+      .map(member => member.name);
+    
+    if (affectedMemberNames.length > 0) {
+      // If there are allergen conflicts, show the warning
+      onAllergenConflict(itemAllergens, affectedMemberNames, coffee.name, () => {
+        // This callback will be executed if the user proceeds despite the warning
+        onAddToCart(cartItem);
+      });
+    } else {
+      // No conflicts, add to cart directly
+      onAddToCart(cartItem);
+    }
   };
 
   const handleToggleFavorite = () => {

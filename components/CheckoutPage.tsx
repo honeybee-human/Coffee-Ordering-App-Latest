@@ -167,12 +167,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const order: Order = {
         id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         items: cartItems,
-        total: finalTotal,
+        totalAmount: finalTotal,
         orderDate: new Date(),
         status: 'pending',
         groupMembers: groupMembers,
-        paymentMethod: `**** **** **** ${paymentInfo.cardNumber.slice(-4)}`,
         estimatedTime: Math.floor(Math.random() * 20) + 10 // 10-30 minutes
+        ,
+        orderNumber: '',
+        groupId: ''
       };
 
       onOrderComplete(order);
@@ -370,9 +372,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <span>{item.item.name}</span>
-                        {item.forPerson && (
+                        {item.assignedTo && (
                           <Badge variant="outline" className="text-xs">
-                            {item.forPerson}
+                            {item.assignedTo}
                           </Badge>
                         )}
                       </div>

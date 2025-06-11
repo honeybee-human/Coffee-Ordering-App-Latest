@@ -79,7 +79,7 @@ export const removeGroupMember = (appData: AppData, groupId: string, memberName:
         ? { 
             ...g, 
             members: g.members.filter(m => m.name !== memberName),
-            cart: g.cart.filter(item => item.forPerson !== memberName)
+            cart: g.cart.filter(item => item.assignedTo !== memberName)
           }
         : g
     )

@@ -30,7 +30,7 @@ export interface CartItem {
   item: Coffee | Pastry;
   customizations: CoffeeCustomization | PastryCustomization;
   quantity: number;
-  forPerson?: string;
+  assignedTo?: string;
 }
 
 export interface GroupMember {
@@ -62,13 +62,15 @@ export interface PaymentInfo {
 export interface Order {
   id: string;
   items: CartItem[];
-  total: number;
+  orderNumber: string;
+  groupId: string;
+  totalAmount: number;
   orderDate: Date;
   status: 'pending' | 'preparing' | 'ready' | 'completed';
   groupMembers: GroupMember[];
-  paymentMethod: string;
   estimatedTime?: number; // in minutes
   groupName?: string;
+  paymentInfo?:PaymentInfo;
 }
 
 export interface FavoriteItem {
@@ -91,10 +93,18 @@ export type PageType = 'menu' | 'coffee-detail' | 'pastry-detail' | 'cart' | 'ch
 export interface AppState {
   currentPage: PageType;
   selectedItemId?: string;
-  initialCustomizations?: CoffeeCustomization | PastryCustomization;
+  initialPastryCustomizations?: PastryCustomization;
+  initialCoffeeCustomizations?: CoffeeCustomization;
+
 }
 
 export interface ModalState {
+  allergenWarning: {
+    isOpen: boolean;
+    itemId: string;
+    itemType: 'coffee' | 'pastry';
+    allergens: string[];
+  };
   addToCart: {
     isOpen: boolean;
     itemName: string;

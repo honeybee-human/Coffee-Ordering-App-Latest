@@ -5,48 +5,40 @@ import { AddToCartModal } from './components/AddToCartModal';
 import { OrderCompleteModal } from './components/OrderCompleteModal';
 import { Header } from './components/layout/Header';
 import { PageRouter } from './components/layout/PageRouter';
-import { useAppData } from './hooks/useAppData';
-import { useNavigation } from './hooks/useNavigation';
-import { useModals } from './hooks/useModals';
-import { useAllergens } from './hooks/useAllergens';
-import { CartItem, FavoriteItem, Order, GroupMember } from './types';
-import {
-  createGroup,
-  selectGroup,
-  deleteGroup,
-  renameGroup,
-  addGroupMember,
-  removeGroupMember,
-  addToCart,
-  removeFromCart,
-  updateCartQuantity,
-  clearCart,
-  addToFavorites,
-  removeFromFavorites,
-  createFavoriteItem,
-  completeOrder,
-  reorderItems,
-  isItemFavorited,
-  findExistingFavorite
-} from './utils/business-logic';
+import AppProviders from './components/AppProviders';
+
+// Import Zustand stores
+import { useAppStore } from './store/useAppStore';
+import { useNavigationStore } from './store/useNavigationStore';
+import { useModalsStore } from './store/useModalsStore';
+import { useAllergensStore } from './store/useAllergensStore';
+import { useBusinessLogic } from './store/useBusinessLogic';
+
+// Import menu data
+import { coffeeMenu, pastryMenu } from './data/menu';
+
+
 import { normalizeAllergens } from './utils/allergens';
+import { CartItem, FavoriteItem, Order, GroupMember } from './types';
 
 /**
- * STORAGE SYSTEM: Bean & Bite uses sessionStorage for data persistence
- * - Data persists within the browser tab/session
+ * STORAGE SYSTEM: Bean & Bite now uses Zustand for state management
+ * - Data persists within the browser tab/session using sessionStorage
  * - Automatically cleared when the tab is closed
  * - Perfect for group ordering sessions
- * - No external state management (Redux, Zustand, etc.) needed
+ * - Centralized state management with Zustand
  */
 
-export default function App() {
-  // Custom hooks for state management
-  const { appData, updateAppData, activeGroup } = useAppData();
+function AppContent() {
+  // Access Zustand store values
+  const { groups, activeGroupId, orderHistory, favorites, getActiveGroup } = useAppStore();
+  const activeGroup = getActiveGroup();
+  
   const {
     appState,
-    setAppState,
     isMobileMenuOpen,
     setIsMobileMenuOpen,
+    setAppState,
     navigateToMenu,
     navigateToCart,
     navigateToGroups,
@@ -56,110 +48,124 @@ export default function App() {
     navigateToOrderHistory,
     navigateToFavorites,
     navigateToFavoriteDetail
-  } = useNavigation();
+  } = useNavigationStore();
+  
   const {
-    modalState,
-    allergenWarning,
+    modals,
     showAddToCartModal,
     closeAddToCartModal,
     showOrderCompleteModal,
     closeOrderCompleteModal,
-    showAllergenWarning,
-    proceedWithAllergen,
-    closeAllergenWarning
-  } = useModals();
+    showAllergenWarningModal,
+    closeAllergenWarningModal
+  } = useModalsStore();
+  
   const {
     excludedAllergens,
-    getAllAllergens,
-    checkAllergenConflicts,
     toggleAllergenFilter,
     clearAllergenFilters,
-    addMemberAllergensToFilters
-  } = useAllergens();
+    addMemberAllergensToFilters,
+    getItemAllergens,
+    hasAllergenConflict
+  } = useAllergensStore();
+
+  // Import business logic functions
+  const {
+    createGroup,
+    selectGroup,
+    deleteGroup,
+    renameGroup,
+    addGroupMember,
+    removeGroupMember,
+    addToCart,
+    removeFromCart,
+    updateCartItemQuantity,
+    clearCart,
+    completeOrder,
+    reorderFromHistory,
+    addToFavorites,
+    removeFromFavorites,
+    findExistingFavorite
+  } = useBusinessLogic();
+
+  // Helper function to check allergen conflicts with group members
+  const checkAllergenConflicts = (allergens: string[], members: GroupMember[]) => {
+    return members.filter(member => 
+      member.allergens.some(allergen => allergens.includes(allergen))
+    ).map(member => member.name);
+  };
 
   // Helper function to check if an item is favorited
   const checkItemFavorited = (type: 'coffee' | 'pastry', itemId: string, customizations?: any): boolean => {
-    return isItemFavorited(appData.favorites, type, itemId, customizations);
-  };
-
-  // Favorites management functions
-  const handleAddToFavorites = (favorite: FavoriteItem) => {
-    const newData = addToFavorites(appData, favorite);
-    updateAppData(newData);
-  };
-
-  const handleRemoveFromFavorites = (favoriteId: string) => {
-    const newData = removeFromFavorites(appData, favoriteId);
-    updateAppData(newData);
+    const existingFavorite = findExistingFavorite(favorites, type, itemId, customizations);
+    return !!existingFavorite;
   };
 
   // Helper function to toggle favorite status
-  const toggleFavorite = (type: 'coffee' | 'pastry', item: any, customizations?: any) => {
-    const existingFavorite = findExistingFavorite(appData.favorites, type, item.id, customizations);
-
+  const toggleFavorite = (type: 'coffee' | 'pastry', item: FavoriteItem) => {
+    const existingFavorite = findExistingFavorite(favorites, type, item.id, item.customizations);
+  
     if (existingFavorite) {
-      handleRemoveFromFavorites(existingFavorite.id);
+      removeFromFavorites(existingFavorite.id);
     } else {
-      const favorite = createFavoriteItem(type, item, customizations);
-      handleAddToFavorites(favorite);
+      addToFavorites(item.item, type);
     }
   };
 
   // Group Management Functions
   const handleCreateGroup = (name: string) => {
-    const newData = createGroup(appData, name);
-    updateAppData(newData);
+    createGroup(name);
   };
 
   const handleSelectGroup = (groupId: string) => {
-    const newData = selectGroup(appData, groupId);
-    updateAppData(newData);
+    selectGroup(groupId);
   };
 
   const handleDeleteGroup = (groupId: string) => {
-    const newData = deleteGroup(appData, groupId);
-    updateAppData(newData);
+    deleteGroup(groupId);
   };
 
   const handleRenameGroup = (groupId: string, newName: string) => {
-    const newData = renameGroup(appData, groupId, newName);
-    updateAppData(newData);
+    renameGroup(groupId, newName);
   };
 
   const handleAddGroupMember = (groupId: string, member: GroupMember) => {
-    const newData = addGroupMember(appData, groupId, member);
-    updateAppData(newData);
+    addGroupMember(groupId, member.name, member.allergens);
 
     // Auto-filter: If adding to active group, add member's allergens to excluded filters
-    if (groupId === appData.activeGroupId) {
+    if (groupId === activeGroupId) {
       const normalizedAllergens = normalizeAllergens(member.allergens);
       if (normalizedAllergens.length > 0) {
-        addMemberAllergensToFilters(normalizedAllergens);
+        addMemberAllergensToFilters(member.name, groupId, member.allergens);
       }
     }
   };
 
-  const handleRemoveGroupMember = (groupId: string, memberName: string) => {
-    const newData = removeGroupMember(appData, groupId, memberName);
-    updateAppData(newData);
+  const handleRemoveGroupMember = (groupId: string, memberId: string) => {
+    removeGroupMember(groupId, memberId);
   };
 
   const handleAddToCart = (item: CartItem) => {
     if (!activeGroup) return;
     
     // Check for allergen conflicts with all group members
-    const itemAllergens = getAllAllergens(item);
+    const itemAllergens = getItemAllergens(item.item);
     const affectedMembers = checkAllergenConflicts(itemAllergens, activeGroup.members);
     
     const addToCartCallback = () => {
-      const newData = addToCart(appData, activeGroup.id, item);
-      updateAppData(newData);
-      showAddToCartModal(item.item.name);
+      addToCart(
+        item.item,
+        item.type,
+        item.quantity,
+        item.assignedTo,
+        item.customizations
+      );
+      showAddToCartModal(item.item.id, item.type, item.customizations);
     };
 
     // If there are allergen conflicts, show warning
     if (affectedMembers.length > 0) {
-      showAllergenWarning(itemAllergens, affectedMembers, item.item.name, addToCartCallback);
+      showAllergenWarningModal(item.item.id, item.type, itemAllergens);
     } else {
       addToCartCallback();
     }
@@ -167,8 +173,7 @@ export default function App() {
 
   const handleRemoveFromCart = (itemId: string) => {
     if (!activeGroup) return;
-    const newData = removeFromCart(appData, activeGroup.id, itemId);
-    updateAppData(newData);
+    removeFromCart(itemId);
   };
 
   const handleUpdateQuantity = (itemId: string, quantity: number) => {
@@ -178,150 +183,180 @@ export default function App() {
     }
 
     if (!activeGroup) return;
-    const newData = updateCartQuantity(appData, activeGroup.id, itemId, quantity);
-    updateAppData(newData);
+    updateCartItemQuantity(itemId, quantity);
   };
 
   const handleClearCart = () => {
     if (!activeGroup) return;
-    const newData = clearCart(appData, activeGroup.id);
-    updateAppData(newData);
+    clearCart();
   };
 
   const handleOrderComplete = (order: Order) => {
     if (!activeGroup) return;
-    const newData = completeOrder(appData, activeGroup.id, order, activeGroup.name);
-    updateAppData(newData);
-    showOrderCompleteModal(order.id, order.estimatedTime || 15);
+    if (order.paymentInfo) {
+      completeOrder(order.paymentInfo);
+    }
   };
 
   const handleReorder = (orderId: string) => {
     if (!activeGroup) return;
-    const newData = reorderItems(appData, activeGroup.id, orderId);
-    updateAppData(newData);
-    setAppState({ currentPage: 'menu' });
+    reorderFromHistory(orderId);
   };
 
-  // Safe calculation with fallbacks
-  const cartItemCount = activeGroup?.cart.reduce((total, item) => total + item.quantity, 0) || 0;
-  const favoritesCount = appData.favorites.length;
-  const orderHistoryCount = appData.orderHistory.length;
-  const groupsCount = appData.groups.length;
+  // Calculate counts for navigation
+  const cartCount = activeGroup?.cart.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const favoritesCount = favorites.length;
+  const orderHistoryCount = orderHistory.length;
+  const groupsCount = groups.length;
 
-  // Navigation items for mobile menu
-  const navigationItems = [
-    {
-      icon: MenuIcon,
-      label: 'Menu',
-      page: 'menu',
-      count: null,
-      action: navigateToMenu
-    },
-    {
-      icon: Users,
-      label: 'Groups',
-      page: 'groups',
-      count: groupsCount,
-      action: navigateToGroups
-    },
-    {
-      icon: ShoppingCart,
-      label: 'Cart',
-      page: 'cart',
-      count: cartItemCount,
-      action: navigateToCart,
-      isCart: true
-    },
-    {
-      icon: Heart,
-      label: 'Favorites',
-      page: 'favorites',
-      count: favoritesCount,
-      action: navigateToFavorites
-    },
-    {
-      icon: History,
-      label: 'Orders',
-      page: 'order-history',
-      count: orderHistoryCount,
-      action: navigateToOrderHistory
-    }
+  // Mobile navigation items
+  const mobileNavItems = [
+    { icon: MenuIcon, label: 'Menu', page: 'menu', count: null, action: navigateToMenu },
+    { icon: ShoppingCart, label: 'Cart', page: 'cart', count: cartCount, action: navigateToCart, isCart: true },
+    { icon: Users, label: 'Groups', page: 'groups', count: groupsCount, action: navigateToGroups },
+    { icon: History, label: 'Orders', page: 'order-history', count: orderHistoryCount, action: navigateToOrderHistory },
+    { icon: Heart, label: 'Favorites', page: 'favorites', count: favoritesCount, action: navigateToFavorites }
   ];
 
+  // Create a reference to store the current callback
+  const [allergenCallback, setAllergenCallback] = React.useState<(() => void) | null>(null);
+
+  // Function to handle proceeding with allergen warning
+  const proceedWithAllergen = () => {
+    // If we have a stored callback, execute it instead of the default behavior
+    if (allergenCallback) {
+      allergenCallback();
+      setAllergenCallback(null);
+      closeAllergenWarningModal();
+      return;
+    }
+    
+    // Default behavior if no callback is stored
+    // Get the current allergen warning data
+    const { itemId, itemType } = modals.allergenWarning;
+    
+    // Add the item to cart despite allergen warnings
+    if (itemType === 'coffee') {
+      const coffee = coffeeMenu.find(c => c.id === itemId);
+      if (coffee) {
+        addToCart(coffee, 'coffee', 1, undefined, undefined);
+      }
+    } else if (itemType === 'pastry') {
+      const pastry = pastryMenu.find(p => p.id === itemId);
+      if (pastry) {
+        addToCart(pastry, 'pastry', 1, undefined, undefined);
+      }
+    }
+    
+    closeAllergenWarningModal();
+  };
+
+  // Function to handle allergen conflicts
+  const handleAllergenConflict = (allergens: string[], affectedMembers: string[], itemName: string, addCallback: () => void) => {
+    // Store the callback for later use
+    setAllergenCallback(() => addCallback);
+    
+    // Determine if the item is a coffee or pastry based on the name
+    // This is a workaround since we don't have the actual item type
+    const itemType = itemName.toLowerCase().includes('coffee') ? 'coffee' : 'pastry';
+    
+    // Find the item ID from the menu based on the name
+    let itemId = itemName;
+    if (itemType === 'coffee') {
+      const coffee = coffeeMenu.find(c => c.name === itemName);
+      if (coffee) itemId = coffee.id;
+    } else {
+      const pastry = pastryMenu.find(p => p.name === itemName);
+      if (pastry) itemId = pastry.id;
+    }
+    
+    // Show the allergen warning modal with the item ID
+    showAllergenWarningModal(itemId, itemType, allergens);
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header
+    <div className="flex flex-col min-h-screen bg-background">
+      <Header 
         activeGroup={activeGroup}
         appState={appState}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
-        navigationItems={navigationItems}
+        navigationItems={mobileNavItems}
         onNavigateToMenu={navigateToMenu}
         onNavigateToCheckout={navigateToCheckout}
-        cartItemCount={cartItemCount}
+        cartItemCount={cartCount}
       />
-
-      <main className="container mx-auto px-4 py-4 sm:py-8">
-        <PageRouter
-          appState={appState}
-          setAppState={setAppState}
-          activeGroup={activeGroup}
-          orderHistory={appData.orderHistory}
-          favorites={appData.favorites}
-          excludedAllergens={excludedAllergens}
-          onNavigateToMenu={navigateToMenu}
-          onNavigateToCart={navigateToCart}
-          onNavigateToCoffeeDetail={navigateToCoffeeDetail}
-          onNavigateToPastryDetail={navigateToPastryDetail}
-          onNavigateToFavoriteDetail={navigateToFavoriteDetail}
-          onAddToCart={handleAddToCart}
-          onUpdateQuantity={handleUpdateQuantity}
-          onRemoveFromCart={handleRemoveFromCart}
-          onClearCart={handleClearCart}
-          onOrderComplete={handleOrderComplete}
-          onReorder={handleReorder}
-          onRemoveFromFavorites={handleRemoveFromFavorites}
-          onToggleFavorite={toggleFavorite}
-          onAllergenConflict={showAllergenWarning}
-          onToggleAllergenFilter={toggleAllergenFilter}
-          onClearAllergenFilters={clearAllergenFilters}
-          onCreateGroup={handleCreateGroup}
-          onSelectGroup={handleSelectGroup}
-          onDeleteGroup={handleDeleteGroup}
-          onRenameGroup={handleRenameGroup}
-          onAddMember={handleAddGroupMember}
-          onRemoveMember={handleRemoveGroupMember}
-          isItemFavorited={checkItemFavorited}
-          getAllAllergens={getAllAllergens}
-          groups={appData.groups}
-          activeGroupId={appData.activeGroupId}
-        />
-      </main>
-
+      
+      <PageRouter
+        appState={appState}
+        setAppState={setAppState}
+        activeGroup={activeGroup}
+        orderHistory={orderHistory}
+        favorites={favorites}
+        excludedAllergens={excludedAllergens}
+        onNavigateToMenu={navigateToMenu}
+        onNavigateToCart={navigateToCart}
+        onNavigateToCoffeeDetail={navigateToCoffeeDetail}
+        onNavigateToPastryDetail={navigateToPastryDetail}
+        onNavigateToFavoriteDetail={navigateToFavoriteDetail}
+        onAddToCart={handleAddToCart}
+        onUpdateQuantity={handleUpdateQuantity}
+        onRemoveFromCart={handleRemoveFromCart}
+        onClearCart={handleClearCart}
+        onOrderComplete={handleOrderComplete}
+        onReorder={handleReorder}
+        onRemoveFromFavorites={removeFromFavorites}
+        onToggleFavorite={toggleFavorite}
+        onAllergenConflict={(allergens, affectedMembers, itemName, addCallback) => {
+          // Use the handler function
+          handleAllergenConflict(allergens, affectedMembers, itemName, addCallback);
+        }}
+        onToggleAllergenFilter={toggleAllergenFilter}
+        onClearAllergenFilters={clearAllergenFilters}
+        onCreateGroup={handleCreateGroup}
+        onSelectGroup={handleSelectGroup}
+        onDeleteGroup={handleDeleteGroup}
+        onRenameGroup={handleRenameGroup}
+        onAddMember={handleAddGroupMember}
+        onRemoveMember={handleRemoveGroupMember}
+        isItemFavorited={checkItemFavorited}
+        getAllAllergens={getItemAllergens}
+        groups={groups}
+        activeGroupId={activeGroupId}
+      />
+      
       {/* Modals */}
-      <AddToCartModal
-        isOpen={modalState.addToCart.isOpen}
-        onClose={closeAddToCartModal}
-        itemName={modalState.addToCart.itemName}
+      <AddToCartModal 
+        isOpen={modals.addToCart.isOpen} 
+        itemName={modals.addToCart.itemName} 
+        onClose={closeAddToCartModal} 
         onViewCart={navigateToCart}
       />
-
-      <OrderCompleteModal
-        isOpen={modalState.orderComplete.isOpen}
-        onClose={closeOrderCompleteModal}
-        orderNumber={modalState.orderComplete.orderNumber}
-        estimatedTime={modalState.orderComplete.estimatedTime}
-        onBackToMenu={navigateToMenu}
+      
+      <OrderCompleteModal 
+        isOpen={modals.orderComplete.isOpen} 
+        orderNumber={modals.orderComplete.orderNumber} 
+        estimatedTime={modals.orderComplete.estimatedTime} 
+        onClose={closeOrderCompleteModal} 
+        onBackToMenu={navigateToOrderHistory}
       />
-
-      <AllergenWarning
-        isOpen={allergenWarning.isOpen}
-        onClose={closeAllergenWarning}
-        onProceed={proceedWithAllergen}
-        allergens={allergenWarning.allergens}
-        affectedMembers={allergenWarning.affectedMembers}
-        itemName={allergenWarning.itemName}
+      
+      <AllergenWarning 
+        isOpen={modals.allergenWarning.isOpen} 
+        allergens={modals.allergenWarning.allergens} 
+        affectedMembers={activeGroup ? checkAllergenConflicts(modals.allergenWarning.allergens, activeGroup.members) : []} 
+        itemName={modals.allergenWarning.itemId} 
+        onProceed={proceedWithAllergen} 
+        onClose={closeAllergenWarningModal} 
       />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AppProviders>
+      <AppContent />
+    </AppProviders>
   );
 }

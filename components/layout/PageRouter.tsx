@@ -43,11 +43,11 @@ interface PageRouterProps {
   onDeleteGroup: (groupId: string) => void;
   onRenameGroup: (groupId: string, newName: string) => void;
   onAddMember: (groupId: string, member: GroupMember) => void;
-  onRemoveMember: (groupId: string, memberName: string) => void;
+  onRemoveMember: (groupId: string, memberId: string) => void;
   
   // Helper functions
   isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: any) => boolean;
-  getAllAllergens: (item: CartItem) => string[];
+  getAllAllergens: (item: any) => string[];
   groups: Group[];
   activeGroupId: string | null;
 }
@@ -99,10 +99,13 @@ export const PageRouter: React.FC<PageRouterProps> = ({
             groupMembers={activeGroup?.members || []}
             onBack={onNavigateToMenu}
             onAddToCart={onAddToCart}
-            onAllergenConflict={onAllergenConflict}
+            onAllergenConflict={(allergens, affectedMembers, itemName, addCallback) => {
+              // Show allergen warning with proper parameters
+              onAllergenConflict(allergens, affectedMembers, itemName, addCallback);
+            }}
             onToggleFavorite={onToggleFavorite}
             isItemFavorited={isItemFavorited}
-            initialCustomizations={appState.initialCustomizations}
+            initialCustomizations={appState.initialCoffeeCustomizations}
           />
         );
       case 'pastry-detail':
@@ -116,10 +119,13 @@ export const PageRouter: React.FC<PageRouterProps> = ({
             groupMembers={activeGroup?.members || []}
             onBack={onNavigateToMenu}
             onAddToCart={onAddToCart}
-            onAllergenConflict={onAllergenConflict}
+            onAllergenConflict={(allergens, affectedMembers, itemName, addCallback) => {
+              // Show allergen warning with proper parameters
+              onAllergenConflict(allergens, affectedMembers, itemName, addCallback);
+            }}
             onToggleFavorite={onToggleFavorite}
             isItemFavorited={isItemFavorited}
-            initialCustomizations={appState.initialCustomizations}
+            initialCustomizations={appState.initialPastryCustomizations}
           />
         );
       case 'cart':

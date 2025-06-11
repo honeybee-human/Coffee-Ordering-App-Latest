@@ -47,8 +47,8 @@ export const Cart: React.FC<CartProps> = ({
     });
     
     // If the item is assigned to a specific person, also check their conflicts
-    if (item.forPerson) {
-      const person = groupMembers.find(member => member.name === item.forPerson);
+    if (item.assignedTo) {
+      const person = groupMembers.find(member => member.name === item.assignedTo);
       if (person) {
         const personalConflicts = itemAllergens.filter(allergen => 
           person.allergens.includes(allergen)
@@ -147,10 +147,10 @@ export const Cart: React.FC<CartProps> = ({
                       </div>
                     </div>
 
-                    {item.forPerson && (
+                    {item.assignedTo && (
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <User className="h-3 w-3" />
-                        For: {item.forPerson}
+                        For: {item.assignedTo}
                       </div>
                     )}
 

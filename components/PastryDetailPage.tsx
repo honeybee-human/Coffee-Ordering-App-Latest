@@ -88,7 +88,23 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       customizations,
       quantity: 1
     };
-    onAddToCart(cartItem);
+    
+    // Check for allergen conflicts
+    const itemAllergens = comprehensiveAllergens;
+    const affectedMemberNames = groupMembers
+      .filter(member => member.allergens.some(allergen => itemAllergens.includes(allergen)))
+      .map(member => member.name);
+    
+    if (affectedMemberNames.length > 0) {
+      // If there are allergen conflicts, show the warning
+      onAllergenConflict(itemAllergens, affectedMemberNames, pastry.name, () => {
+        // This callback will be executed if the user proceeds despite the warning
+        onAddToCart(cartItem);
+      });
+    } else {
+      // No conflicts, add to cart directly
+      onAddToCart(cartItem);
+    }
   };
 
   const handleToggleFavorite = () => {
@@ -165,14 +181,14 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
             </div>
 
             {/* Ingredients */}
-            {pastry.ingredients && pastry.ingredients.length > 0 && (
+            {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg">Ingredients</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
-                    {pastry.ingredients.map((ingredient: string) => (
+                    {pastry.removableIngredients.map((ingredient: string) => (
                       <Badge 
                         key={ingredient} 
                         variant="secondary" 

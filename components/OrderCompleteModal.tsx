@@ -60,7 +60,7 @@ export const OrderCompleteModal: React.FC<OrderCompleteModalProps> = ({
           </div>
 
           <Button onClick={handleBackToMenu} className="w-full">
-            Continue Shopping
+            View Order History
           </Button>
         </div>
       </DialogContent>
