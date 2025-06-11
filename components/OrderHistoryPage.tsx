@@ -3,7 +3,6 @@ import { ArrowLeft, Clock, CheckCircle, Package, RefreshCw, User, Calendar, Cred
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
 import { Order, CartItem } from '../types';
 import { GroupOrderContent } from './GroupOrderContent';
 
@@ -47,32 +46,6 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
         return 'default';
       default:
         return 'secondary';
-    }
-  };
-
-  const formatCustomizations = (item: CartItem): string => {
-    if (item.type === 'coffee') {
-      const custom = item.customizations as any;
-      const parts: string[] = [];
-      
-      if (custom.milk !== 'Whole Milk') {
-        parts.push(`${custom.milk}`);
-      }
-      
-      if (custom.syrups && custom.syrups.length > 0) {
-        const syrupText = custom.syrups
-          .map((s: any) => `${s.pumps} pump${s.pumps !== 1 ? 's' : ''} ${s.flavor}`)
-          .join(', ');
-        parts.push(syrupText);
-      }
-      
-      return parts.join(', ');
-    } else {
-      const custom = item.customizations as any;
-      if (custom.removedIngredients && custom.removedIngredients.length > 0) {
-        return `No ${custom.removedIngredients.join(', ')}`;
-      }
-      return '';
     }
   };
 
@@ -148,6 +121,7 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
                 cartItems={order.items} 
                 groupMembers={order.groupMembers} 
                 getAllAllergens={getAllAllergens} 
+                groupName={order.groupName}
               />
             </CardContent>
             

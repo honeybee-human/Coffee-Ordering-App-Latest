@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Separator } from './ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { CartItem, GroupMember } from '../types';
-import { GroupOrderSummary } from './GroupOrderSummary';
 import { combineIdenticalItems } from '../utils/cart-helpers';
+import { GroupOrderContent } from './GroupOrderContent';
 
 interface CartProps {
   cartItems: CartItem[];
@@ -16,6 +16,7 @@ interface CartProps {
   onClearCart: () => void;
   onCheckout: () => void;
   getAllAllergens: (item: CartItem) => string[];
+  groupName?: string;
 }
 
 export const Cart: React.FC<CartProps> = ({
@@ -25,7 +26,8 @@ export const Cart: React.FC<CartProps> = ({
   onRemoveItem,
   onClearCart,
   onCheckout,
-  getAllAllergens
+  getAllAllergens,
+  groupName = 'Group'
 }) => {
   // Helper function to check allergen conflicts for a cart item
   const getAllergenConflicts = (item: CartItem): { conflicts: string[]; affectedMembers: string[] } => {
@@ -259,16 +261,16 @@ export const Cart: React.FC<CartProps> = ({
         </TabsContent>
 
         <TabsContent value="by-person">
-          <GroupOrderSummary
+
+          <GroupOrderContent
             cartItems={cartItems}
             groupMembers={groupMembers}
             getAllAllergens={getAllAllergens}
+            groupName={groupName}
           />
         </TabsContent>
       </Tabs>
 
-      <Card>
-        <CardContent className="pt-6">
           <div className="space-y-4">
             <Separator />
             <div className="flex items-center justify-between text-lg">
@@ -279,8 +281,6 @@ export const Cart: React.FC<CartProps> = ({
               Proceed to Checkout
             </Button>
           </div>
-        </CardContent>
-      </Card>
     </div>
   );
 };

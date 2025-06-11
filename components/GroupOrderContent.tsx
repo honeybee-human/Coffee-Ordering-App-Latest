@@ -9,12 +9,14 @@ interface GroupOrderContentProps {
   cartItems: CartItem[];
   groupMembers: GroupMember[];
   getAllAllergens: (item: CartItem) => string[];
+  groupName?: string;
 }
 
 export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
   cartItems,
   groupMembers,
-  getAllAllergens
+  getAllAllergens,
+  groupName = 'Group'
 }) => {
   // Helper function to calculate item price including customizations
   const calculateItemPrice = (item: CartItem): number => {
@@ -105,6 +107,8 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
 
   return (
     <div className="space-y-6">
+                <h2 className='mb-5'>{groupName} Order Summary</h2>
+                <Separator/>
       {/* Group Members */}
       {groupMembers.map(member => {
         const memberItems = groupedItems[member.name] || [];

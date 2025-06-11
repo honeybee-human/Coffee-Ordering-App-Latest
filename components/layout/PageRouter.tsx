@@ -144,6 +144,7 @@ export const PageRouter: React.FC<PageRouterProps> = ({
             onClearCart={onClearCart}
             onCheckout={() => setAppState({ currentPage: 'checkout' })}
             getAllAllergens={getAllAllergens}
+            groupName={activeGroup?.name}
           />
         );
       case 'checkout':
