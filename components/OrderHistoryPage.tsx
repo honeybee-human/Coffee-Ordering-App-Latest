@@ -1,11 +1,11 @@
 import React from 'react';
-import { ArrowLeft, Clock, CheckCircle, Package, RefreshCw, User } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Package, RefreshCw, User, Calendar, CreditCard } from 'lucide-react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
 import { Badge } from './ui/badge';
 import { Separator } from './ui/separator';
 import { Order, CartItem } from '../types';
-import { GroupOrderSummary } from './GroupOrderSummary';
+import { GroupOrderContent } from './GroupOrderContent';
 
 interface OrderHistoryPageProps {
   orders: Order[];
@@ -114,11 +114,10 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {orders.map((order) => (
-          <>
-          <Card key={order.id}>
-            <CardHeader>
+          <Card key={order.id} className="overflow-hidden">
+            <CardHeader className="bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
@@ -132,67 +131,48 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
                   </Badge>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-muted-foreground">
-                  {new Date(order.orderDate).toLocaleDateString()} at {new Date(order.orderDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}                  </p>
-                  <p className="font-medium">${order.totalAmount.toFixed(2)}</p>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-3.5 w-3.5" />
+                    {new Date(order.orderDate).toLocaleDateString()} at {new Date(order.orderDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </div>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                    <CreditCard className="h-3.5 w-3.5" />
+                    {order.paymentInfo ? `Card ending in ${order.paymentInfo.cardNumber.slice(-4)}` : 'Payment info not available'}
+                  </div>
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
-                {order.items.map((item, index) => (
-                  <div key={`${order.id}-${index}`}>
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span>{item.item.name}</span>
-                          {item.assignedTo && (
-                            <Badge variant="outline" className="text-xs">
-                              <User className="h-3 w-3 mr-1" />
-                              {item.assignedTo}
-                            </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">
-                          ${item.item.price.toFixed(2)} × {item.quantity}
-                        </p>
-                        {formatCustomizations(item) && (
-                          <p className="text-sm text-muted-foreground">
-                            {formatCustomizations(item)}
-                          </p>
-                        )}
-                      </div>
-                      <span className="text-sm">${(item.item.price * item.quantity).toFixed(2)}</span>
-                    </div>
-                    {index < order.items.length - 1 && <Separator className="mt-3" />}
-                  </div>
-                ))}
-              </div>
-
-              <Separator />
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <span>Payment: {order.paymentInfo?.cardNumber.slice(-4) || 'N/A'}</span>
-                  {order.estimatedTime && (
-                    <span>Est. {order.estimatedTime} min</span>
-                  )}
-                  {order.groupMembers.length > 0 && (
-                    <span>{order.groupMembers.length} member{order.groupMembers.length !== 1 ? 's' : ''}</span>
-                  )}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onReorder(order.id)}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Reorder
-                </Button>
-              </div>
+            
+            <CardContent>
+              <GroupOrderContent 
+                cartItems={order.items} 
+                groupMembers={order.groupMembers} 
+                getAllAllergens={getAllAllergens} 
+              />
             </CardContent>
+            
+            <CardFooter className="flex justify-between items-center border-t bg-muted/20 py-4">
+              <div className="flex items-center gap-4">
+                <div className="font-medium">
+                  Total: ${order.totalAmount.toFixed(2)}
+                </div>
+                {order.estimatedTime && (
+                  <Badge variant="outline">
+                    <Clock className="h-3 w-3 mr-1" />
+                    Est. {order.estimatedTime} min
+                  </Badge>
+                )}
+              </div>
+              <Button
+                onClick={() => onReorder(order.id)}
+                variant="default"
+                size="sm"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Reorder
+              </Button>
+            </CardFooter>
           </Card>
-                  </>
         ))}
       </div>
     </div>

@@ -1,9 +1,8 @@
 import React from 'react';
-import { User, Users, AlertTriangle } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
 import { CartItem, GroupMember } from '../types';
+import { GroupOrderContent } from './GroupOrderContent';
 
 interface GroupOrderSummaryProps {
   cartItems: CartItem[];
@@ -16,107 +15,6 @@ export const GroupOrderSummary: React.FC<GroupOrderSummaryProps> = ({
   groupMembers,
   getAllAllergens
 }) => {
-  // Helper function to calculate item price including customizations
-  const calculateItemPrice = (item: CartItem): number => {
-    let itemPrice = item.item.price;
-    
-    if (item.type === 'coffee') {
-      const customizations = item.customizations as any;
-      if (customizations.syrups && customizations.syrups.length > 0) {
-        const syrupCost = customizations.syrups.reduce((cost: number, syrup: any) => 
-          cost + (syrup.pumps * 0.10), 0
-        );
-        itemPrice += syrupCost;
-      }
-    }
-    
-    return itemPrice;
-  };
-
-  // Group items by person
-  const groupedItems = React.useMemo(() => {
-    const groups: { [key: string]: CartItem[] } = {
-      unassigned: []
-    };
-
-    // Initialize groups for each member
-    groupMembers.forEach(member => {
-      groups[member.name] = [];
-    });
-
-    // Group items
-    cartItems.forEach(item => {
-      if (item.assignedTo && groups[item.assignedTo]) {
-        groups[item.assignedTo].push(item);
-      } else {
-        groups.unassigned.push(item);
-      }
-    });
-
-    return groups;
-  }, [cartItems, groupMembers]);
-
-  // Calculate totals for each person
-  const personTotals = React.useMemo(() => {
-    const totals: { [key: string]: number } = {};
-    
-    Object.entries(groupedItems).forEach(([person, items]) => {
-      totals[person] = items.reduce((total, item) => {
-        const itemPrice = calculateItemPrice(item);
-        return total + (itemPrice * item.quantity);
-      }, 0);
-    });
-    
-    return totals;
-  }, [groupedItems]);
-
-  // Helper function to check allergen conflicts for a person
-  const getPersonAllergenConflicts = (items: CartItem[], person: string): string[] => {
-    const member = groupMembers.find(m => m.name === person);
-    if (!member) return [];
-    
-    const conflicts = new Set<string>();
-    items.forEach(item => {
-      const itemAllergens = getAllAllergens(item);
-      itemAllergens.forEach(allergen => {
-        if (member.allergens.includes(allergen)) {
-          conflicts.add(allergen);
-        }
-      });
-    });
-    
-    return Array.from(conflicts);
-  };
-
-  // Helper function to format customizations
-  const formatCustomizations = (item: CartItem): string => {
-    if (item.type === 'coffee') {
-      const customizations = item.customizations as any;
-      const parts = [];
-      
-      if (customizations.milk && customizations.milk !== 'Whole Milk') {
-        parts.push(`${customizations.milk} milk`);
-      }
-      
-      if (customizations.syrups && customizations.syrups.length > 0) {
-        const syrupDescriptions = customizations.syrups.map((syrup: any) => 
-          `${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`
-        );
-        parts.push(...syrupDescriptions);
-      }
-      
-      return parts.length > 0 ? parts.join(', ') : '';
-    } else {
-      const customizations = item.customizations as any;
-      if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-        return `No ${customizations.removedIngredients.join(', ')}`;
-      }
-      return '';
-    }
-  };
-
-  const totalOrder = Object.values(personTotals).reduce((sum, total) => sum + total, 0);
-
   if (cartItems.length === 0) {
     return null;
   }
@@ -129,114 +27,12 @@ export const GroupOrderSummary: React.FC<GroupOrderSummaryProps> = ({
           Group Order Summary
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Group Members */}
-        {groupMembers.map(member => {
-          const memberItems = groupedItems[member.name] || [];
-          const memberTotal = personTotals[member.name] || 0;
-          const conflicts = getPersonAllergenConflicts(memberItems, member.name);
-          
-          return (
-            <div key={member.name} className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <span className="font-medium">{member.name}</span>
-                  {conflicts.length > 0 && (
-                    <Badge variant="destructive" className="text-xs">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      Allergen Warning
-                    </Badge>
-                  )}
-                </div>
-                <span className="font-medium">${memberTotal.toFixed(2)}</span>
-              </div>
-              
-              {memberItems.length > 0 ? (
-                <div className="ml-6 space-y-2">
-                  {memberItems.map(item => {
-                    const itemPrice = calculateItemPrice(item);
-                    const customizations = formatCustomizations(item);
-                    
-                    return (
-                      <div key={item.id} className="flex justify-between items-start text-sm">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span>{item.quantity}x {item.item.name}</span>
-                          </div>
-                          {customizations && (
-                            <div className="text-xs text-muted-foreground mt-1">
-                              {customizations}
-                            </div>
-                          )}
-                        </div>
-                        <span className="text-sm font-medium ml-4">
-                          ${(itemPrice * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                  
-                  {conflicts.length > 0 && (
-                    <div className="text-xs text-destructive mt-2">
-                      ⚠️ Allergen conflicts: {conflicts.join(', ')}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="ml-6 text-sm text-muted-foreground">
-                  No items ordered
-                </div>
-              )}
-            </div>
-          );
-        })}
-
-        {/* Unassigned Items */}
-        {groupedItems.unassigned.length > 0 && (
-          <div className="space-y-3">
-            <Separator />
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-medium text-muted-foreground">Unassigned Items</span>
-              </div>
-              <span className="font-medium">${personTotals.unassigned.toFixed(2)}</span>
-            </div>
-            
-            <div className="ml-6 space-y-2">
-              {groupedItems.unassigned.map(item => {
-                const itemPrice = calculateItemPrice(item);
-                const customizations = formatCustomizations(item);
-                
-                return (
-                  <div key={item.id} className="flex justify-between items-start text-sm">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span>{item.quantity}x {item.item.name}</span>
-                      </div>
-                      {customizations && (
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {customizations}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-sm font-medium ml-4">
-                      ${(itemPrice * item.quantity).toFixed(2)}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Total */}
-        <div className="pt-4 border-t border-border">
-          <div className="flex items-center justify-between text-lg font-semibold">
-            <span>Group Total:</span>
-            <span>${totalOrder.toFixed(2)}</span>
-          </div>
-        </div>
+      <CardContent>
+        <GroupOrderContent 
+          cartItems={cartItems}
+          groupMembers={groupMembers}
+          getAllAllergens={getAllAllergens}
+        />
       </CardContent>
     </Card>
   );
