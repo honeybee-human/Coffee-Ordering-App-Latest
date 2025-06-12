@@ -229,7 +229,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-           <h1> Group Management</h1>
+            <span className="text-lg font-bold">Group Management</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -343,9 +343,18 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
           {activeGroup && (
             <>
               <Separator />
+              {/* Popup alert for allergic members */}
+              {activeGroup.members.some(m => m.allergens && m.allergens.length > 0) && (
+                <div className="bg-destructive/10 border border-destructive text-destructive rounded-md p-3 flex items-center gap-2 mb-3">
+                  <AlertTriangle className="h-5 w-5" />
+                  <span>
+                    Warning: Some members in this group have allergies! Please review their allergens before placing an order.
+                  </span>
+                </div>
+              )}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3>Members in "{activeGroup.name}"</h3>
+                  <span className="text-lg font-semibold">Members in "{activeGroup.name}"</span>
                   <Button 
                     size="sm" 
                     onClick={() => setIsAddMemberOpen(true)}
