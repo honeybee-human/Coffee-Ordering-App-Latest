@@ -3,7 +3,7 @@ import { Star } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { Badge } from '@/ui/badge';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { AllergenTag } from '@/components/shared/AllergenTag';
 import { Pastry } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';

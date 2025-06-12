@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
 import { Button } from '@/ui/button';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { AllergenTag } from '@/components/shared/AllergenTag';

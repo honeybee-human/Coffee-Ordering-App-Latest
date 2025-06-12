@@ -4,7 +4,7 @@ import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Separator } from '@/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { CartItem, GroupMember } from '@/types';
 import { combineIdenticalItems } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';

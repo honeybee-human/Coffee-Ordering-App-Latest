@@ -11,7 +11,7 @@ import { Group } from '@/types';
 import { pastryMenu } from '@/data/menu';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { PastryCustomizationComponent } from '@/components/features/PastryCustomization';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { AllergenTag } from '@/components/shared/AllergenTag';
 
 interface PastryDetailPageProps {

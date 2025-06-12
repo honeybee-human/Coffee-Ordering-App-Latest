@@ -229,7 +229,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-           <h1> Group Management</h1>
+            Group Management
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -240,6 +240,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
               <Select 
                 value={activeGroupId || ''} 
                 onValueChange={onSelectGroup}
+                disabled={groups.length === 0}
               >
                 <SelectTrigger className="flex-1 bg-muted">
                   <SelectValue placeholder="Select a group or create new one" />
@@ -260,6 +261,25 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                 New Group
               </Button>
             </div>
+            
+            {groups.length === 0 && (
+              <div className="text-center py-4 mt-2 bg-muted/30 rounded-md">
+                <div className="h-12 w-12 mx-auto bg-muted rounded-full flex items-center justify-center mb-4">
+                  <Users className="h-6 w-6 text-muted-foreground" />
+                </div>
+                <h3 className="text-lg mb-2">No Groups Yet</h3>
+                <p className="text-muted-foreground mb-4">
+                  Create a group to start managing members and their allergens.
+                </p>
+                <Button 
+                  onClick={() => setIsCreateGroupOpen(true)}
+                  size="sm"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Group
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Group List */}

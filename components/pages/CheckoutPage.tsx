@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Separator } from '@/ui/separator';
 import { Badge } from '@/ui/badge';
 import { Alert, AlertDescription } from '@/ui/alert';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { CheckoutForm } from '@/components/features/CheckoutForm';
 import { CartItem, GroupMember, Order } from '@/types';
 import { useCartSubtotal, useCartTax, useCartTotal, useActiveGroup } from '@/store/useAppStore';

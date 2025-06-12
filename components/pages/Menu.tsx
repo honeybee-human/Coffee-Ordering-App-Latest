@@ -3,7 +3,7 @@ import { Coffee as CoffeeIcon, Cookie, AlertTriangle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { CoffeeCard } from '@/components/shared/CoffeeCard';
 import { PastryCard } from '@/components/shared/PastryCard';
 import { SearchBar } from '@/components/shared/SearchBar';

@@ -24,27 +24,27 @@ import { useModalsStore } from '@/store/useModalsStore';
 export const useBusinessLogic = () => {
   // Group Management Functions
   const createGroup = (name: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     appStore.createGroup(name);
   };
 
   const selectGroup = (groupId: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     appStore.selectGroup(groupId);
   };
 
   const deleteGroup = (groupId: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     appStore.deleteGroup(groupId);
   };
 
   const renameGroup = (groupId: string, newName: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     appStore.renameGroup(groupId, newName);
   };
 
   const addGroupMember = (groupId: string, name: string, allergens: string[] = []): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const newMember: GroupMember = {
       name,
       allergens
@@ -54,7 +54,7 @@ export const useBusinessLogic = () => {
   };
 
   const removeGroupMember = (groupId: string, memberName: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const group = appStore.groups.find(g => g.id === groupId);
     if (!group) return;
     
@@ -72,7 +72,7 @@ export const useBusinessLogic = () => {
     assignedTo?: string, 
     customizations?: CoffeeCustomization | PastryCustomization
   ): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
@@ -90,11 +90,11 @@ export const useBusinessLogic = () => {
     appStore.addToCart(activeGroup.id, newCartItem);
     
     // Close the add to cart modal if it's open
-    useModalsStore().closeAddToCartModal();
+    useModalsStore.getState().closeAddToCartModal();
   };
 
   const removeFromCart = (cartItemId: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
@@ -102,7 +102,7 @@ export const useBusinessLogic = () => {
   };
 
   const updateCartItemQuantity = (cartItemId: string, quantity: number): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
@@ -110,7 +110,7 @@ export const useBusinessLogic = () => {
   };
 
   const clearCart = (): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
@@ -123,7 +123,7 @@ export const useBusinessLogic = () => {
     type: 'coffee' | 'pastry', 
     customizations?: CoffeeCustomization | PastryCustomization
   ): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     
     // Check if this item is already in favorites
     if (appStore.isItemFavorited(type, item.id, customizations)) return;
@@ -142,7 +142,7 @@ export const useBusinessLogic = () => {
   };
 
   const removeFromFavorites = (favoriteId: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     appStore.removeFromFavorites(favoriteId);
   };
 
@@ -164,10 +164,10 @@ export const useBusinessLogic = () => {
 
   // Order Management Functions
   const completeOrder = (paymentInfo: PaymentInfo): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
-    const navigationStore = useNavigationStore();
-    const modalsStore = useModalsStore();
+    const navigationStore = useNavigationStore.getState();
+    const modalsStore = useModalsStore.getState();
     
     if (!activeGroup || activeGroup.cart.length === 0) return;
     
@@ -201,9 +201,9 @@ export const useBusinessLogic = () => {
   };
 
   const reorderFromHistory = (orderId: string): void => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
-    const navigationStore = useNavigationStore();
+    const navigationStore = useNavigationStore.getState();
     
     if (!activeGroup) return;
     
@@ -219,7 +219,7 @@ export const useBusinessLogic = () => {
 
   // Helper Functions
   const isItemFavorited = (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): boolean => {
-    const appStore = useAppStore();
+    const appStore = useAppStore.getState();
     return appStore.isItemFavorited(type, itemId, customizations);
   };
 
