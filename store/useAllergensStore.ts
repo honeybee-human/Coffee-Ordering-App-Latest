@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { Coffee, Pastry, Group, GroupMember } from '@/types';
-import { useAppStore } from './useAppStore';
+import { useAppStore } from '@/store/useAppStore';
 
 interface AllergensStore {
   // State

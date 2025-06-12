@@ -1,5 +1,5 @@
 import { AppData, Group, GroupMember, CartItem, FavoriteItem, Order } from '@/types';
-import { normalizeAllergens } from './allergens';
+import { normalizeAllergens } from '@/utils/allergens';
 
 /**
  * Business logic utilities for managing app operations

@@ -4,6 +4,7 @@ export interface Coffee {
   price: number;
   allergens: string[];
   description?: string;
+  image?: string;
 }
 
 export interface Pastry {
@@ -13,6 +14,7 @@ export interface Pastry {
   allergens: string[];
   removableIngredients: string[];
   description?: string;
+  image?: string;
 }
 
 export interface CoffeeCustomization {

@@ -3,11 +3,10 @@ import { ArrowLeft, Star, AlertTriangle, Plus } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Badge } from '@/ui/badge';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { coffeeMenu } from '@/data/menu';
-import { coffeeImages } from './Menu';
 import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 
@@ -71,8 +70,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
     );
   }
 
-  const coffeeIndex = coffeeMenu.findIndex(c => c.id === coffeeId);
-  const imageUrl = coffeeImages[coffeeIndex % coffeeImages.length];
+  const imageUrl = coffee.image || '/coffee-icon.svg';
   
   const comprehensiveAllergens = getComprehensiveAllergens({
     ...coffee,
@@ -136,7 +134,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button onClick={onBack} variant="outline">
@@ -159,10 +157,10 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
         </Button>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
         <div className="space-y-6">
-          <div className="aspect-square rounded-2xl overflow-hidden">
+          <div className="aspect-square rounded-2xl overflow-hidden max-w-xl mx-auto">
             <ImageWithFallback
               src={imageUrl}
               alt={coffee.name}
@@ -184,25 +182,21 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
             )}
           </div>
           
-          {/* Person Assignment using the new component */}
+          
+        </div>
+
+        {/* Customization & Order */}
+        <div className="space-y-6">
+ 
+
+                          {/* Person Assignment using the new component */}
           <GroupMemberAssignment
             groupMembers={groupMembers}
             selectedPerson={selectedPerson}
             onPersonChange={setSelectedPerson}
             itemAllergens={allItemAllergens}
           />
-        </div>
 
-        {/* Customization & Order */}
-        <div className="space-y-6">
-        <Button 
-                  onClick={handleAddToCart}
-                  className="w-full"
-                  size="lg"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
           {/* Direct customization without extra card wrapper */}
           <CoffeeCustomizationComponent
             customization={customizations}
@@ -211,6 +205,12 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
 
 
 
+        </div>
+
+        <div className='flex-col space-y-5'>
+
+
+          
           {/* Order Summary */}
           <Card className="bg-muted/50">
             <CardHeader className="pb-3">
@@ -218,7 +218,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
             </CardHeader>
             <CardContent className="space-y-2">
             <div className="font-medium">
-                  Total: ${(coffee.price + customizations.syrups.reduce((total, syrup) => total + (syrup.pumps * 0.10), 0)).toFixed(2)}
+                  Total: ${totalPrice.toFixed(2)}
                 </div>
               <div className="flex justify-between items-center">
                 <span className="font-medium">{coffee.name}</span>
@@ -249,6 +249,15 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
               )}
             </CardContent>
           </Card>
+
+          <Button 
+                  onClick={handleAddToCart}
+                  className="w-full"
+                  size="lg"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add to Cart
+                </Button>
         </div>
       </div>
     </div>

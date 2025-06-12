@@ -1,8 +1,8 @@
 import { v4 as uuidv4 } from 'uuid';
-import { useAppStore } from './useAppStore';
-import { useNavigationStore } from './useNavigationStore';
+import { useAppStore } from '@/store/useAppStore';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
-import { useAllergensStore } from './useAllergensStore';
+import { useAllergensStore } from '@/store/useAllergensStore';
 import { 
   Group, 
   GroupMember, 
@@ -15,7 +15,7 @@ import {
   CoffeeCustomization,
   PastryCustomization
 } from '@/types';
-import { useModalsStore } from './useModalsStore';
+import { useModalsStore } from '@/store/useModalsStore';
 
 /**
  * Custom hook that provides all business logic functions

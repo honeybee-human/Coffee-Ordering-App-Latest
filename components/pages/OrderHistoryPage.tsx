@@ -4,7 +4,7 @@ import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/ui/card';
 import { Badge } from '@/ui/badge';
 import { Order, CartItem } from '@/types';
-import { GroupOrderContent } from '../features/GroupOrderContent';
+import { GroupOrderContent } from '@/components/features/GroupOrderContent';
 
 interface OrderHistoryPageProps {
   orders: Order[];

@@ -7,9 +7,8 @@ import { Input } from '@/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Checkbox } from '@/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { FavoriteItem, GroupMember, CartItem } from '@/types';
-import { coffeeImages, pastryImages } from './Menu';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 
 interface FavoritesPageProps {
@@ -193,13 +192,6 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
     }
   };
 
-  const getItemImage = (favorite: FavoriteItem, index: number): string => {
-    if (favorite.type === 'coffee') {
-      return coffeeImages[index % coffeeImages.length];
-    } else {
-      return pastryImages[index % pastryImages.length];
-    }
-  };
 
   const handleAddToCart = (favorite: FavoriteItem) => {
     const cartItem: CartItem = {
@@ -451,10 +443,10 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
               <div className="flex sm:hidden h-36">
                 {/* Image Container - Left Side (40%) */}
                 <div className="relative w-2/5 overflow-hidden">
-                  <ImageWithFallback
-                    src={getItemImage(favorite, index)}
+                  <img
+                    src={favorite.item.image}
                     alt={favorite.item.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="object-cover w-full h-full"
                   />
                   <div className="absolute bottom-2 left-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold">
                     ${favorite.item.price.toFixed(2)}
@@ -507,11 +499,7 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
               {/* Tablet/Desktop Layout: Vertical */}
               <div className="hidden sm:block">
                 <div className="relative overflow-hidden">
-                  <ImageWithFallback
-                    src={getItemImage(favorite, index)}
-                    alt={favorite.item.name}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
+
                   <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full">
                     <span className="font-semibold">${favorite.item.price.toFixed(2)}</span>
                   </div>

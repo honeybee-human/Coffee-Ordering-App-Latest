@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
-import { AppProvider } from './AppContext';
-import { NavigationProvider } from './NavigationContext';
-import { ModalsProvider } from './ModalsContext';
-import { AllergensProvider } from './AllergensContext';
+import { AppProvider } from '@/context/AppContext';
+import { NavigationProvider } from '@/context/NavigationContext';
+import { ModalsProvider } from '@/context/ModalsContext';
+import { AllergensProvider } from '@/context/AllergensContext';
 
 interface AppProvidersProps {
   children: ReactNode;

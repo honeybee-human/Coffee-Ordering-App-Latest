@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { Checkbox } from '@/ui/checkbox';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { coffeeMenu, pastryMenu } from '@/data/menu';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { GroupMember } from '@/types';
@@ -24,23 +24,6 @@ interface MenuProps {
   onClearAllergenFilters: () => void;
 }
 
-// Better, more relevant coffee images
-export const coffeeImages = [
-  'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Latte art
-  'https://images.unsplash.com/photo-1498804103079-a6351b050096?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Cappuccino
-  'https://images.unsplash.com/photo-1447933601403-0c6688de566e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Coffee beans
-  'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Espresso brewing
-  'https://images.unsplash.com/photo-1509042239860-f550ce710b93?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80'  // Americano
-];
-
-// Better, more relevant pastry images
-export const pastryImages = [
-  'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Croissants
-  'https://images.unsplash.com/photo-1549007953-2f2dc0b24019?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Muffins
-  'https://images.unsplash.com/photo-1550617931-e17a7b70dce2?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Danish pastry
-  'https://images.unsplash.com/photo-1587132147308-6247f0e1393c?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80', // Scones
-  'https://images.unsplash.com/photo-1517427294546-5aa121f68e8a?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&h=300&q=80'  // Donuts
-];
 
 // Word-start only matching function
 const isWordStartMatch = (searchQuery: string, targetText: string): boolean => {
@@ -433,11 +416,11 @@ export const Menu: React.FC<MenuProps> = ({
                   onClick={() => onSelectCoffee(coffee.id)}
                 >
                   {/* Mobile Layout: Horizontal split */}
-                  <div className="flex sm:hidden h-32">
+                  <div className="flex sm:hidden h-40">
                     {/* Image Container - Left Side (40%) */}
                     <div className="relative w-2/5 overflow-hidden">
                       <ImageWithFallback
-                        src={coffeeImages[index % coffeeImages.length]}
+                        src={coffee.image || '/coffee-icon.svg'}
                         alt={coffee.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -481,9 +464,9 @@ export const Menu: React.FC<MenuProps> = ({
                   <div className="hidden sm:block">
                     <div className="relative overflow-hidden">
                       <ImageWithFallback
-                        src={coffeeImages[index % coffeeImages.length]}
+                        src={coffee.image || '/coffee-icon.svg'}
                         alt={coffee.name}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2">
                         <Button
@@ -501,18 +484,22 @@ export const Menu: React.FC<MenuProps> = ({
                           />
                         </Button>
                       </div>
-                      <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full">
-                        <span className="font-semibold">${coffee.price.toFixed(2)}</span>
+                      <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-sm font-semibold">
+                        ${coffee.price.toFixed(2)}
                       </div>
                     </div>
                     
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-xl text-primary">{coffee.name}</CardTitle>
-                    </CardHeader>
-                    
-                    <CardContent className="pt-0 space-y-3">
-                      <p className="text-muted-foreground text-sm line-clamp-2">{coffee.description}</p>
-                      {comprehensiveAllergens.length > 0 && renderAllergenTags(coffee)}
+                    <CardContent className="p-4">
+                      <div className="space-y-2">
+                        <h3 className="text-lg font-bold text-primary">{coffee.name}</h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">{coffee.description}</p>
+                      </div>
+                      
+                      {comprehensiveAllergens.length > 0 && (
+                        <div className="mt-3">
+                          {renderAllergenTags(coffee)}
+                        </div>
+                      )}
                     </CardContent>
                   </div>
                 </Card>
@@ -569,11 +556,11 @@ export const Menu: React.FC<MenuProps> = ({
                   onClick={() => onSelectPastry(pastry.id)}
                 >
                   {/* Mobile Layout: Horizontal split */}
-                  <div className="flex sm:hidden h-32">
+                  <div className="flex sm:hidden h-40">
                     {/* Image Container - Left Side (40%) */}
                     <div className="relative w-2/5 overflow-hidden">
                       <ImageWithFallback
-                        src={pastryImages[index % pastryImages.length]}
+                        src={pastry.image || '/coffee-icon.svg'}
                         alt={pastry.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -633,9 +620,9 @@ export const Menu: React.FC<MenuProps> = ({
                   <div className="hidden sm:block">
                     <div className="relative overflow-hidden">
                       <ImageWithFallback
-                        src={pastryImages[index % pastryImages.length]}
+                        src={pastry.image || '/coffee-icon.svg'}
                         alt={pastry.name}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm rounded-full p-2">
                         <Button
@@ -653,8 +640,8 @@ export const Menu: React.FC<MenuProps> = ({
                           />
                         </Button>
                       </div>
-                      <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-3 py-1 rounded-full">
-                        <span className="font-semibold">${pastry.price.toFixed(2)}</span>
+                      <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-sm font-semibold">
+                        ${pastry.price.toFixed(2)}
                       </div>
                     </div>
                     
@@ -664,26 +651,7 @@ export const Menu: React.FC<MenuProps> = ({
                     
                     <CardContent className="pt-0 space-y-3">
                       <p className="text-muted-foreground text-sm line-clamp-2">{pastry.description}</p>
-                      
                       {comprehensiveAllergens.length > 0 && renderAllergenTags(pastry)}
-                      
-                      {pastry.removableIngredients.length > 0 && (
-                        <div className="space-y-2">
-                          <p className="text-xs text-muted-foreground">Customizable ingredients:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {pastry.removableIngredients.slice(0, 3).map((ingredient: string) => (
-                              <Badge key={ingredient} variant="secondary" className="text-xs">
-                                {ingredient}
-                              </Badge>
-                            ))}
-                            {pastry.removableIngredients.length > 3 && (
-                              <Badge variant="secondary" className="text-xs">
-                                +{pastry.removableIngredients.length - 3} more
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                      )}
                     </CardContent>
                   </div>
                 </Card>

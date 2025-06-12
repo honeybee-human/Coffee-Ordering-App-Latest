@@ -6,7 +6,7 @@ import { Separator } from '@/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { CartItem, GroupMember } from '@/types';
 import { combineIdenticalItems } from '@/utils/cart-helpers';
-import { GroupOrderContent } from '../features/GroupOrderContent';
+import { GroupOrderContent } from '@/components/features/GroupOrderContent';
 interface CartProps {
   cartItems: CartItem[];
   groupMembers: GroupMember[];

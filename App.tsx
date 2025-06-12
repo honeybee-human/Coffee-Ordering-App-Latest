@@ -1,26 +1,26 @@
 import React from 'react';
 import { ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
-import { Header } from './components/layout/Header';
-import { PageRouter } from './components/layout/PageRouter';
+import { Header } from '@/components/layout/Header';
+import { PageRouter } from '@/components/layout/PageRouter';
 
 
 // Import Zustand stores
-import { useAppStore } from './store/useAppStore';
-import { useNavigationStore } from './store/useNavigationStore';
-import { useAllergensStore } from './store/useAllergensStore';
-import { useBusinessLogic } from './store/useBusinessLogic';
+import { useAppStore } from '@/store/useAppStore';
+import { useNavigationStore } from '@/store/useNavigationStore';
+import { useAllergensStore } from '@/store/useAllergensStore';
+import { useBusinessLogic } from '@/store/useBusinessLogic';
 
 // Import menu data
-import { coffeeMenu, pastryMenu } from './data/menu';
+import { coffeeMenu, pastryMenu } from '@/data/menu';
 
 
-import { normalizeAllergens } from './utils/allergens';
-import { CartItem, FavoriteItem, Order, GroupMember, Coffee, Pastry } from './types';
-import { useModalsStore } from './store/useModalsStore';
-import { AddToCartModal } from './components/shared/AddToCartModal';
-import { AllergenWarning } from './components/shared/AllergenWarning';
-import { AppProviders } from './context';
-import { OrderCompleteModal } from './components/shared/OrderCompleteModal';
+import { normalizeAllergens } from '@/utils/allergens';
+import { CartItem, FavoriteItem, Order, GroupMember, Coffee, Pastry } from '@/types';
+import { useModalsStore } from '@/store/useModalsStore';
+import { AddToCartModal } from '@/components/shared/AddToCartModal';
+import { AllergenWarning } from '@/components/shared/AllergenWarning';
+import { AppProviders } from '@/context';
+import { OrderCompleteModal } from '@/components/shared/OrderCompleteModal';
 
 /**
  * STORAGE SYSTEM: Bean & Bite now uses Zustand for state management

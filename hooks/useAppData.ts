@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { AppData, Group } from '@/types';
-import { getStoredData, saveToStorage, createDefaultGroup } from '../utils/storage';
+import { getStoredData, saveToStorage, createDefaultGroup } from '@/utils/storage';
 
 /**
  * Custom hook for managing app-wide data state and storage synchronization

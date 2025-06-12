@@ -1,14 +1,14 @@
 import React from 'react';
 import { AppState, Group, FavoriteItem, Order, CartItem, GroupMember, Pastry } from '@/types';
-import { CoffeeDetailPage } from '../pages/CoffeeDetailPage';
-import { PastryDetailPage } from '../pages/PastryDetailPage';
-import { Cart } from '../pages/Cart';
-import { MenuPage } from './MenuPage';
-import { pastryMenu } from '../../data/menu';
-import { GroupManagement } from '../features/GroupManagement';
-import { CheckoutPage } from '../pages/CheckoutPage';
-import { FavoritesPage } from '../pages/FavoritesPage';
-import { OrderHistoryPage } from '../pages/OrderHistoryPage';
+import { CoffeeDetailPage } from '@/components/pages/CoffeeDetailPage';
+import { PastryDetailPage } from '@/components/pages/PastryDetailPage';
+import { Cart } from '@/components/pages/Cart';
+import { MenuPage } from '@/components/layout/MenuPage';
+import { pastryMenu } from '@/data/menu';
+import { GroupManagement } from '@/components/features/GroupManagement';
+import { CheckoutPage } from '@/components/pages/CheckoutPage';
+import { FavoritesPage } from '@/components/pages/FavoritesPage';
+import { OrderHistoryPage } from '@/components/pages/OrderHistoryPage';
 
 interface PageRouterProps {
   appState: AppState;

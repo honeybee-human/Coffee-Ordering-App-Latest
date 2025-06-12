@@ -4,15 +4,14 @@ import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Badge } from '@/ui/badge';
 
-import { pastryImages } from './Menu';
 import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType, Pastry } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 
 import { Group } from '@/types';
 import { pastryMenu } from '@/data/menu';
-import { GroupMemberAssignment } from '../features/GroupMemberAssignment';
-import { PastryCustomizationComponent } from '../features/PastryCustomization';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
+import { PastryCustomizationComponent } from '@/components/features/PastryCustomization';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 
 interface PastryDetailPageProps {
   pastry: Pastry;
@@ -74,7 +73,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   }
 
   const pastryIndex = pastryMenu.findIndex(p => p.id === pastry.id);
-  const imageUrl = pastryImages[pastryIndex % pastryImages.length];
+  const imageUrl = pastry.image || '/coffee-icon.svg';
   
   const comprehensiveAllergens = getComprehensiveAllergens({
     ...pastry,
@@ -177,7 +176,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       <div className="grid lg:grid-cols-2 gap-8">
         {/* Product Image & Basic Info */}
         <div className="space-y-6">
-          <div className="aspect-square rounded-2xl overflow-hidden">
+          <div className="aspect-square rounded-2xl overflow-hidden max-w-xl mx-auto">
             <ImageWithFallback
               src={imageUrl}
               alt={pastry.name}

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { CartItem, GroupMember, CoffeeCustomization } from '@/types';
-import { containsDairy } from '../data/menu';
-import { normalizeAllergens } from '../utils/allergens';
+import { containsDairy } from '@/data/menu';
+import { normalizeAllergens } from '@/utils/allergens';
 
 /**
  * Custom hook for managing allergen filtering and conflict detection
