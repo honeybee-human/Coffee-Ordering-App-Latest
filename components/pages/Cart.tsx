@@ -167,12 +167,20 @@ export const Cart: React.FC<CartProps> = ({
                         </div>
                       </div>
 
-                      {item.assignedTo && (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <User className="h-3 w-3" />
-                          For: {item.assignedTo}
-                        </div>
-                      )}
+                      {(() => {
+                        const getAssignedPerson = (item: CartItem): string | undefined => {
+                          if (item.assignedTo) return item.assignedTo;
+                          if (groupMembers.length === 1) return groupMembers[0].name;
+                          return undefined;
+                        };
+                        const assignedPerson = getAssignedPerson(item);
+                        return assignedPerson ? (
+                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                            <User className="h-3 w-3" />
+                            For: {assignedPerson}
+                          </div>
+                        ) : null;
+                      })()}
 
                       {hasAllergenConflict && (
                         <p className="text-sm text-destructive">

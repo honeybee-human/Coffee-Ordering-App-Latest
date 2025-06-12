@@ -130,6 +130,7 @@ const GroupsPage: React.FC = () => {
                   )
                 }
                 required
+                disabled={editingGroup?.name === 'Just You'}
               />
             </div>
             <div className="flex justify-end gap-2">
@@ -149,4 +150,4 @@ const GroupsPage: React.FC = () => {
   );
 };
 
-export default GroupsPage; 
+export default GroupsPage;

@@ -47,7 +47,12 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
   if (groupMembers.length === 0) {
     return null;
   }
-
+  // If there is only one group member, always assign to them by default
+  React.useEffect(() => {
+    if (groupMembers.length === 1 && selectedPerson !== groupMembers[0].name) {
+      onPersonChange(groupMembers[0].name);
+    }
+  }, [groupMembers, selectedPerson, onPersonChange]);
   return (
     <div className={className}>
       <div className="pb-3">
@@ -144,3 +149,4 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
     </div>
   );
 };
+

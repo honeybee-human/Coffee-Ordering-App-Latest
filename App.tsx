@@ -21,6 +21,8 @@ import { AddToCartModal } from '@/components/shared/AddToCartModal';
 import { AllergenWarning } from '@/components/shared/AllergenWarning';
 import { AppProviders } from '@/context';
 import { OrderCompleteModal } from '@/components/shared/OrderCompleteModal';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/ui/dialog';
+import { useEffect, useState } from 'react';
 
 /**
  * STORAGE SYSTEM: Bean & Bite now uses Zustand for state management
@@ -31,6 +33,8 @@ import { OrderCompleteModal } from '@/components/shared/OrderCompleteModal';
  */
 
 function AppContent() {
+  // Show instructional modal on first load
+  const [showInstructional, setShowInstructional] = useState(true);
   // Access Zustand store values
   const { groups, activeGroupId, orderHistory, favorites, getActiveGroup } = useAppStore();
   const activeGroup = getActiveGroup();
@@ -103,13 +107,12 @@ function AppContent() {
   };
 
   // Helper function to toggle favorite status
-  const toggleFavorite = (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: any) => {
-    const existingFavorite = findExistingFavorite(favorites, type, item.id, customizations);
-  
+  const toggleFavorite = (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: any, assignedTo?: string) => {
+    const existingFavorite = findExistingFavorite(favorites, type, item.id, customizations, assignedTo);
     if (existingFavorite) {
       removeFromFavorites(existingFavorite.id);
     } else {
-      addToFavorites(item, type, customizations);
+      addToFavorites(item, type, customizations, assignedTo);
     }
   };
 
@@ -229,38 +232,38 @@ function AppContent() {
       allergenCallback();
       setAllergenCallback(null);
       closeAllergenWarningModal();
-      return;
-    }
-    
+      
+      
     // Default behavior if no callback is stored
     // Get the current allergen warning data
     const { itemId, itemType } = modals.allergenWarning;
-    
     // Add the item to cart despite allergen warnings
     if (itemType === 'coffee') {
       const coffee = coffeeMenu.find(c => c.id === itemId);
       if (coffee) {
         addToCart(coffee, 'coffee', 1, undefined, undefined);
+        showAddToCartModal(coffee.name, 'coffee', undefined);
       }
     } else if (itemType === 'pastry') {
       const pastry = pastryMenu.find(p => p.id === itemId);
       if (pastry) {
         addToCart(pastry, 'pastry', 1, undefined, undefined);
+        showAddToCartModal(pastry.name, 'pastry', undefined);
       }
     }
-    
     closeAllergenWarningModal();
-  };
+  }
+};
 
   // Function to handle allergen conflicts
   const handleAllergenConflict = (allergens: string[], affectedMembers: string[], itemName: string, addCallback: () => void) => {
-    // Store the callback for later use
+    // Only show allergens that affect group members
+    const filteredAllergens = allergens.filter(allergen => {
+      return activeGroup && activeGroup.members.some(member => member.allergens.includes(allergen));
+    });
     setAllergenCallback(() => addCallback);
-    
     // Determine if the item is a coffee or pastry based on the name
-    // This is a workaround since we don't have the actual item type
     const itemType = itemName.toLowerCase().includes('coffee') ? 'coffee' : 'pastry';
-    
     // Find the item ID from the menu based on the name
     let itemId = itemName;
     if (itemType === 'coffee') {
@@ -270,9 +273,8 @@ function AppContent() {
       const pastry = pastryMenu.find(p => p.name === itemName);
       if (pastry) itemId = pastry.id;
     }
-    
-    // Show the allergen warning modal with the item ID
-    showAllergenWarningModal(itemId, itemType, allergens);
+    // Show the allergen warning modal with the filtered allergens
+    showAllergenWarningModal(itemId, itemType, filteredAllergens);
   };
 
   return (
@@ -350,6 +352,36 @@ function AppContent() {
         onProceed={proceedWithAllergen} 
         onClose={closeAllergenWarningModal} 
       />
+      {/* Instructional Modal */}
+      <Dialog open={showInstructional} onOpenChange={setShowInstructional}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              <span className="flex items-center gap-2">
+                <Users className="inline-block h-6 w-6 text-primary" />
+                Welcome to Group Ordering!
+              </span>
+            </DialogTitle>
+            <DialogDescription asChild>
+              <div>
+                <p className="mb-4 text-muted-foreground">
+                  On entry, you have a group with just you as the member, where you can set your allergens and order for yourself. You can create groups and add members, specify the allergens for each member, then go through the menu and add their favorites to their group or assign an item to a member. If a member has any conflicting allergies, we'll let you know! On addition of a member with allergies to the group, we automatically filter out the menu, but you can clear the filter selections if needed!
+                </p>
+                <div className="flex flex-col gap-2 text-base">
+                  <span className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> <span>Create or join a group</span></span>
+                  <span className="flex items-center gap-2"><MenuIcon className="h-5 w-5 text-primary" /> <span>Add members and set allergens</span></span>
+                  <span className="flex items-center gap-2"><ShoppingCart className="h-5 w-5 text-primary" /> <span>Add items to the group cart or assign to members</span></span>
+                  <span className="flex items-center gap-2"><History className="h-5 w-5 text-destructive" /> <span>Get notified of allergen conflicts</span></span>
+                  <span className="flex items-center gap-2"><Heart className="h-5 w-5 text-success" /> <span>Checkout and enjoy your order!</span></span>
+                </div>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end">
+            <button className="btn btn-primary" onClick={() => setShowInstructional(false)}>Got it!</button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
     </div>
   );

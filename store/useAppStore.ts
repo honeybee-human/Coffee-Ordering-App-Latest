@@ -72,8 +72,8 @@ export interface AppStore {
   // Favorites actions
   addToFavorites: (favorite: FavoriteItem) => void;
   removeFromFavorites: (favoriteId: string) => void;
-  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization) => boolean;
-  toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization) => void;
+  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string) => boolean;
+  toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string) => void;
   
   // Order actions
   completeOrder: (groupId: string, order: Order) => void;
@@ -296,24 +296,26 @@ const storeImplementation: StateCreator<
     }));
   },
 
-  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization) => {
+  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string) => {
     const { favorites } = get();
     return favorites.some(fav => 
       fav.type === type && 
       fav.item.id === itemId &&
-      JSON.stringify(fav.customizations) === JSON.stringify(customizations)
+      JSON.stringify(fav.customizations) === JSON.stringify(customizations) &&
+      fav.assignedTo === assignedTo
     );
   },
 
-  toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization) => {
+  toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string) => {
     const { favorites, isItemFavorited, addToFavorites, removeFromFavorites } = get();
     
-    if (isItemFavorited(type, item.id, customizations)) {
+    if (isItemFavorited(type, item.id, customizations, assignedTo)) {
       // Find and remove existing favorite
       const existingFavorite = favorites.find(fav => 
         fav.type === type && 
         fav.item.id === item.id &&
-        JSON.stringify(fav.customizations) === JSON.stringify(customizations || (type === 'coffee' ? { syrups: [], milk: 'whole' } : { removedIngredients: [] }))
+        JSON.stringify(fav.customizations) === JSON.stringify(customizations || (type === 'coffee' ? { syrups: [], milk: 'whole' } : { removedIngredients: [] })) &&
+        fav.assignedTo === assignedTo
       );
       if (existingFavorite) {
         removeFromFavorites(existingFavorite.id);
@@ -325,7 +327,8 @@ const storeImplementation: StateCreator<
         type,
         item,
         customizations: customizations || (type === 'coffee' ? { syrups: [], milk: 'whole' } : { removedIngredients: [] }),
-        dateAdded: new Date()
+        dateAdded: new Date(),
+        assignedTo
       };
       addToFavorites(newFavorite);
     }
@@ -529,7 +532,22 @@ const storeImplementation: StateCreator<
 // Create the store with persist middleware
 export const useAppStore = create<AppStore>()(  
   persist(
-    storeImplementation,
+    (set, get, ...a) => {
+      // On first load, if there are no groups, create 'Just You' group and set as active
+      const initialState = storeImplementation(set, get, ...a);
+      if (initialState.groups.length === 0) {
+        const defaultGroup = {
+          id: Date.now().toString(),
+          name: 'Just You',
+          members: [{ name: 'You', allergens: [] }],
+          cart: [],
+          dateCreated: new Date()
+        };
+        initialState.groups = [defaultGroup];
+        initialState.activeGroupId = defaultGroup.id;
+      }
+      return initialState;
+    },
     {
       name: 'bean-bite-storage',
       storage: createJSONStorage(() => sessionStorage),

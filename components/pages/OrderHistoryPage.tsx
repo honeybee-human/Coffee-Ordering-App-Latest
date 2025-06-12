@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/ui/card'
 import { Badge } from '@/ui/badge';
 import { Order, CartItem } from '@/types';
 import { GroupOrderContent } from '@/components/features/GroupOrderContent';
+import { GroupFilter } from '@/components/shared/GroupFilter';
 
 interface OrderHistoryPageProps {
   orders: Order[];
@@ -19,6 +20,13 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
   onReorder,
   getAllAllergens
 }) => {
+  const [selectedGroup, setSelectedGroup] = React.useState<string>('all');
+  // Get unique group names from orders
+  const groupNames = Array.from(new Set(orders.map(order => order.groupName).filter(Boolean)));
+  // Sort orders by most recent first
+  const sortedOrders = [...orders].sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+  // Filter by group if selected
+  const filteredOrders = selectedGroup === 'all' ? sortedOrders : sortedOrders.filter(order => order.groupName === selectedGroup);
   const getStatusIcon = (status: Order['status']) => {
     switch (status) {
       case 'pending':
@@ -83,12 +91,18 @@ export const OrderHistoryPage: React.FC<OrderHistoryPageProps> = ({
       <div>
         <h2 className="text-xl mb-2">Order History</h2>
         <p className="text-muted-foreground">
-          {orders.length} order{orders.length !== 1 ? 's' : ''}
+          {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
         </p>
+        {/* Group Filter Dropdown */}
+        <GroupFilter
+          groupNames={groupNames.filter((name): name is string => name !== undefined)}
+          selectedGroup={selectedGroup}
+          onChange={setSelectedGroup}
+        />
       </div>
 
       <div className="space-y-6">
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <Card key={order.id} className="overflow-hidden">
             <CardHeader className="bg-muted/30">
               <div className="flex items-center justify-between">

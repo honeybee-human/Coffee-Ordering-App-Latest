@@ -19,6 +19,12 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
   getAllAllergens,
   groupName = 'Group'
 }) => {
+  // Helper to get assigned person, defaulting to the only member if groupMembers.length === 1
+  const getAssignedPerson = (item: CartItem): string | undefined => {
+    if (item.assignedTo) return item.assignedTo;
+    if (groupMembers.length === 1) return groupMembers[0].name;
+    return undefined;
+  };
   // Helper function to calculate item price including customizations
   const calculateItemPrice = (item: CartItem): number => {
     let itemPrice = item.item.price;
@@ -115,6 +121,7 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
         const memberItems = groupedItems[member.name] || [];
         const memberTotal = personTotals[member.name] || 0;
         const conflicts = getPersonAllergenConflicts(memberItems, member.name);
+        // Use getAssignedPerson for assignment logic
         
         return (
           <div key={member.name} className="space-y-3">
@@ -137,6 +144,7 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
                 {memberItems.map(item => {
                   const itemPrice = calculateItemPrice(item);
                   const customizations = formatCustomizations(item);
+                  const assignedPerson = getAssignedPerson(item);
                   
                   return (
                     <div key={item.id} className="flex justify-between items-start text-sm">
@@ -151,6 +159,9 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
                         <div>
                           <div className="flex items-center gap-2">
                             <span>{item.quantity}x {item.item.name}</span>
+                            {assignedPerson && (
+                              <span className="ml-2 text-xs text-muted-foreground">For: {assignedPerson}</span>
+                            )}
                           </div>
                           {customizations && (
                             <div className="text-xs text-muted-foreground mt-1">

@@ -6,8 +6,9 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
 import { FavoriteCard } from '@/components/shared/FavoriteCard';
 import { FavoriteItem, GroupMember, CartItem } from '@/types';
-import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
+import { useAppStore } from '@/store/useAppStore';
+import { GroupFilter } from '@/components/shared/GroupFilter';
 
 interface FavoritesPageProps {
   favorites: FavoriteItem[];
@@ -35,7 +36,7 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'name' | 'description'>('name');
-
+  // Remove assignment state logic
   // Get all group member allergens for filtering detected allergens
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
@@ -44,6 +45,37 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
     });
     return Array.from(allergenSet);
   }, [groupMembers]);
+
+  // Assignment state for each favorite, persisted per group
+  const activeGroupId = useAppStore(state => state.activeGroupId);
+  const [favoriteAssignments, setFavoriteAssignments] = useState<{ [groupId: string]: { [favoriteId: string]: string } }>({});
+
+  // Load assignments from localStorage/sessionStorage on mount
+  React.useEffect(() => {
+    const saved = window.sessionStorage.getItem('favoriteAssignments');
+    if (saved) setFavoriteAssignments(JSON.parse(saved));
+  }, []);
+
+  // Ensure assignments persist as default for each favorite
+  React.useEffect(() => {
+    if (!activeGroupId) return;
+    // Set default assignment for new favorites if not already set
+    setFavoriteAssignments(prev => {
+      const updated = { ...prev };
+      if (!updated[activeGroupId]) updated[activeGroupId] = {};
+      favorites.forEach(fav => {
+        if (!(fav.id in updated[activeGroupId])) {
+          updated[activeGroupId][fav.id] = "";
+        }
+      });
+      return updated;
+    });
+  }, [favorites, activeGroupId]);
+
+  // Save assignments to localStorage/sessionStorage on change
+  React.useEffect(() => {
+    window.sessionStorage.setItem('favoriteAssignments', JSON.stringify(favoriteAssignments));
+  }, [favoriteAssignments]);
 
   // Get all unique allergens from favorites (including detected ones)
   const excludedFromManualFilter = ['Blueberries', 'Berries', 'Oranges', 'Walnuts', 'Sesame', 'Cinnamon'];
@@ -80,29 +112,44 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
   const formatCustomizations = (favorite: FavoriteItem): string => {
     if (favorite.type === 'coffee') {
       const custom = favorite.customizations as any;
-      const parts: string[] = [];
-      
-      if (custom.milk !== 'Whole Milk') {
-        parts.push(`${custom.milk}`);
+      const defaultCustom = { milk: 'Whole Milk', syrups: [] };
+      // If customizations match default, show 'No customizations'
+      if (
+        custom.milk === defaultCustom.milk &&
+        Array.isArray(custom.syrups) &&
+        custom.syrups.length === 0
+      ) {
+        return 'No customizations';
       }
-      
+      const parts: string[] = [];
+      if (custom.milk && custom.milk !== 'Whole Milk') {
+        parts.push(`${custom.milk} milk`);
+      }
       if (custom.syrups && custom.syrups.length > 0) {
         const syrupText = custom.syrups
           .map((s: any) => `${s.pumps} pump${s.pumps !== 1 ? 's' : ''} ${s.flavor}`)
           .join(', ');
         parts.push(syrupText);
       }
-      
-      return parts.join(', ');
+      return parts.length > 0 ? parts.join(', ') : 'No customizations';
     } else {
       const custom = favorite.customizations as any;
       if (custom.removedIngredients && custom.removedIngredients.length > 0) {
         return `No ${custom.removedIngredients.join(', ')}`;
       }
-      return '';
+      return 'No customizations';
     }
   };
 
+// Empty state for no groups or no group members
+if (groupMembers.length === 0) {
+  return (
+    <div className="text-center py-12 bg-muted/50 rounded-lg">
+      <h2 className="text-xl mb-2">No groups or members found</h2>
+      <p className="text-muted-foreground mb-4">Create a group and add members to start saving favorites!</p>
+    </div>
+  );
+}
 
   if (favorites.length === 0) {
     return (
@@ -130,6 +177,17 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
     );
   }
 
+// Handler for assigning favorite to a member
+const handleAssignToMember = (favoriteId: string, memberName: string) => {
+  if (!activeGroupId) return;
+  setFavoriteAssignments(prev => ({
+    ...prev,
+    [activeGroupId]: {
+      ...(prev[activeGroupId] || {}),
+      [favoriteId]: memberName
+    }
+  }));
+};
   return (
     <div className="space-y-6">
       <Button onClick={onBack} variant="outline">
@@ -203,6 +261,8 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
             key={favorite.id}
             favorite={favorite}
             groupAllergens={groupAllergens}
+            groupMembers={groupMembers}
+            // assignedTo and onAssignToMember removed
             onAddToCart={onAddToCart}
             onRemoveFromFavorites={onRemoveFromFavorites}
             onNavigateToDetail={onNavigateToDetail}
@@ -210,6 +270,11 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
           />
         ))}
       </div>
+
+
     </div>
   );
 };
+
+
+

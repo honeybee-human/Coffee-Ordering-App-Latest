@@ -285,10 +285,12 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                               if (e.key === 'Escape') cancelEditing();
                             }}
                             className="flex-1"
+                            disabled={group.name === 'Just You'}
                           />
                           <Button 
                             size="sm" 
                             onClick={() => handleRenameGroup(group.id)}
+                            disabled={group.name === 'Just You'}
                           >
                             <Check className="h-3 w-3" />
                           </Button>
@@ -358,6 +360,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                   <Button 
                     size="sm" 
                     onClick={() => setIsAddMemberOpen(true)}
+                    disabled={activeGroup.name === 'Just You'}
                   >
                     <UserPlus className="h-4 w-4 mr-2" />
                     Add Member
@@ -471,6 +474,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                 value={newMember.name}
                 onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter member name"
+                disabled={activeGroup && activeGroup.name === 'Just You'}
               />
             </div>
             
@@ -565,7 +569,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
               </Button>
               <Button 
                 onClick={handleAddMember}
-                disabled={!newMember.name.trim()}
+                disabled={!newMember.name.trim() || (activeGroup && activeGroup.name === 'Just You')}
                 className="flex-1"
               >
                 Add Member

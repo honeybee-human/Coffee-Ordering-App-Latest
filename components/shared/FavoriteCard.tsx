@@ -4,12 +4,16 @@ import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { AllergenTag } from '@/components/shared/AllergenTag';
-import { FavoriteItem, CartItem } from '@/types';
+import { FavoriteItem, CartItem, GroupMember } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
+import { GroupMemberAssignment } from '../features/GroupMemberAssignment';
 
 interface FavoriteCardProps {
   favorite: FavoriteItem;
   groupAllergens: string[];
+  groupMembers: GroupMember[];
+  assignedTo?: string;
+  onAssignToMember?: (favoriteId: string, memberName: string) => void;
   onAddToCart: (item: CartItem) => void;
   onRemoveFromFavorites: (favoriteId: string) => void;
   onNavigateToDetail: (favorite: FavoriteItem) => void;
@@ -19,31 +23,32 @@ interface FavoriteCardProps {
 export const FavoriteCard: React.FC<FavoriteCardProps> = ({
   favorite,
   groupAllergens,
+  groupMembers = [],
+  // assignedTo and onAssignToMember are no longer needed
   onAddToCart,
   onRemoveFromFavorites,
   onNavigateToDetail,
   formatCustomizations
 }) => {
   const comprehensiveAllergens = getComprehensiveAllergens(favorite.item);
-  
   const handleAddToCart = () => {
     const cartItem: CartItem = {
       id: `favorite-${Date.now()}-${Math.random()}`,
       type: favorite.type,
       item: favorite.item,
       customizations: favorite.customizations,
-      quantity: 1
+      quantity: 1,
+      assignedTo: favorite.assignedTo || undefined
     };
     onAddToCart(cartItem);
   };
-
   return (
     <Card 
-      className="coffee-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group cursor-pointer bg-white/80 backdrop-blur-sm border border-white/20"
+      className="coffee-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group cursor-pointer bg-white/80 backdrop-blur-sm border border-white/20 p-2 sm:p-3 max-w-xs sm:max-w-sm"
       onClick={() => onNavigateToDetail(favorite)}
     >
       {/* Mobile Layout: Horizontal split */}
-      <div className="flex sm:hidden h-40">
+      <div className="flex sm:hidden h-32">
         {/* Image Container - Left Side (40%) */}
         <div className="relative w-2/5 overflow-hidden">
           <ImageWithFallback
@@ -55,14 +60,18 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
             ${favorite.item.price.toFixed(2)}
           </div>
         </div>
-        
         {/* Content Container - Right Side (60%) */}
-        <div className="w-3/5 p-3 flex flex-col justify-between">
+        <div className="w-3/5 p-2 flex flex-col justify-between">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-primary line-clamp-1">{favorite.item.name}</h3>
+            <h3 className="text-xs font-bold text-primary line-clamp-1">{favorite.item.name}</h3>
             {formatCustomizations(favorite) && (
               <p className="text-xs text-muted-foreground">
                 <span className="font-medium">Custom:</span> {formatCustomizations(favorite)}
+              </p>
+            )}
+            {favorite.assignedTo && (
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium">Assigned to:</span> {favorite.assignedTo}
               </p>
             )}
             {comprehensiveAllergens.length > 0 && (
@@ -71,8 +80,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
               </div>
             )}
           </div>
-
-          <div className="flex gap-1">
+          <div className="flex gap-1 mt-1">
             <Button
               onClick={(e) => {
                 e.stopPropagation();
@@ -98,36 +106,36 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
           </div>
         </div>
       </div>
-
       {/* Tablet/Desktop Layout: Vertical */}
       <div className="hidden sm:block">
         <div className="relative overflow-hidden">
           <ImageWithFallback
             src={favorite.item.image || '/coffee-icon.svg'}
             alt={favorite.item.name}
-            className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+            className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white px-3 py-1 rounded-full shadow-md">
             <span className="font-semibold">${favorite.item.price.toFixed(2)}</span>
           </div>
         </div>
-        
         <CardHeader className="pb-2">
-          <CardTitle className="text-xl text-primary">{favorite.item.name}</CardTitle>
+          <CardTitle className="text-base text-primary">{favorite.item.name}</CardTitle>
         </CardHeader>
-        
-        <CardContent className="pt-0 space-y-4">
-          <div className="space-y-3">
+        <CardContent className="pt-0 space-y-2">
+          <div className="space-y-2">
             {formatCustomizations(favorite) && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 <span className="font-medium">Customizations:</span> {formatCustomizations(favorite)}
               </p>
             )}
-            
+            {favorite.assignedTo && (
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium">Assigned to:</span> {favorite.assignedTo}
+              </p>
+            )}
             {comprehensiveAllergens.length > 0 && <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />}
           </div>
-
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-1">
             <Button
               onClick={(e) => {
                 e.stopPropagation();

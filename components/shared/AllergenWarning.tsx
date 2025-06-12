@@ -40,7 +40,7 @@ export const AllergenWarning: React.FC<AllergenWarningProps> = ({
           <AlertDescription>
             <div className="mt-2 space-y-2">
               <div>
-                <strong>Allergens present:</strong> {allergens.join(', ')}
+                <strong>Conflicting allergens:</strong> {allergens.join(', ')}
               </div>
               <div>
                 <strong>Affected members:</strong> {affectedMembers.join(', ')}

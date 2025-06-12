@@ -121,13 +121,12 @@ export const useBusinessLogic = () => {
   const addToFavorites = (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
-    customizations?: CoffeeCustomization | PastryCustomization
+    customizations?: CoffeeCustomization | PastryCustomization,
+    assignedTo?: string
   ): void => {
     const appStore = useAppStore.getState();
-    
     // Check if this item is already in favorites
-    if (appStore.isItemFavorited(type, item.id, customizations)) return;
-    
+    if (appStore.isItemFavorited(type, item.id, customizations, assignedTo)) return;
     const newFavorite: FavoriteItem = {
       id: uuidv4(),
       item,
@@ -135,9 +134,9 @@ export const useBusinessLogic = () => {
       customizations: customizations || (type === 'coffee' ? 
         { syrups: [], milk: 'whole' } as CoffeeCustomization : 
         { removedIngredients: [] } as PastryCustomization),
-      dateAdded: new Date()
+      dateAdded: new Date(),
+      assignedTo
     };
-    
     appStore.addToFavorites(newFavorite);
   };
 
@@ -149,7 +148,8 @@ export const useBusinessLogic = () => {
   const createFavoriteItem = (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
-    customizations?: CoffeeCustomization | PastryCustomization
+    customizations?: CoffeeCustomization | PastryCustomization,
+    assignedTo?: string
   ): FavoriteItem => {
     return {
       id: uuidv4(),
@@ -158,7 +158,8 @@ export const useBusinessLogic = () => {
       customizations: customizations || (type === 'coffee' ? 
         { syrups: [], milk: 'whole' } as CoffeeCustomization : 
         { removedIngredients: [] } as PastryCustomization),
-      dateAdded: new Date()
+      dateAdded: new Date(),
+      assignedTo
     };
   };
 
@@ -218,16 +219,17 @@ export const useBusinessLogic = () => {
   };
 
   // Helper Functions
-  const isItemFavorited = (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): boolean => {
+  const isItemFavorited = (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string): boolean => {
     const appStore = useAppStore.getState();
-    return appStore.isItemFavorited(type, itemId, customizations);
+    return appStore.isItemFavorited(type, itemId, customizations, assignedTo);
   };
 
-  const findExistingFavorite = (favorites: FavoriteItem[], type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): FavoriteItem | undefined => {
+  const findExistingFavorite = (favorites: FavoriteItem[], type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string): FavoriteItem | undefined => {
     return favorites.find(fav => 
       fav.type === type && 
       fav.item.id === itemId &&
-      (!customizations || JSON.stringify(fav.customizations) === JSON.stringify(customizations))
+      (!customizations || JSON.stringify(fav.customizations) === JSON.stringify(customizations)) &&
+      (fav.assignedTo === assignedTo)
     );
   };
 

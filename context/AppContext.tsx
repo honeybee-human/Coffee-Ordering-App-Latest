@@ -11,8 +11,8 @@ interface AppContextType {
 const createDefaultGroup = (): Group => {
   return {
     id: `group-${Date.now()}`,
-    name: 'My Group',
-    members: [],
+    name: 'Just You',
+    members: [{ name: 'You', allergens: [] }],
     cart: [],
     dateCreated: new Date()
   };
