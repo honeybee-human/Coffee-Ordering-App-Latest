@@ -81,6 +81,8 @@ export interface FavoriteItem {
   item: Coffee | Pastry;
   customizations: CoffeeCustomization | PastryCustomization;
   dateAdded: Date;
+  assignedToGroup?: string;
+  assignedToMember?: string;
 }
 
 export interface AppData {
@@ -115,5 +117,8 @@ export interface ModalState {
     isOpen: boolean;
     orderNumber: string;
     estimatedTime: number;
+  };
+  noMembersWarning: {
+    isOpen: boolean;
   };
 }

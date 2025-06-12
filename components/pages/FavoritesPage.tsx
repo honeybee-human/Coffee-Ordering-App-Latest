@@ -1,17 +1,20 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft, Plus, Settings } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
 import { FavoriteCard } from '@/components/shared/FavoriteCard';
-import { FavoriteItem, GroupMember, CartItem } from '@/types';
+import { FavoriteAssignmentModal } from '@/components/features/FavoriteAssignmentModal';
+import { FavoriteItem, GroupMember, CartItem, Group } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
 
 interface FavoritesPageProps {
   favorites: FavoriteItem[];
   groupMembers: GroupMember[];
+  groups: Group[];
   onBack: () => void;
   onRemoveFromFavorites: (favoriteId: string) => void;
   onAddToCart: (item: CartItem) => void;
@@ -24,6 +27,7 @@ interface FavoritesPageProps {
 export const FavoritesPage: React.FC<FavoritesPageProps> = ({
   favorites,
   groupMembers,
+  groups,
   onBack,
   onRemoveFromFavorites,
   onAddToCart,
@@ -32,9 +36,17 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
   onToggleAllergenFilter,
   onClearAllergenFilters
 }) => {
+  const { updateFavoriteAssignment } = useFavoritesStore();
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'name' | 'description'>('name');
+  const [assignmentModalOpen, setAssignmentModalOpen] = useState(false);
+  const [selectedFavorite, setSelectedFavorite] = useState<FavoriteItem | null>(null);
+
+  const handleAssignFavorite = (favorite: FavoriteItem) => {
+    setSelectedFavorite(favorite);
+    setAssignmentModalOpen(true);
+  };
 
   // Get all group member allergens for filtering detected allergens
   const groupAllergens = useMemo(() => {
@@ -206,10 +218,26 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
             onAddToCart={onAddToCart}
             onRemoveFromFavorites={onRemoveFromFavorites}
             onNavigateToDetail={onNavigateToDetail}
+            onAssignToGroup={handleAssignFavorite}
             formatCustomizations={formatCustomizations}
           />
         ))}
       </div>
+      
+      <FavoriteAssignmentModal
+        isOpen={assignmentModalOpen}
+        onClose={() => {
+          setAssignmentModalOpen(false);
+          setSelectedFavorite(null);
+        }}
+        onConfirm={(assignedToGroup, assignedToMember) => {
+          if (selectedFavorite) {
+            updateFavoriteAssignment(selectedFavorite.id, assignedToGroup, assignedToMember);
+          }
+        }}
+        groups={groups}
+        favoriteItem={selectedFavorite || undefined}
+      />
     </div>
   );
 };

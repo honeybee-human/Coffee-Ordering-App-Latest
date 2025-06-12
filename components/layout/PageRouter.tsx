@@ -170,6 +170,7 @@ export const PageRouter: React.FC<PageRouterProps> = ({
           <FavoritesPage
             favorites={favorites}
             groupMembers={activeGroup?.members || []}
+            groups={groups}
             onBack={onNavigateToMenu}
             onRemoveFromFavorites={onRemoveFromFavorites}
             onAddToCart={onAddToCart}

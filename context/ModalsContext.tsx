@@ -19,6 +19,8 @@ interface ModalsContextType {
   showAllergenWarning: (allergens: string[], affectedMembers: string[], itemName: string, addCallback: () => void) => void;
   proceedWithAllergen: () => void;
   closeAllergenWarning: () => void;
+  showNoMembersWarning: () => void;
+  closeNoMembersWarning: () => void;
 }
 
 const ModalsContext = createContext<ModalsContextType | undefined>(undefined);
@@ -27,7 +29,8 @@ export const ModalsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [modalState, setModalState] = useState<ModalState>({
     addToCart: { isOpen: false, itemName: '' },
     orderComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 },
-    allergenWarning: { isOpen: false, itemId: '', itemType: 'coffee', allergens: [] }
+    allergenWarning: { isOpen: false, itemId: '', itemType: 'coffee', allergens: [] },
+    noMembersWarning: { isOpen: false }
   });
 
   const [allergenWarning, setAllergenWarning] = useState<AllergenWarningState>({
@@ -108,6 +111,20 @@ export const ModalsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     });
   }, []);
 
+  const showNoMembersWarning = useCallback(() => {
+    setModalState(prev => ({
+      ...prev,
+      noMembersWarning: { isOpen: true }
+    }));
+  }, []);
+
+  const closeNoMembersWarning = useCallback(() => {
+    setModalState(prev => ({
+      ...prev,
+      noMembersWarning: { isOpen: false }
+    }));
+  }, []);
+
   return (
     <ModalsContext.Provider value={{
       modalState,
@@ -118,7 +135,9 @@ export const ModalsProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       closeOrderCompleteModal,
       showAllergenWarning,
       proceedWithAllergen,
-      closeAllergenWarning
+      closeAllergenWarning,
+      showNoMembersWarning,
+      closeNoMembersWarning
     }}>
       {children}
     </ModalsContext.Provider>

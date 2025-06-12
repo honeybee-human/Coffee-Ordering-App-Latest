@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Settings } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
@@ -13,6 +13,7 @@ interface FavoriteCardProps {
   onAddToCart: (item: CartItem) => void;
   onRemoveFromFavorites: (favoriteId: string) => void;
   onNavigateToDetail: (favorite: FavoriteItem) => void;
+  onAssignToGroup?: (favorite: FavoriteItem) => void;
   formatCustomizations: (favorite: FavoriteItem) => string;
 }
 
@@ -22,6 +23,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
   onAddToCart,
   onRemoveFromFavorites,
   onNavigateToDetail,
+  onAssignToGroup,
   formatCustomizations
 }) => {
   const comprehensiveAllergens = getComprehensiveAllergens(favorite.item);
@@ -63,6 +65,11 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
             {formatCustomizations(favorite) && (
               <p className="text-xs text-muted-foreground">
                 <span className="font-medium">Custom:</span> {formatCustomizations(favorite)}
+              </p>
+            )}
+            {(favorite.assignedToGroup || favorite.assignedToMember) && (
+              <p className="text-xs text-blue-600 font-medium">
+                <span className="font-medium">Assigned:</span> {favorite.assignedToMember || 'Group'}
               </p>
             )}
             {comprehensiveAllergens.length > 0 && (
@@ -124,6 +131,12 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
               </p>
             )}
             
+            {(favorite.assignedToGroup || favorite.assignedToMember) && (
+              <p className="text-sm text-blue-600 font-medium">
+                <span className="font-medium">Assigned to:</span> {favorite.assignedToMember || 'Group'}
+              </p>
+            )}
+            
             {comprehensiveAllergens.length > 0 && <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />}
           </div>
 
@@ -139,6 +152,20 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
               <Plus className="h-4 w-4 mr-2" />
               Add to Cart
             </Button>
+            {onAssignToGroup && (
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAssignToGroup(favorite);
+                }}
+                variant="outline"
+                size="sm"
+                className="h-7 w-7 p-0"
+                title="Assign to Group/Member"
+              >
+                <Settings className="h-3 w-3" />
+              </Button>
+            )}
             <Button
               onClick={(e) => {
                 e.stopPropagation();

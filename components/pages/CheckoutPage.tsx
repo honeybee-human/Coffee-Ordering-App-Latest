@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Clock, CheckCircle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
@@ -7,10 +7,13 @@ import { Badge } from '@/ui/badge';
 import { Alert, AlertDescription } from '@/ui/alert';
 import { ImageWithFallback } from '@/components/imageFallBacks/ImageWithFallback';
 import { CheckoutForm } from '@/components/features/CheckoutForm';
+import { NoMembersWarningModal } from '@/components/shared/NoMembersWarningModal';
 import { CartItem, GroupMember, Order } from '@/types';
 import { useCartSubtotal, useCartTax, useCartTotal, useActiveGroup } from '@/store/useAppStore';
 import { useActiveGroupAllergenCount } from '@/store/useGroupAllergensStore';
 import { useCheckoutForm } from '@/hooks/useCheckoutForm';
+import { useModals } from '@/context/ModalsContext';
+import { useNavigation } from '@/hooks/useNavigation';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -27,6 +30,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   onBack,
   onOrderComplete
 }) => {
+  const { modalState, showNoMembersWarning, closeNoMembersWarning } = useModals();
   // Use the checkout form hook to manage form state and validation
   const {
     paymentInfo,
@@ -66,6 +70,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   };
 
   const handleSubmitOrder = async () => {
+    // Check if there are group members before proceeding
+    if (!groupMembers || groupMembers.length === 0) {
+      showNoMembersWarning();
+      return;
+    }
+
     if (!validateForm()) {
       return;
     }
@@ -104,6 +114,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       // We need to manually set this error since it's not a field error
       setIsProcessing(false);
     }
+  };
+
+  const handleNavigateToGroups = () => {
+    closeNoMembersWarning();
   };
 
   const formatCustomizations = (item: CartItem): string => {
@@ -255,6 +269,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           </Card>
         </div>
       </div>
+      
+      <NoMembersWarningModal
+        isOpen={modalState.noMembersWarning.isOpen}
+        onClose={closeNoMembersWarning}
+        onNavigateToGroups={handleNavigateToGroups}
+      />
     </div>
   );
 };

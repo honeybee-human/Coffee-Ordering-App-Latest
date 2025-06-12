@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { ModalState } from '@/types';
 
 /**
@@ -10,6 +10,7 @@ export const useModals = () => {
       addToCart: { isOpen: false, itemName: '' },
       orderComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 },
       allergenWarning: { isOpen: false, itemId: '', itemType: 'coffee', allergens: [] },
+      noMembersWarning: { isOpen: false },
     });
 
   const [allergenWarning, setAllergenWarning] = useState<{

@@ -10,7 +10,10 @@ interface FavoritesState {
   addToFavorites: (favorite: FavoriteItem) => void;
   removeFromFavorites: (favoriteId: string) => void;
   isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization) => boolean;
-  toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization) => void;
+  toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization, assignedToGroup?: string, assignedToMember?: string) => void;
+  updateFavoriteAssignment: (favoriteId: string, assignedToGroup?: string, assignedToMember?: string) => void;
+  getFavoritesByGroup: (groupId: string) => FavoriteItem[];
+  getFavoritesByMember: (groupId: string, memberName: string) => FavoriteItem[];
 }
 
 interface FavoritesPersist {
@@ -45,30 +48,54 @@ export const useFavoritesStore = create<FavoritesState>()(
         );
       },
 
-      toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization) => {
+      toggleFavorite: (type: 'coffee' | 'pastry', item: Coffee | Pastry, customizations?: CoffeeCustomization | PastryCustomization, assignedToGroup?: string, assignedToMember?: string) => {
         const { favorites, isItemFavorited, addToFavorites, removeFromFavorites } = get();
         
         if (isItemFavorited(type, item.id, customizations)) {
-          // Find and remove existing favorite
-          const existingFavorite = favorites.find(fav => 
+          // Find and remove the favorite
+          const favoriteToRemove = favorites.find(fav => 
             fav.type === type && 
             fav.item.id === item.id &&
-            JSON.stringify(fav.customizations) === JSON.stringify(customizations || (type === 'coffee' ? { syrups: [], milk: 'whole' } : { removedIngredients: [] }))
+            JSON.stringify(fav.customizations) === JSON.stringify(customizations)
           );
-          if (existingFavorite) {
-            removeFromFavorites(existingFavorite.id);
+          if (favoriteToRemove) {
+            removeFromFavorites(favoriteToRemove.id);
           }
         } else {
-          // Add new favorite
+          // Add to favorites
           const newFavorite: FavoriteItem = {
             id: Date.now().toString(),
             type,
             item,
-            customizations: customizations || (type === 'coffee' ? { syrups: [], milk: 'whole' } : { removedIngredients: [] }),
-            dateAdded: new Date()
+            customizations: customizations || (type === 'coffee' ? { syrups: [], milk: 'Regular' } : { removedIngredients: [] }),
+            dateAdded: new Date(),
+            assignedToGroup,
+            assignedToMember
           };
           addToFavorites(newFavorite);
         }
+      },
+
+      updateFavoriteAssignment: (favoriteId: string, assignedToGroup?: string, assignedToMember?: string) => {
+        set((state) => ({
+          favorites: state.favorites.map(fav => 
+            fav.id === favoriteId 
+              ? { ...fav, assignedToGroup, assignedToMember }
+              : fav
+          )
+        }));
+      },
+
+      getFavoritesByGroup: (groupId: string) => {
+        const { favorites } = get();
+        return favorites.filter(fav => fav.assignedToGroup === groupId);
+      },
+
+      getFavoritesByMember: (groupId: string, memberName: string) => {
+        const { favorites } = get();
+        return favorites.filter(fav => 
+          fav.assignedToGroup === groupId && fav.assignedToMember === memberName
+        );
       },
     }),
     {

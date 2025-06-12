@@ -42,14 +42,9 @@ export const useBusinessLogic = create(() => ({
     appStore.renameGroup(groupId, newName);
   },
 
-  addGroupMember: (groupId: string, name: string, allergens: string[] = []): void => {
+  addGroupMember: (groupId: string, member: GroupMember): void => {
     const appStore = useAppStore.getState();
-    const newMember: GroupMember = {
-      name,
-      allergens
-    };
-    
-    appStore.addGroupMember(groupId, newMember);
+    appStore.addGroupMember(groupId, member);
   },
 
   removeGroupMember: (groupId: string, memberName: string): void => {
