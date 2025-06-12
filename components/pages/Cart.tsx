@@ -4,9 +4,12 @@ import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Separator } from '@/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CartItem, GroupMember } from '@/types';
 import { combineIdenticalItems } from '@/utils/cart-helpers';
+import { calculateItemPrice } from '@/utils/cart-calculations';
 import { GroupOrderContent } from '@/components/features/GroupOrderContent';
+import { useCartTotal } from '@/store/useAppStore';
 interface CartProps {
   cartItems: CartItem[];
   groupMembers: GroupMember[];
@@ -68,24 +71,8 @@ export const Cart: React.FC<CartProps> = ({
     return { conflicts, affectedMembers };
   };
 
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => {
-      let itemPrice = item.item.price;
-      
-      // Add syrup costs for coffee items
-      if (item.type === 'coffee') {
-        const customizations = item.customizations as any;
-        if (customizations.syrups && customizations.syrups.length > 0) {
-          const syrupCost = customizations.syrups.reduce((cost: number, syrup: any) => 
-            cost + (syrup.pumps * 0.10), 0
-          );
-          itemPrice += syrupCost;
-        }
-      }
-      
-      return total + (itemPrice * item.quantity);
-    }, 0);
-  };
+  // Use the centralized cart total calculation from the store
+  const cartTotal = useCartTotal();
 
   const formatCustomizations = (item: CartItem) => {
     if (item.type === 'coffee') {
@@ -159,7 +146,14 @@ export const Cart: React.FC<CartProps> = ({
                 <CardContent className="pt-6">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 space-y-2">
-                      <div className="flex items-start gap-2">
+                      <div className="flex items-start gap-3">
+                        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
+                          <ImageWithFallback
+                            src={item.item.image || '/coffee-icon.svg'}
+                            alt={item.item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
                         <div className="flex-1">
                           <h4 className="flex items-center gap-2">
                             {item.item.name}
@@ -188,19 +182,7 @@ export const Cart: React.FC<CartProps> = ({
 
                       <div className="flex items-center gap-2">
                         <span className="text-lg">
-                          ${(() => {
-                            let itemPrice = item.item.price;
-                            if (item.type === 'coffee') {
-                              const customizations = item.customizations as any;
-                              if (customizations.syrups && customizations.syrups.length > 0) {
-                                const syrupCost = customizations.syrups.reduce((cost: number, syrup: any) => 
-                                  cost + (syrup.pumps * 0.10), 0
-                                );
-                                itemPrice += syrupCost;
-                              }
-                            }
-                            return itemPrice.toFixed(2);
-                          })()}
+                          ${calculateItemPrice(item).toFixed(2)}
                         </span>
                         <span className="text-sm text-muted-foreground">each</span>
                       </div>
@@ -236,19 +218,7 @@ export const Cart: React.FC<CartProps> = ({
 
                       <div className="text-right">
                         <span>
-                          ${(() => {
-                            let itemPrice = item.item.price;
-                            if (item.type === 'coffee') {
-                              const customizations = item.customizations as any;
-                              if (customizations.syrups && customizations.syrups.length > 0) {
-                                const syrupCost = customizations.syrups.reduce((cost: number, syrup: any) => 
-                                  cost + (syrup.pumps * 0.10), 0
-                                );
-                                itemPrice += syrupCost;
-                              }
-                            }
-                            return (itemPrice * item.quantity).toFixed(2);
-                          })()}
+                          ${(calculateItemPrice(item) * item.quantity).toFixed(2)}
                         </span>
                       </div>
                     </div>
@@ -274,7 +244,7 @@ export const Cart: React.FC<CartProps> = ({
             <Separator />
             <div className="flex items-center justify-between text-lg">
               <span>Total:</span>
-              <span>${calculateTotal().toFixed(2)}</span>
+              <span>${cartTotal.total.toFixed(2)}</span>
             </div>
             <Button onClick={onCheckout} className="w-full" size="lg">
               Proceed to Checkout

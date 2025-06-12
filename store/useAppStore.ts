@@ -17,6 +17,7 @@ import {
 import { create } from 'zustand';
 import { persist, createJSONStorage, PersistOptions } from 'zustand/middleware';
 import type { StateCreator } from 'zustand';
+import { calculateCartTotal, calculateCartSubtotal, calculateTax } from '@/utils/cart-calculations';
 
 
 // Define the store interface
@@ -50,6 +51,9 @@ export interface AppStore {
   // Computed getters
   getActiveGroup: () => Group | undefined;
   getCartCount: () => number;
+  getCartSubtotal: () => number;
+  getCartTax: (taxRate?: number) => number;
+  getCartTotal: (taxRate?: number) => { subtotal: number; tax: number; total: number; };
   
   // Group actions
   createGroup: (name: string) => void;
@@ -151,6 +155,21 @@ const storeImplementation: StateCreator<
   getCartCount: () => {
     const activeGroup = get().getActiveGroup();
     return activeGroup?.cart.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  },
+  
+  getCartSubtotal: () => {
+    const activeGroup = get().getActiveGroup();
+    return activeGroup ? calculateCartSubtotal(activeGroup.cart) : 0;
+  },
+  
+  getCartTax: (taxRate = 0.08) => {
+    const subtotal = get().getCartSubtotal();
+    return calculateTax(subtotal, taxRate);
+  },
+  
+  getCartTotal: (taxRate = 0.08) => {
+    const activeGroup = get().getActiveGroup();
+    return activeGroup ? calculateCartTotal(activeGroup.cart, taxRate) : { subtotal: 0, tax: 0, total: 0 };
   },
 
   // Group actions
@@ -552,3 +571,8 @@ export const useCurrentPage = () => useAppStore(state => ({
 }));
 export const useModals = () => useAppStore(state => state.modals);
 export const useAllergenFilters = () => useAppStore(state => state.excludedAllergens);
+
+// Cart calculation selectors
+export const useCartSubtotal = () => useAppStore(state => state.getCartSubtotal());
+export const useCartTax = (taxRate?: number) => useAppStore(state => state.getCartTax(taxRate));
+export const useCartTotal = (taxRate?: number) => useAppStore(state => state.getCartTotal(taxRate));

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Star, AlertTriangle, Plus } from 'lucide-react';
+import { ArrowLeft, Star, Plus, AlertTriangle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Badge } from '@/ui/badge';
@@ -12,6 +12,7 @@ import { pastryMenu } from '@/data/menu';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { PastryCustomizationComponent } from '@/components/features/PastryCustomization';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
+import { AllergenTag } from '@/components/shared/AllergenTag';
 
 interface PastryDetailPageProps {
   pastry: Pastry;
@@ -121,34 +122,6 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
     onToggleFavorite('pastry', pastry, customizations);
   };
 
-  // Function to render allergen tags with the same styling as product cards
-  const renderAllergenTags = () => {
-    const originalAllergens = pastry.allergens || [];
-    
-    return (
-      <div className="flex flex-wrap gap-2">
-        {/* Original allergens */}
-        {originalAllergens.map((allergen: string) => (
-          <span key={`original-${allergen}`} className="flex items-center gap-1 text-xs text-destructive">
-            <AlertTriangle className="h-3 w-3" />
-            {allergen}
-          </span>
-        ))}
-        {/* Detected allergens with different styling - only if group member has that allergen */}
-        {relevantDetectedAllergens.map((allergen: string) => (
-          <Badge 
-            key={`detected-${allergen}`} 
-            variant="secondary" 
-            className="text-xs bg-amber-100 text-amber-800 border-amber-200"
-          >
-            <AlertTriangle className="h-3 w-3 mr-1" />
-            {allergen}
-          </Badge>
-        ))}
-      </div>
-    );
-  };
-
   return (
     <div className="mx-auto space-y-6">
         <Button onClick={onBack} variant="outline">
@@ -230,7 +203,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                 {/* Allergen Information - same style as product cards */}
                 {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
                   <div className="pt-3">
-                    {renderAllergenTags()}
+                    <AllergenTag item={pastry} groupAllergens={groupAllergens} />
                   </div>
                 )}
                 <div className="mt-4 pt-4"></div>

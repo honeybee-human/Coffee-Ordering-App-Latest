@@ -2,6 +2,7 @@ import React from 'react';
 import { User, Users, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/ui/badge';
 import { Separator } from '@/ui/separator';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CartItem, GroupMember } from '@/types';
 import { groupAndCombineItems } from '@/utils/cart-helpers';
 
@@ -139,15 +140,24 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
                   
                   return (
                     <div key={item.id} className="flex justify-between items-start text-sm">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span>{item.quantity}x {item.item.name}</span>
+                      <div className="flex-1 flex gap-2">
+                        <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                          <ImageWithFallback
+                            src={item.item.image || '/coffee-icon.svg'}
+                            alt={item.item.name}
+                            className="w-full h-full object-cover"
+                          />
                         </div>
-                        {customizations && (
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {customizations}
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span>{item.quantity}x {item.item.name}</span>
                           </div>
-                        )}
+                          {customizations && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {customizations}
+                            </div>
+                          )}
+                        </div>
                       </div>
                       <span className="text-sm font-medium ml-4">
                         ${(itemPrice * item.quantity).toFixed(2)}
@@ -189,15 +199,24 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
               
               return (
                 <div key={item.id} className="flex justify-between items-start text-sm">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span>{item.quantity}x {item.item.name}</span>
+                  <div className="flex-1 flex gap-2">
+                    <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                      <ImageWithFallback
+                        src={item.item.image || '/coffee-icon.svg'}
+                        alt={item.item.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
-                    {customizations && (
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {customizations}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span>{item.quantity}x {item.item.name}</span>
                       </div>
-                    )}
+                      {customizations && (
+                        <div className="text-xs text-muted-foreground mt-1">
+                          {customizations}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <span className="text-sm font-medium ml-4">
                     ${(itemPrice * item.quantity).toFixed(2)}

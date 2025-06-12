@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ArrowLeft, CreditCard, Clock, CheckCircle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
@@ -7,7 +7,10 @@ import { Label } from '@/ui/label';
 import { Separator } from '@/ui/separator';
 import { Badge } from '@/ui/badge';
 import { Alert, AlertDescription } from '@/ui/alert';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CartItem, GroupMember, PaymentInfo, Order } from '@/types';
+import { useCartSubtotal, useCartTax, useCartTotal } from '@/store/useAppStore';
+import { calculateItemPrice } from '@/utils/cart-calculations';
 import { v4 as uuidv4 } from 'uuid';
 
 interface CheckoutPageProps {
@@ -38,9 +41,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
-  const total = cartItems.reduce((sum, item) => sum + (item.item.price * item.quantity), 0);
-  const tax = total * 0.08; // 8% tax
-  const finalTotal = total + tax;
+  // Use the centralized cart calculations from the store
+  const subtotal = useCartSubtotal();
+  const tax = useCartTax();
+  const finalTotal = useCartTotal();
 
   const validateForm = (): boolean => {
     const newErrors: { [key: string]: string } = {};
@@ -168,7 +172,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const order: Order = {
         id: uuidv4(),
         items: cartItems,
-        totalAmount: finalTotal,
+        totalAmount: finalTotal.total,
         orderDate: new Date(),
         status: 'pending',
         groupMembers: groupMembers,
@@ -370,25 +374,34 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               {cartItems.map((item, index) => (
                 <div key={item.id}>
                   <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span>{item.item.name}</span>
-                        {item.assignedTo && (
-                          <Badge variant="outline" className="text-xs">
-                            {item.assignedTo}
-                          </Badge>
+                    <div className="flex-1 flex gap-3">
+                      <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+                        <ImageWithFallback
+                          src={item.item.image || '/coffee-icon.svg'}
+                          alt={item.item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span>{item.item.name}</span>
+                          {item.assignedTo && (
+                            <Badge variant="outline" className="text-xs">
+                              {item.assignedTo}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          ${calculateItemPrice(item).toFixed(2)} × {item.quantity}
+                        </p>
+                        {formatCustomizations(item) && (
+                          <p className="text-sm text-muted-foreground">
+                            {formatCustomizations(item)}
+                          </p>
                         )}
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        ${item.item.price.toFixed(2)} × {item.quantity}
-                      </p>
-                      {formatCustomizations(item) && (
-                        <p className="text-sm text-muted-foreground">
-                          {formatCustomizations(item)}
-                        </p>
-                      )}
                     </div>
-                    <span>${(item.item.price * item.quantity).toFixed(2)}</span>
+                    <span>${(calculateItemPrice(item) * item.quantity).toFixed(2)}</span>
                   </div>
                   {index < cartItems.length - 1 && <Separator className="mt-4" />}
                 </div>
@@ -399,7 +412,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <div className="space-y-2">
                 <div className="flex justify-between">
                   <span>Subtotal:</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Tax (8%):</span>
@@ -407,7 +420,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </div>
                 <div className="flex justify-between font-medium">
                   <span>Total:</span>
-                  <span>${finalTotal.toFixed(2)}</span>
+                  <span>${finalTotal.total.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -429,7 +442,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 ) : (
                   <>
                     <CheckCircle className="h-4 w-4 mr-2" />
-                    Place Order - ${finalTotal.toFixed(2)}
+                    Place Order - ${finalTotal.total.toFixed(2)}
                   </>
                 )}
               </Button>

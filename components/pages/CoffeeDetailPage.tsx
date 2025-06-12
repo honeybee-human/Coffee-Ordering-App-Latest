@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { ArrowLeft, Star, AlertTriangle, Plus } from 'lucide-react';
+import { ArrowLeft, Star, Plus } from 'lucide-react';
 import { Button } from '@/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
-import { Badge } from '@/ui/badge';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
+import { AllergenTag } from '@/components/shared/AllergenTag';
 import { coffeeMenu } from '@/data/menu';
 import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
@@ -105,33 +104,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
   // Fixed syrup pricing to $0.10 per pump
   const totalPrice = coffee.price + customizations.syrups.reduce((total, syrup) => total + (syrup.pumps * 0.10), 0);
 
-  // Function to render allergen tags with the same styling as product cards
-  const renderAllergenTags = () => {
-    const originalAllergens = coffee.allergens || [];
-    
-    return (
-      <div className="flex flex-wrap gap-2">
-        {/* Original allergens */}
-        {originalAllergens.map((allergen: string) => (
-          <span key={`original-${allergen}`} className="flex items-center gap-1 text-xs text-destructive">
-            <AlertTriangle className="h-3 w-3" />
-            {allergen}
-          </span>
-        ))}
-        {/* Detected allergens with different styling - only if group member has that allergen */}
-        {relevantDetectedAllergens.map((allergen: string) => (
-          <Badge 
-            key={`detected-${allergen}`} 
-            variant="secondary" 
-            className="text-xs bg-amber-100 text-amber-800 border-amber-200"
-          >
-            <AlertTriangle className="h-3 w-3 mr-1" />
-            {allergen}
-          </Badge>
-        ))}
-      </div>
-    );
-  };
+
 
   return (
     <div className="mx-auto space-y-6">
@@ -179,7 +152,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
             {/* Allergen Information - same style as product cards */}
             {(coffee.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
               <div className="pt-3">
-                {renderAllergenTags()}
+                <AllergenTag item={coffee} groupAllergens={groupAllergens} />
               </div>
             )}
           </div>
