@@ -61,7 +61,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
           <div className="space-y-2">
             <Label htmlFor="person-select">Who is this for? (Optional)</Label>
             <Select value={selectedPerson || "unassigned"} onValueChange={(value) => onPersonChange(value === "unassigned" ? "" : value)}>
-              <SelectTrigger id="person-select" className="bg-white">
+              <SelectTrigger id="person-select" className="bg-muted">
                 <SelectValue placeholder="Select a person or leave unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -139,7 +139,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
             )}
           </div>
         </div>
-        <div className="border-t mt-4 pt-4"></div>
+        <div className="mt-4"></div>
       </div>
     </div>
   );

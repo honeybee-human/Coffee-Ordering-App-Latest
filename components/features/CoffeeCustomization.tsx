@@ -54,12 +54,12 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
   };
 
   return (
-    <div className="space-y-4">
+    <div className="">
       <div>
         <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
         <div>
           <Select value={customization.milk} onValueChange={(milk) => onChange({ ...customization, milk })}>
-            <SelectTrigger className="bg-white">
+            <SelectTrigger className="bg-muted">
               <SelectValue placeholder="Select milk type" />
             </SelectTrigger>
             <SelectContent>
@@ -69,7 +69,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
             </SelectContent>
           </Select>
         </div>
-        <div className="border-t mt-4 pt-4"></div>
+        <div className="mt-4 pt-4"></div>
       </div>
 
       <div>
@@ -77,7 +77,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
         <div className="space-y-4">
           <div className="flex gap-2">
             <Select value={selectedSyrup} onValueChange={setSelectedSyrup}>
-              <SelectTrigger className="flex-1 bg-white">
+              <SelectTrigger className="flex-1 bg-muted">
                 <SelectValue placeholder="Add syrup flavor" />
               </SelectTrigger>
               <SelectContent>
@@ -118,7 +118,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
             </div>
           )}
         </div>
-        <div className="border-t mt-4 pt-4"></div>
+        <div className="mt-4 pt-4"></div>
       </div>
     </div>
   );

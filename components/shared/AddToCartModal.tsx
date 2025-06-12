@@ -34,7 +34,9 @@ export const AddToCartModal: React.FC<AddToCartModalProps> = ({
             Added to Cart!
           </DialogTitle>
           <DialogDescription>
-            {itemName} has been successfully added to your cart. You can continue shopping or view your cart to proceed with checkout.
+            {itemName && typeof itemName === 'string' && itemName.length > 0 
+              ? itemName[0].toUpperCase() + itemName.substring(1) 
+              : 'Item'} has been successfully added to your cart.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">

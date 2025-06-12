@@ -211,11 +211,11 @@ export const Menu: React.FC<MenuProps> = ({
               placeholder={`Search by ${searchMode}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white"
+              className="pl-10 bg-muted"
             />
           </div>
           <Select value={searchMode} onValueChange={(value: 'name' | 'description') => setSearchMode(value)}>
-            <SelectTrigger className="w-full sm:w-48 bg-white">
+            <SelectTrigger className="w-full sm:w-48 bg-muted">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -231,9 +231,9 @@ export const Menu: React.FC<MenuProps> = ({
             <CollapsibleTrigger asChild>
               <Button 
                 variant="outline" 
-                className="justify-between bg-white hover:bg-gray-50 transition-all border min-w-60"
+                className="justify-between bg-muted hover:bg-gray-50 transition-all min-w-60"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ">
                   <Filter className="h-4 w-4" />
                   <span>Allergen Filters</span>
                   {excludedAllergens.length > 0 && (
@@ -345,9 +345,6 @@ export const Menu: React.FC<MenuProps> = ({
                         <span>Detected from ingredients (only shown for group member allergies)</span>
                       </div>
                     </div>
-                    <p className="mt-2">
-                      Select allergens to hide all menu items that contain them. Yellow allergens are specific to your group members&apos; allergies.
-                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -371,7 +368,7 @@ export const Menu: React.FC<MenuProps> = ({
         <TabsContent value="coffee" className="space-y-6">
           <div className="text-center space-y-2 mb-8">
             <h2 className="text-3xl font-bold text-primary">Artisan Coffee Selection</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground mx-auto">
               Expertly crafted coffee drinks made with premium beans and endless customization options
             </p>
           </div>
@@ -511,7 +508,7 @@ export const Menu: React.FC<MenuProps> = ({
         <TabsContent value="pastries" className="space-y-6">
           <div className="text-center space-y-2 mb-8">
             <h2 className="text-3xl font-bold text-primary">Fresh Baked Pastries</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-muted-foreground mx-auto">
               Delicious pastries baked fresh daily with customizable options to suit your preferences
             </p>
           </div>

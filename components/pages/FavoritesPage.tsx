@@ -260,7 +260,7 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
             />
           </div>
           <Select value={searchMode} onValueChange={(value: 'name' | 'description') => setSearchMode(value)}>
-            <SelectTrigger className="w-full sm:w-48 bg-white">
+            <SelectTrigger className="w-full sm:w-48 bg-muted">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -276,7 +276,7 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
             <CollapsibleTrigger asChild>
               <Button 
                 variant="outline" 
-                className="justify-between bg-white hover:bg-gray-50 transition-all border min-w-60"
+                className="justify-between bg-muted hover:bg-gray-50 transition-all min-w-60"
               >
                 <div className="flex items-center gap-2">
                   <Filter className="h-4 w-4" />
@@ -390,9 +390,6 @@ export const FavoritesPage: React.FC<FavoritesPageProps> = ({
                         <span>Detected from ingredients (only shown for group member allergies)</span>
                       </div>
                     </div>
-                    <p className="mt-2">
-                      Select allergens to hide all favorite items that contain them. Yellow allergens are specific to your group members&apos; allergies.
-                    </p>
                   </div>
                 </CardContent>
               </Card>

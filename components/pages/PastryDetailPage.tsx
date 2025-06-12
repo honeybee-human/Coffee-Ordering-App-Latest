@@ -209,10 +209,10 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                 <h2 className="text-lg font-semibold mb-3">Ingredients</h2>
                 {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
                   <>
-                    <p className="text-sm text-muted-foreground mb-3">
+                    <span className="text-muted-foreground mb-3">
                       The following ingredients can be removed from your pastry:
-                    </p>
-                    <div className="flex flex-wrap gap-2">
+                    </span>
+                    <div className="flex flex-wrap gap-2 mt-3">
                       {pastry.removableIngredients.map((ingredient: string) => (
                         <Badge 
                           key={ingredient} 
@@ -232,7 +232,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                     {renderAllergenTags()}
                   </div>
                 )}
-                <div className="border-t mt-4 pt-4"></div>
+                <div className="mt-4 pt-4"></div>
               </div>
             )}
           {/* Direct customization without extra card wrapper - only show if there are removable ingredients */}
@@ -253,12 +253,12 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
             <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
             
             <div className="flex justify-between items-center">
-              <span className="font-medium">{pastry.name}</span>
-              <span>${pastry.price.toFixed(2)}</span>
+              <p className="">{pastry.name}</p>
+              <p>${pastry.price.toFixed(2)}</p>
             </div>
             
             {customizations.removedIngredients.length > 0 && (
-              <div className="pt-2 border-t border-border">
+              <div className="pt-2 mt-3 border-border border-t">
                 <p className="text-sm font-medium text-muted-foreground mb-1">Removed ingredients:</p>
                 {customizations.removedIngredients.map((ingredient, index) => (
                   <div key={index} className="text-sm text-muted-foreground">
@@ -267,7 +267,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                 ))}
               </div>
             )}
-            <div className="border-t mt-4 pt-4"></div>
+            <div className="mt-4 pt-4"></div>
           </div>
           
           <Button 

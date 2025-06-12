@@ -211,23 +211,23 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
           {/* Order Summary */}
           <div>
             <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
-            <div className="font-medium">
+            <div className="text-sm font-medium">
               Total: ${totalPrice.toFixed(2)}
             </div>
-            <div className="flex justify-between items-center">
-              <span className="font-medium">{coffee.name}</span>
-              <span>${coffee.price.toFixed(2)}</span>
+            <div className="text-sm flex justify-between items-center">
+              <div>{coffee.name}</div>
+              <div>${coffee.price.toFixed(2)}</div>
             </div>
               
               {customizations.milk !== 'Whole Milk' && (
-                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                <div className="flex justify-between items-center text-sm text-muted-foreground mt-2 border-t border-border">
                   <span>• {customizations.milk}</span>
                   <span>Included</span>
                 </div>
               )}
               
               {customizations.syrups.map((syrup, index) => (
-                <div key={index} className="flex justify-between items-center text-sm text-muted-foreground">
+                <div key={index} className="flex justify-between items-center text-sm text-muted-foreground mt-2 border-t border-border">
                   <span>• {syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''} {syrup.flavor}</span>
                   <span>+${(syrup.pumps * 0.10).toFixed(2)}</span>
                 </div>
