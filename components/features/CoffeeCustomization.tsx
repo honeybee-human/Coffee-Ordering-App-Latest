@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Badge } from './ui/badge';
-import { CoffeeCustomization } from '../types';
-import { syrupOptions, milkOptions } from '../data/menu';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Badge } from '@/ui/badge';
+import { CoffeeCustomization } from '@/types';
+import { syrupOptions, milkOptions } from '@/data/menu';
 
 interface CoffeeCustomizationProps {
   customization: CoffeeCustomization;

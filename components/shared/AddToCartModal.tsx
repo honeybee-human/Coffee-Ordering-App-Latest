@@ -1,7 +1,7 @@
 import React from 'react';
 import { CheckCircle, ShoppingCart } from 'lucide-react';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
+import { Button } from '@/ui/button';
 
 interface AddToCartModalProps {
   isOpen: boolean;

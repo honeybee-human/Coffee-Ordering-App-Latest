@@ -1,4 +1,4 @@
-import { Coffee, Pastry } from '../types';
+import { Coffee, Pastry } from '@/types';
 
 export const coffeeMenu: Coffee[] = [
   {

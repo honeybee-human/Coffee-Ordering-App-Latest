@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AppState, FavoriteItem, CoffeeCustomization, PastryCustomization } from '../types';
+import { AppState, FavoriteItem, CoffeeCustomization, PastryCustomization } from '@/types';
 
 interface NavigationStore {
   // State

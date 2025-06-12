@@ -14,7 +14,7 @@ import {
   PaymentInfo,
   CoffeeCustomization,
   PastryCustomization
-} from '../types';
+} from '@/types';
 import { useModalsStore } from './useModalsStore';
 
 /**

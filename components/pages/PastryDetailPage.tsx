@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Star, AlertTriangle, Plus } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { PastryCustomizationComponent } from './PastryCustomization';
-import { pastryMenu } from '../data/menu';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+
 import { pastryImages } from './Menu';
-import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType, Pastry } from '../types';
-import { getComprehensiveAllergens } from '../utils/allergens';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { Group } from '../types';
-import { GroupMemberAssignment } from './GroupMemberAssignment';
+import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType, Pastry } from '@/types';
+import { getComprehensiveAllergens } from '@/utils/allergens';
+
+import { Group } from '@/types';
+import { pastryMenu } from '@/data/menu';
+import { GroupMemberAssignment } from '../features/GroupMemberAssignment';
+import { PastryCustomizationComponent } from '../features/PastryCustomization';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 interface PastryDetailPageProps {
   pastry: Pastry;

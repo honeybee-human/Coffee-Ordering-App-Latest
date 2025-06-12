@@ -1,7 +1,7 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Checkbox } from './ui/checkbox';
-import { PastryCustomization, Pastry } from '../types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Checkbox } from '@/ui/checkbox';
+import { PastryCustomization, Pastry } from '@/types';
 
 interface PastryCustomizationProps {
   pastry: Pastry;

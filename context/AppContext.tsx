@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AppData, Group } from '../types';
-import { createDefaultGroup } from '../utils/storage';
+import { AppData, Group } from '@/types';
+import { createDefaultGroup } from '@/utils/storage';
 
 interface AppContextType {
   appData: AppData;

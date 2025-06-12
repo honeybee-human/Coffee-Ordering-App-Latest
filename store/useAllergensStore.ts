@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
-import { Coffee, Pastry, Group, GroupMember } from '../types';
+import { Coffee, Pastry, Group, GroupMember } from '@/types';
 import { useAppStore } from './useAppStore';
 
 interface AllergensStore {

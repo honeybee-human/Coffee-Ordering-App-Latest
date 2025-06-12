@@ -1,4 +1,4 @@
-import { AppData, Group, GroupMember, CartItem, FavoriteItem, Order } from '../types';
+import { AppData, Group, GroupMember, CartItem, FavoriteItem, Order } from '@/types';
 import { normalizeAllergens } from './allergens';
 
 /**

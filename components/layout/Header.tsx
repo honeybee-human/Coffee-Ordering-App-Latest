@@ -1,9 +1,9 @@
 import React from 'react';
 import { Coffee, ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
-import { Group, AppState } from '../../types';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
+import { Group, AppState } from '@/types';
 
 interface HeaderProps {
   activeGroup: Group | undefined;

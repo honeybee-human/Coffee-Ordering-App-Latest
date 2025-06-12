@@ -1,12 +1,8 @@
 import React from 'react';
 import { ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
-import { AllergenWarning } from './components/AllergenWarning';
-import { AddToCartModal } from './components/AddToCartModal';
-import { OrderCompleteModal } from './components/OrderCompleteModal';
 import { Header } from './components/layout/Header';
 import { PageRouter } from './components/layout/PageRouter';
-import AppProviders from './components/AppProviders';
-import { BrowserRouter } from 'react-router-dom';
+
 
 // Import Zustand stores
 import { useAppStore } from './store/useAppStore';
@@ -21,6 +17,10 @@ import { coffeeMenu, pastryMenu } from './data/menu';
 import { normalizeAllergens } from './utils/allergens';
 import { CartItem, FavoriteItem, Order, GroupMember, Coffee, Pastry } from './types';
 import { useModalsStore } from './store/useModalsStore';
+import { AddToCartModal } from './components/shared/AddToCartModal';
+import { AllergenWarning } from './components/shared/AllergenWarning';
+import { AppProviders } from './context';
+import { OrderCompleteModal } from './components/shared/OrderCompleteModal';
 
 /**
  * STORAGE SYSTEM: Bean & Bite now uses Zustand for state management

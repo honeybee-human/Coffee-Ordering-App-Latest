@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { AppState, FavoriteItem } from '../types';
+import { AppState, FavoriteItem } from '@/types';
 
 interface NavigationContextType {
   appState: AppState;

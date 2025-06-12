@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { ModalState } from '../types';
+import { ModalState } from '@/types';
 
 interface AllergenWarningState {
   isOpen: boolean;

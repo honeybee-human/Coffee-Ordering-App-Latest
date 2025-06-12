@@ -1,16 +1,16 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ArrowLeft, Trash2, Plus, AlertTriangle, Filter, ChevronDown, ChevronUp, X, Search } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Checkbox } from './ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { FavoriteItem, GroupMember, CartItem } from '../types';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { Input } from '@/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Checkbox } from '@/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { FavoriteItem, GroupMember, CartItem } from '@/types';
 import { coffeeImages, pastryImages } from './Menu';
-import { getComprehensiveAllergens } from '../utils/allergens';
+import { getComprehensiveAllergens } from '@/utils/allergens';
 
 interface FavoritesPageProps {
   favorites: FavoriteItem[];

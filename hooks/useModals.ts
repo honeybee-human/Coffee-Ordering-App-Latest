@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { ModalState } from '../types';
+import { ModalState } from '@/types';
 
 /**
  * Custom hook for managing modal states

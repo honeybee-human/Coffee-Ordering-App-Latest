@@ -1,4 +1,4 @@
-import { CartItem, CoffeeCustomization, PastryCustomization, GroupMember } from '../types';
+import { CartItem, CoffeeCustomization, PastryCustomization, GroupMember } from '@/types';
 
 /**
  * Checks if two cart items have identical customizations

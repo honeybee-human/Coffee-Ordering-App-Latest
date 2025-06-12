@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react';
-import { CartItem, GroupMember, CoffeeCustomization } from '../types';
-import { containsDairy } from '../data/menu';
-import { normalizeAllergens } from '../utils/allergens';
+import { CartItem, GroupMember, CoffeeCustomization } from '@/types';
+import { containsDairy } from '@/data/menu';
+import { normalizeAllergens } from '@/utils/allergens';
 
 interface AllergensContextType {
   excludedAllergens: string[];

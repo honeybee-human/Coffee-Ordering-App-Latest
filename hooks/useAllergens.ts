@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { CartItem, GroupMember, CoffeeCustomization } from '../types';
+import { CartItem, GroupMember, CoffeeCustomization } from '@/types';
 import { containsDairy } from '../data/menu';
 import { normalizeAllergens } from '../utils/allergens';
 

@@ -11,7 +11,7 @@ import {
   FavoriteItem, 
   AppData,
   PageType 
-} from '../types'; // Update this path
+} from '@/types'; // Update this path
 
 // store/useStore.ts
 import { create } from 'zustand';

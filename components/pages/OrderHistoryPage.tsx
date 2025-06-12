@@ -1,10 +1,10 @@
 import React from 'react';
 import { ArrowLeft, Clock, CheckCircle, Package, RefreshCw, User, Calendar, CreditCard } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from './ui/card';
-import { Badge } from './ui/badge';
-import { Order, CartItem } from '../types';
-import { GroupOrderContent } from './GroupOrderContent';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { Order, CartItem } from '@/types';
+import { GroupOrderContent } from '../features/GroupOrderContent';
 
 interface OrderHistoryPageProps {
   orders: Order[];

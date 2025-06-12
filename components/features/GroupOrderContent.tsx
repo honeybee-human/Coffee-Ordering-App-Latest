@@ -1,9 +1,9 @@
 import React from 'react';
 import { User, Users, AlertTriangle } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { Separator } from './ui/separator';
-import { CartItem, GroupMember } from '../types';
-import { groupAndCombineItems } from '../utils/cart-helpers';
+import { Badge } from '@/ui/badge';
+import { Separator } from '@/ui/separator';
+import { CartItem, GroupMember } from '@/types';
+import { groupAndCombineItems } from '@/utils/cart-helpers';
 
 interface GroupOrderContentProps {
   cartItems: CartItem[];

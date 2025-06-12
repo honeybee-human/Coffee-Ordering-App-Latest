@@ -1,8 +1,8 @@
 import React from 'react';
 import { Star, Users, Clock } from 'lucide-react';
-import { Menu } from '../Menu';
+import { Menu } from '../pages/Menu';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { Group } from '../../types';
+import { Group } from '@/types';
 
 interface MenuPageProps {
   activeGroup: Group | undefined;

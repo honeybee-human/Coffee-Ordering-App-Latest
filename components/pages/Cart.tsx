@@ -1,13 +1,12 @@
 import React from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, AlertTriangle, User } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Separator } from './ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { CartItem, GroupMember } from '../types';
-import { combineIdenticalItems } from '../utils/cart-helpers';
-import { GroupOrderContent } from './GroupOrderContent';
-
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Separator } from '@/ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { CartItem, GroupMember } from '@/types';
+import { combineIdenticalItems } from '@/utils/cart-helpers';
+import { GroupOrderContent } from '../features/GroupOrderContent';
 interface CartProps {
   cartItems: CartItem[];
   groupMembers: GroupMember[];

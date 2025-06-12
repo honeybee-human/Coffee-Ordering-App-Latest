@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { AppState, FavoriteItem } from '../types';
+import { AppState, FavoriteItem } from '@/types';
 
 /**
  * Custom hook for managing navigation state and routing

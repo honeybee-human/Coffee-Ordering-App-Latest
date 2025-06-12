@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { ModalState } from '../types';
+import { ModalState } from '@/types';
 
 interface ModalsStore {
   // State

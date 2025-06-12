@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AppData, Group } from '../types';
+import { AppData, Group } from '@/types';
 import { getStoredData, saveToStorage, createDefaultGroup } from '../utils/storage';
 
 /**

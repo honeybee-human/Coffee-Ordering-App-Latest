@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { ArrowLeft, CreditCard, Clock, CheckCircle } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Separator } from './ui/separator';
-import { Badge } from './ui/badge';
-import { Alert, AlertDescription } from './ui/alert';
-import { CartItem, GroupMember, PaymentInfo, Order } from '../types';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { Separator } from '@/ui/separator';
+import { Badge } from '@/ui/badge';
+import { Alert, AlertDescription } from '@/ui/alert';
+import { CartItem, GroupMember, PaymentInfo, Order } from '@/types';
 import { v4 as uuidv4 } from 'uuid';
 
 interface CheckoutPageProps {

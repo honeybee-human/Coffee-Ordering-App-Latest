@@ -1,4 +1,4 @@
-import { AppData, Group } from '../types';
+import { AppData, Group } from '@/types';
 
 /**
  * STORAGE IMPLEMENTATION: Bean & Bite uses sessionStorage

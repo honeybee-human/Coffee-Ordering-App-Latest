@@ -1,10 +1,5 @@
 import React from 'react';
 import { useEffect } from 'react';
-import { useAppStore } from '../store/useAppStore';
-import { useNavigationStore } from '../store/useNavigationStore';
-import { useModalsStore } from '../store/useModalsStore';
-import { useAllergensStore } from '../store/useAllergensStore';
-
 // This component initializes the Zustand stores and handles any global side effects
 // that were previously managed by the context providers
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {

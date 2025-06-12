@@ -1,10 +1,10 @@
 import React from 'react';
 import { User, AlertTriangle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { GroupMember } from '../types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Label } from '@/ui/label';
+import { Badge } from '@/ui/badge';
+import { GroupMember } from '@/types';
 
 interface GroupMemberAssignmentProps {
   groupMembers: GroupMember[];

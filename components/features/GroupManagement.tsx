@@ -1,15 +1,15 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { Users, Plus, Trash2, Edit2, UserPlus, X, Check, AlertTriangle, ChevronDown } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Badge } from './ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from './ui/dialog';
-import { Separator } from './ui/separator';
-import { Group, GroupMember } from '../types';
-import { COMMON_ALLERGENS, normalizeAllergens } from '../utils/allergens';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
+import { Badge } from '@/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
+import { Separator } from '@/ui/separator';
+import { Group, GroupMember } from '@/types';
+import { COMMON_ALLERGENS, normalizeAllergens } from '@/utils/allergens';
 
 interface GroupManagementProps {
   groups: Group[];

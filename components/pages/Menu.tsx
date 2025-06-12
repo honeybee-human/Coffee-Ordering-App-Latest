@@ -1,17 +1,17 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Coffee as CoffeeIcon, Cookie, AlertTriangle, Star, Filter, ChevronDown, ChevronUp, X, Search } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Input } from './ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Checkbox } from './ui/checkbox';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { coffeeMenu, pastryMenu } from '../data/menu';
-import { getComprehensiveAllergens } from '../utils/allergens';
-import { GroupMember } from '../types';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { Input } from '@/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
+import { Checkbox } from '@/ui/checkbox';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { coffeeMenu, pastryMenu } from '@/data/menu';
+import { getComprehensiveAllergens } from '@/utils/allergens';
+import { GroupMember } from '@/types';
 
 interface MenuProps {
   groupMembers: GroupMember[];
@@ -135,7 +135,7 @@ export const Menu: React.FC<MenuProps> = ({
         if (searchMode === 'name') {
           return isWordStartMatch(query, coffee.name);
         } else {
-          return isWordStartMatch(query, coffee.description);
+          return isWordStartMatch(query, coffee.description ? coffee.description : 'A delicious brew!');
         }
       });
     }
@@ -161,7 +161,7 @@ export const Menu: React.FC<MenuProps> = ({
         if (searchMode === 'name') {
           return isWordStartMatch(query, pastry.name);
         } else {
-          return isWordStartMatch(query, pastry.description);
+          return isWordStartMatch(query, pastry.description ? pastry.description : 'A wonderful pastry!');
         }
       });
     }

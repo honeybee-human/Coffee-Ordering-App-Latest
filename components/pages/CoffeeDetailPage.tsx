@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { ArrowLeft, Star, AlertTriangle, Plus } from 'lucide-react';
-import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import { CoffeeCustomizationComponent } from './CoffeeCustomization';
-import { GroupMemberAssignment } from './GroupMemberAssignment';
-import { coffeeMenu } from '../data/menu';
+import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Badge } from '@/ui/badge';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
+import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
+import { coffeeMenu } from '@/data/menu';
 import { coffeeImages } from './Menu';
-import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '../types';
-import { getComprehensiveAllergens } from '../utils/allergens';
+import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '@/types';
+import { getComprehensiveAllergens } from '@/utils/allergens';
 
 interface CoffeeDetailPageProps {
   coffeeId: string;
