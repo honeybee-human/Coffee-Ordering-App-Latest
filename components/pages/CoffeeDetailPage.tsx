@@ -156,7 +156,10 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
           {isFavorited ? 'Favorited' : 'Add to Favorites'}
         </Button>
       </div>
-
+      <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
+              <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
+            </div>
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
         <div className="space-y-6">
@@ -169,10 +172,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
           </div>
           
           <div className="space-y-4">
-            <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
-              <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
-            </div>
+ 
 
             {/* Allergen Information - same style as product cards */}
             {(coffee.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (

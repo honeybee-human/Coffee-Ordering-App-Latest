@@ -151,6 +151,12 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   return (
     <div className="mx-auto space-y-6">
+                <div className="space-y-4">
+            <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">{pastry.name}</h1>
+              <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
+            </div>
+          </div>
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button onClick={onBack} variant="outline">
@@ -184,16 +190,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
             />
           </div>
           
-          <div className="space-y-4">
-            <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">{pastry.name}</h1>
-              <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
-            </div>
 
-           
-
-
-          </div>
  
         </div>
 

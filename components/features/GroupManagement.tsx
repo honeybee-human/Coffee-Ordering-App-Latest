@@ -229,13 +229,13 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Group Management
+           <h1> Group Management</h1>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Group Selection */}
           <div className="space-y-2">
-            <Label>Active Group</Label>
+            <h3>Active Group</h3>
             <div className="flex gap-2">
               <Select 
                 value={activeGroupId || ''} 
@@ -265,13 +265,13 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
           {/* Group List */}
           {groups.length > 0 && (
             <div className="space-y-2">
-              <Label>All Groups</Label>
+              <h3>All Groups</h3>
               <div className="space-y-2">
                 {groups.map(group => (
                   <div 
                     key={group.id} 
-                    className={`flex items-center justify-between p-3 border rounded-lg ${
-                      group.id === activeGroupId ? 'bg-primary/5 border-primary/20' : ''
+                    className={`flex items-center justify-between p-3 ${
+                      group.id === activeGroupId ? 'bg-primary/5 ' : ''
                     }`}
                   >
                     <div className="flex items-center gap-2 flex-1">
@@ -345,7 +345,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
               <Separator />
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <Label>Members in "{activeGroup.name}"</Label>
+                  <h3>Members in "{activeGroup.name}"</h3>
                   <Button 
                     size="sm" 
                     onClick={() => setIsAddMemberOpen(true)}
@@ -362,7 +362,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                 ) : (
                   <div className="space-y-3">
                     {activeGroup.members.map((member, index) => (
-                      <div key={`${member.name}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div key={`${member.name}-${index}`} className="flex items-center justify-between p-3">
                         <div className="space-y-2 flex-1">
                           <div className="flex items-center gap-2">
                             <span className="font-medium">{member.name}</span>
