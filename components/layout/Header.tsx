@@ -42,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
             onClick={onNavigateToMenu}
           >
-            <div className="bg-white/20 p-2 sm:p-3 rounded-xl">
+            <div className="p-2 sm:p-3 rounded-xl">
               <Coffee className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
           </div>
