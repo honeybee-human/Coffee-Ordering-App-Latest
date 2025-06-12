@@ -1,6 +1,6 @@
 import React from 'react';
 import { User, AlertTriangle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Label } from '@/ui/label';
 import { Badge } from '@/ui/badge';
@@ -49,19 +49,19 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
   }
 
   return (
-    <Card className={className}>
-      <CardHeader className="pb-3">
-        <CardTitle className="text-lg flex items-center gap-2">
+    <div className={className}>
+      <div className="pb-3">
+        <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
           <User className="h-5 w-5" />
           Assign to Group Member
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+        </h2>
+      </div>
+      <div>
         <div className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="person-select">Who is this for? (Optional)</Label>
             <Select value={selectedPerson || "unassigned"} onValueChange={(value) => onPersonChange(value === "unassigned" ? "" : value)}>
-              <SelectTrigger id="person-select">
+              <SelectTrigger id="person-select" className="bg-white">
                 <SelectValue placeholder="Select a person or leave unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -139,7 +139,8 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
             )}
           </div>
         </div>
-      </CardContent>
-    </Card>
+        <div className="border-t mt-4 pt-4"></div>
+      </div>
+    </div>
   );
 };

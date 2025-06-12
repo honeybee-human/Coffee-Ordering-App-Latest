@@ -150,7 +150,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <Button onClick={onBack} variant="outline">
@@ -173,7 +173,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
         </Button>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-8">
+      <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
         <div className="space-y-6">
           <div className="aspect-square rounded-2xl overflow-hidden max-w-xl mx-auto">
@@ -190,43 +190,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
               <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
             </div>
 
-            {/* Ingredients */}
-            {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg">Ingredients</CardTitle>
-                </CardHeader>
-                <CardContent>
-                {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
-<>
-                <p className="text-sm text-muted-foreground mb-3">
-                  The following ingredients can be removed from your pastry:
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {pastry.removableIngredients.map((ingredient: string) => (
-                    <Badge 
-                      key={ingredient} 
-                      variant="outline" 
-                      className="text-xs"
-                    >
-                      {ingredient}
-                    </Badge>
-                  ))}
-                </div>
-                </>
-          )}
-                 
-                              {/* Allergen Information - same style as product cards */}
-            {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
-              <div className="pt-3">
-                {renderAllergenTags()}
-              </div>
-            )}
-
-
-                </CardContent>
-              </Card>
-            )}
+           
 
 
           </div>
@@ -241,15 +205,39 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
             onPersonChange={setSelectedPerson}
             itemAllergens={allItemAllergens}
           />
-        <Button 
-                  onClick={handleAddToCart}
-                  className="w-full"
-                  size="lg"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
 
+ {/* Ingredients */}
+ {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
+              <div>
+                <h2 className="text-lg font-semibold mb-3">Ingredients</h2>
+                {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
+                  <>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      The following ingredients can be removed from your pastry:
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {pastry.removableIngredients.map((ingredient: string) => (
+                        <Badge 
+                          key={ingredient} 
+                          variant="outline" 
+                          className="text-xs"
+                        >
+                          {ingredient}
+                        </Badge>
+                      ))}
+                    </div>
+                  </>
+                )}
+                 
+                {/* Allergen Information - same style as product cards */}
+                {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
+                  <div className="pt-3">
+                    {renderAllergenTags()}
+                  </div>
+                )}
+                <div className="border-t mt-4 pt-4"></div>
+              </div>
+            )}
           {/* Direct customization without extra card wrapper - only show if there are removable ingredients */}
           {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
             <PastryCustomizationComponent
@@ -260,31 +248,39 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
           )}
 
           {/* Order Summary */}
-          <Card className="bg-muted/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{pastry.name}</span>
-                <span>${pastry.price.toFixed(2)}</span>
-              </div>
-              
-              {customizations.removedIngredients.length > 0 && (
-                <div className="pt-2 border-t border-border">
-                  <p className="text-sm font-medium text-muted-foreground mb-1">Removed ingredients:</p>
-                  {customizations.removedIngredients.map((ingredient, index) => (
-                    <div key={index} className="text-sm text-muted-foreground">
-                      • No {ingredient}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           
+          
+        </div>
+        <div className='flex-col space-y-4'>
+          <div>
+            <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
+            
+            <div className="flex justify-between items-center">
+              <span className="font-medium">{pastry.name}</span>
+              <span>${pastry.price.toFixed(2)}</span>
+            </div>
+            
+            {customizations.removedIngredients.length > 0 && (
+              <div className="pt-2 border-t border-border">
+                <p className="text-sm font-medium text-muted-foreground mb-1">Removed ingredients:</p>
+                {customizations.removedIngredients.map((ingredient, index) => (
+                  <div key={index} className="text-sm text-muted-foreground">
+                    • No {ingredient}
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="border-t mt-4 pt-4"></div>
+          </div>
+          
+          <Button 
+            onClick={handleAddToCart}
+            className="w-full"
+            size="lg"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Add to Cart
+          </Button>
         </div>
       </div>
     </div>

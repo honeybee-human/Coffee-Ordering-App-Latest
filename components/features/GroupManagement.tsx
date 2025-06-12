@@ -241,7 +241,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                 value={activeGroupId || ''} 
                 onValueChange={onSelectGroup}
               >
-                <SelectTrigger className="flex-1">
+                <SelectTrigger className="flex-1 bg-white">
                   <SelectValue placeholder="Select a group or create new one" />
                 </SelectTrigger>
                 <SelectContent>

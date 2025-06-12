@@ -208,22 +208,16 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
         </div>
 
         <div className='flex-col space-y-5'>
-
-
-          
           {/* Order Summary */}
-          <Card className="bg-muted/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-lg">Order Summary</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
+          <div>
+            <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
             <div className="font-medium">
-                  Total: ${totalPrice.toFixed(2)}
-                </div>
-              <div className="flex justify-between items-center">
-                <span className="font-medium">{coffee.name}</span>
-                <span>${coffee.price.toFixed(2)}</span>
-              </div>
+              Total: ${totalPrice.toFixed(2)}
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-medium">{coffee.name}</span>
+              <span>${coffee.price.toFixed(2)}</span>
+            </div>
               
               {customizations.milk !== 'Whole Milk' && (
                 <div className="flex justify-between items-center text-sm text-muted-foreground">
@@ -240,24 +234,23 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
               ))}
 
               {selectedPerson && selectedPerson !== "unassigned" && (
-                <div className="pt-2 border-t border-border">
+                <div className="mt-2 pt-2 border-t border-border">
                   <div className="flex justify-between items-center text-sm text-muted-foreground">
                     <span>• Assigned to:</span>
                     <span>{selectedPerson}</span>
                   </div>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
 
           <Button 
-                  onClick={handleAddToCart}
-                  className="w-full"
-                  size="lg"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  Add to Cart
-                </Button>
+            onClick={handleAddToCart}
+            className="w-full"
+            size="lg"
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Add to Cart
+          </Button>
         </div>
       </div>
     </div>

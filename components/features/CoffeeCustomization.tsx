@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Plus, Minus } from 'lucide-react';
 import { Button } from '@/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Badge } from '@/ui/badge';
 import { CoffeeCustomization } from '@/types';
@@ -56,13 +55,11 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
 
   return (
     <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Milk Type</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
+        <div>
           <Select value={customization.milk} onValueChange={(milk) => onChange({ ...customization, milk })}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-white">
               <SelectValue placeholder="Select milk type" />
             </SelectTrigger>
             <SelectContent>
@@ -71,17 +68,16 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
               ))}
             </SelectContent>
           </Select>
-        </CardContent>
-      </Card>
+        </div>
+        <div className="border-t mt-4 pt-4"></div>
+      </div>
 
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle>Flavor Syrups</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Flavor Syrups</h2>
+        <div className="space-y-4">
           <div className="flex gap-2">
             <Select value={selectedSyrup} onValueChange={setSelectedSyrup}>
-              <SelectTrigger className="flex-1">
+              <SelectTrigger className="flex-1 bg-white">
                 <SelectValue placeholder="Add syrup flavor" />
               </SelectTrigger>
               <SelectContent>
@@ -121,8 +117,9 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
+        <div className="border-t mt-4 pt-4"></div>
+      </div>
     </div>
   );
 };

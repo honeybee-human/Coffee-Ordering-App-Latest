@@ -1,7 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Check, X } from 'lucide-react';
+import { Button } from '@/ui/button';
 import { Checkbox } from '@/ui/checkbox';
-import { PastryCustomization, Pastry } from '@/types';
+import { Pastry, PastryCustomization } from '@/types';
 
 interface PastryCustomizationProps {
   pastry: Pastry;
@@ -31,20 +32,16 @@ export const PastryCustomizationComponent: React.FC<PastryCustomizationProps> = 
 
   if (pastry.removableIngredients.length === 0) {
     return (
-      <Card>
-        <CardContent className="pt-6">
-          <p className="text-muted-foreground text-center">No customizations available for this item.</p>
-        </CardContent>
-      </Card>
+      <div>
+        <p className="text-muted-foreground text-center">No customizations available for this item.</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Remove Ingredients</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
+    <div>
+      <h2 className="text-lg font-semibold mb-3">Remove Ingredients</h2>
+      <div className="space-y-3">
         {pastry.removableIngredients.map(ingredient => (
           <div key={ingredient} className="flex items-center space-x-2">
             <Checkbox
@@ -57,7 +54,7 @@ export const PastryCustomizationComponent: React.FC<PastryCustomizationProps> = 
             </label>
           </div>
         ))}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };

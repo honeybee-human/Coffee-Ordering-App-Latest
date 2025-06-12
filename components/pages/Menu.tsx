@@ -412,7 +412,7 @@ export const Menu: React.FC<MenuProps> = ({
               return (
                 <Card 
                   key={coffee.id} 
-                  className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group"
+                  className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group bg-white/80 backdrop-blur-sm border border-white/20"
                   onClick={() => onSelectCoffee(coffee.id)}
                 >
                   {/* Mobile Layout: Horizontal split */}
@@ -440,7 +440,7 @@ export const Menu: React.FC<MenuProps> = ({
                           />
                         </Button>
                       </div>
-                      <div className="absolute bottom-2 left-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold">
+                      <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
                         ${coffee.price.toFixed(2)}
                       </div>
                     </div>
@@ -484,7 +484,7 @@ export const Menu: React.FC<MenuProps> = ({
                           />
                         </Button>
                       </div>
-                      <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-sm font-semibold">
+                      <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
                         ${coffee.price.toFixed(2)}
                       </div>
                     </div>
@@ -552,7 +552,7 @@ export const Menu: React.FC<MenuProps> = ({
               return (
                 <Card 
                   key={pastry.id} 
-                  className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group"
+                  className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group bg-white/80 backdrop-blur-sm border border-white/20"
                   onClick={() => onSelectPastry(pastry.id)}
                 >
                   {/* Mobile Layout: Horizontal split */}
@@ -580,7 +580,7 @@ export const Menu: React.FC<MenuProps> = ({
                           />
                         </Button>
                       </div>
-                      <div className="absolute bottom-2 left-2 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-xs font-semibold">
+                      <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
                         ${pastry.price.toFixed(2)}
                       </div>
                     </div>
@@ -640,7 +640,7 @@ export const Menu: React.FC<MenuProps> = ({
                           />
                         </Button>
                       </div>
-                      <div className="absolute bottom-3 left-3 bg-primary/90 backdrop-blur-sm text-primary-foreground px-2 py-1 rounded-full text-sm font-semibold">
+                      <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
                         ${pastry.price.toFixed(2)}
                       </div>
                     </div>
