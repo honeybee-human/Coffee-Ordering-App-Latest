@@ -35,7 +35,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   return (
     <header className="coffee-header sticky top-0 z-50 backdrop-blur-md">
-      <div className="container mx-auto px-4 py-4 sm:py-6">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between min-h-[60px]">
           {/* Logo */}
           <div 

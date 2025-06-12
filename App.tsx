@@ -287,7 +287,7 @@ function AppContent() {
         onNavigateToCheckout={navigateToCheckout}
         cartItemCount={cartCount}
       />
-      <div className="p-20">
+      <div className="py-16 px-20">
       <PageRouter
         appState={appState}
         setAppState={setAppState}

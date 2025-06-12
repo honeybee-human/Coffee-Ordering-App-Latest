@@ -135,12 +135,17 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
 
   return (
     <div className="mx-auto space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button onClick={onBack} variant="outline">
+       <Button onClick={onBack} variant="outline">
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Menu
         </Button>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+ 
+              <div>
+              <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
+              <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
+            </div>
         <Button
           variant="ghost"
           onClick={handleToggleFavorite}
@@ -156,10 +161,7 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
           {isFavorited ? 'Favorited' : 'Add to Favorites'}
         </Button>
       </div>
-      <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
-              <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
-            </div>
+
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
         <div className="space-y-6">

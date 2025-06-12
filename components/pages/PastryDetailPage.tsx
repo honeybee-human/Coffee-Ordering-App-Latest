@@ -151,18 +151,19 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   return (
     <div className="mx-auto space-y-6">
-                <div className="space-y-4">
+        <Button onClick={onBack} variant="outline">
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back to Menu
+        </Button>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+
+        <div className="space-y-4">
             <div>
               <h1 className="text-3xl font-bold text-primary mb-2">{pastry.name}</h1>
               <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
             </div>
           </div>
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <Button onClick={onBack} variant="outline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Menu
-        </Button>
         <Button
           variant="ghost"
           onClick={handleToggleFavorite}

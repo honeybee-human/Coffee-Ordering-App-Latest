@@ -366,7 +366,7 @@ export const Menu: React.FC<MenuProps> = ({
         </TabsList>
 
         <TabsContent value="coffee" className="space-y-6">
-          <div className="text-center space-y-2 mb-8">
+          <div className="text-center space-y-2 mb-8 mt-8">
             <h2 className="text-3xl font-bold text-primary">Artisan Coffee Selection</h2>
             <p className="text-muted-foreground mx-auto">
               Expertly crafted coffee drinks made with premium beans and endless customization options
@@ -506,7 +506,7 @@ export const Menu: React.FC<MenuProps> = ({
         </TabsContent>
 
         <TabsContent value="pastries" className="space-y-6">
-          <div className="text-center space-y-2 mb-8">
+          <div className="text-center space-y-2 mb-8  mt-8">
             <h2 className="text-3xl font-bold text-primary">Fresh Baked Pastries</h2>
             <p className="text-muted-foreground mx-auto">
               Delicious pastries baked fresh daily with customizable options to suit your preferences
