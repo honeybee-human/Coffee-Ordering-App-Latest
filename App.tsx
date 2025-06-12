@@ -87,7 +87,7 @@ function AppContent() {
     addToFavorites,
     removeFromFavorites,
     findExistingFavorite
-  } = useBusinessLogic();
+  } = useBusinessLogic.getState();
 
   // Helper function to check allergen conflicts with group members
   const checkAllergenConflicts = (allergens: string[], members: GroupMember[]) => {

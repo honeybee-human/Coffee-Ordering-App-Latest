@@ -1,10 +1,10 @@
 import { v4 as uuidv4 } from 'uuid';
+import { create } from 'zustand';
 import { useAppStore } from '@/store/useAppStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
+import { useModalsStore } from '@/store/useModalsStore';
 
-import { useAllergensStore } from '@/store/useAllergensStore';
-import { 
-  Group, 
+import {
   GroupMember, 
   CartItem, 
   Coffee, 
@@ -15,35 +15,34 @@ import {
   CoffeeCustomization,
   PastryCustomization
 } from '@/types';
-import { useModalsStore } from '@/store/useModalsStore';
 
 /**
- * Custom hook that provides all business logic functions
- * This centralizes all business operations and makes them available through a single hook
+ * Business logic store that provides all business logic functions
+ * This centralizes all business operations and makes them available through a single store
  */
-export const useBusinessLogic = () => {
+export const useBusinessLogic = create(() => ({
   // Group Management Functions
-  const createGroup = (name: string): void => {
+  createGroup: (name: string): void => {
     const appStore = useAppStore.getState();
     appStore.createGroup(name);
-  };
+  },
 
-  const selectGroup = (groupId: string): void => {
+  selectGroup: (groupId: string): void => {
     const appStore = useAppStore.getState();
     appStore.selectGroup(groupId);
-  };
+  },
 
-  const deleteGroup = (groupId: string): void => {
+  deleteGroup: (groupId: string): void => {
     const appStore = useAppStore.getState();
     appStore.deleteGroup(groupId);
-  };
+  },
 
-  const renameGroup = (groupId: string, newName: string): void => {
+  renameGroup: (groupId: string, newName: string): void => {
     const appStore = useAppStore.getState();
     appStore.renameGroup(groupId, newName);
-  };
+  },
 
-  const addGroupMember = (groupId: string, name: string, allergens: string[] = []): void => {
+  addGroupMember: (groupId: string, name: string, allergens: string[] = []): void => {
     const appStore = useAppStore.getState();
     const newMember: GroupMember = {
       name,
@@ -51,9 +50,9 @@ export const useBusinessLogic = () => {
     };
     
     appStore.addGroupMember(groupId, newMember);
-  };
+  },
 
-  const removeGroupMember = (groupId: string, memberName: string): void => {
+  removeGroupMember: (groupId: string, memberName: string): void => {
     const appStore = useAppStore.getState();
     const group = appStore.groups.find(g => g.id === groupId);
     if (!group) return;
@@ -62,10 +61,10 @@ export const useBusinessLogic = () => {
     if (!member) return;
     
     appStore.removeGroupMember(groupId, member.name);
-  };
+  },
 
   // Cart Management Functions
-  const addToCart = (
+  addToCart: (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
     quantity: number = 1, 
@@ -91,34 +90,34 @@ export const useBusinessLogic = () => {
     
     // Close the add to cart modal if it's open
     useModalsStore.getState().closeAddToCartModal();
-  };
+  },
 
-  const removeFromCart = (cartItemId: string): void => {
+  removeFromCart: (cartItemId: string): void => {
     const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
     appStore.removeFromCart(activeGroup.id, cartItemId);
-  };
+  },
 
-  const updateCartItemQuantity = (cartItemId: string, quantity: number): void => {
+  updateCartItemQuantity: (cartItemId: string, quantity: number): void => {
     const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
     appStore.updateCartQuantity(activeGroup.id, cartItemId, quantity);
-  };
+  },
 
-  const clearCart = (): void => {
+  clearCart: (): void => {
     const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     if (!activeGroup) return;
     
     appStore.clearCart(activeGroup.id);
-  };
+  },
 
   // Favorites Management Functions
-  const addToFavorites = (
+  addToFavorites: (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
     customizations?: CoffeeCustomization | PastryCustomization
@@ -139,14 +138,14 @@ export const useBusinessLogic = () => {
     };
     
     appStore.addToFavorites(newFavorite);
-  };
+  },
 
-  const removeFromFavorites = (favoriteId: string): void => {
+  removeFromFavorites: (favoriteId: string): void => {
     const appStore = useAppStore.getState();
     appStore.removeFromFavorites(favoriteId);
-  };
+  },
 
-  const createFavoriteItem = (
+  createFavoriteItem: (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
     customizations?: CoffeeCustomization | PastryCustomization
@@ -160,10 +159,10 @@ export const useBusinessLogic = () => {
         { removedIngredients: [] } as PastryCustomization),
       dateAdded: new Date()
     };
-  };
+  },
 
   // Order Management Functions
-  const completeOrder = (paymentInfo: PaymentInfo): void => {
+  completeOrder: (paymentInfo: PaymentInfo): void => {
     const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     const navigationStore = useNavigationStore.getState();
@@ -181,7 +180,7 @@ export const useBusinessLogic = () => {
       groupName: activeGroup.name,
       items: [...activeGroup.cart],
       orderDate: new Date(),
-      totalAmount: calculateOrderTotal(activeGroup.cart),
+      totalAmount: useBusinessLogic.getState().calculateOrderTotal(activeGroup.cart),
       paymentInfo,
       estimatedTime,
       status: 'pending',
@@ -198,9 +197,9 @@ export const useBusinessLogic = () => {
     setTimeout(() => {
       navigationStore.navigateToOrderHistory();
     }, 1000);
-  };
+  },
 
-  const reorderFromHistory = (orderId: string): void => {
+  reorderFromHistory: (orderId: string): void => {
     const appStore = useAppStore.getState();
     const activeGroup = appStore.getActiveGroup();
     const navigationStore = useNavigationStore.getState();
@@ -215,58 +214,27 @@ export const useBusinessLogic = () => {
     
     // Navigate to cart
     navigationStore.navigateToCart();
-  };
+  },
 
   // Helper Functions
-  const isItemFavorited = (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): boolean => {
+  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): boolean => {
     const appStore = useAppStore.getState();
     return appStore.isItemFavorited(type, itemId, customizations);
-  };
+  },
 
-  const findExistingFavorite = (favorites: FavoriteItem[], type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): FavoriteItem | undefined => {
+  findExistingFavorite: (favorites: FavoriteItem[], type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization): FavoriteItem | undefined => {
     return favorites.find(fav => 
       fav.type === type && 
       fav.item.id === itemId &&
       (!customizations || JSON.stringify(fav.customizations) === JSON.stringify(customizations))
     );
-  };
+  },
 
-  const calculateOrderTotal = (cartItems: CartItem[]): number => {
+  calculateOrderTotal: (cartItems: CartItem[]): number => {
     return cartItems.reduce((total, item) => {
       const itemPrice = item.item.price * item.quantity;
       // Add any additional costs from customizations if needed
       return total + itemPrice;
     }, 0);
-  };
-
-  // Return all business logic functions
-  return {
-    // Group Management
-    createGroup,
-    selectGroup,
-    deleteGroup,
-    renameGroup,
-    addGroupMember,
-    removeGroupMember,
-    
-    // Cart Management
-    addToCart,
-    removeFromCart,
-    updateCartItemQuantity,
-    clearCart,
-    
-    // Favorites Management
-    addToFavorites,
-    removeFromFavorites,
-    createFavoriteItem,
-    isItemFavorited,
-    findExistingFavorite,
-    
-    // Order Management
-    completeOrder,
-    reorderFromHistory,
-    
-    // Helper Functions
-    calculateOrderTotal
-  };
-};
+  }
+}));
