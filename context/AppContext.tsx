@@ -1,12 +1,22 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AppData, Group } from '@/types';
-import { createDefaultGroup } from '@/utils/storage';
 
 interface AppContextType {
   appData: AppData;
   updateAppData: (newData: AppData) => void;
   activeGroup: Group | undefined;
 }
+
+// Helper function to create a default group (moved from utils/storage.ts)
+const createDefaultGroup = (): Group => {
+  return {
+    id: `group-${Date.now()}`,
+    name: 'My Group',
+    members: [],
+    cart: [],
+    dateCreated: new Date()
+  };
+};
 
 const defaultAppData: AppData = {
   groups: [],
