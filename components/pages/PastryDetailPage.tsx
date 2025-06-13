@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ArrowLeft, Star, Plus, AlertTriangle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
@@ -13,134 +13,262 @@ import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignme
 import { PastryCustomizationComponent } from '@/components/features/PastryCustomization';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { AllergenTag } from '@/components/shared/AllergenTag';
+import { useGroupsStore } from '@/store/useGroupsStore';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { useModalsStore } from '@/store/useModalsStore';
+import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
+
+// Constants
+const DEFAULT_CUSTOMIZATIONS: PastryCustomizationType = {
+  removedIngredients: []
+};
 
 interface PastryDetailPageProps {
-  pastry: Pastry;
+  pastryId: string;
   onBack: () => void;
-  onAddToCart: (item: CartItem) => void;
-  onToggleFavorite: (type: 'pastry', item: Pastry, customizations?: PastryCustomizationType) => void;
-  onAllergenConflict: (allergens: string[], affectedMembers: string[], itemName: string, addCallback: () => void) => void;
-  selectedGroup: Group | null;
-  groupMembers: GroupMember[];
-  isFavorited: boolean;
 }
 
-export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
-  pastry,
-  onBack,
-  onAddToCart,
-  onToggleFavorite,
-  onAllergenConflict,
-  selectedGroup,
-  groupMembers,
-  isFavorited,
-}) => {
-  const [customizations, setCustomizations] = useState<PastryCustomizationType>({
-    removedIngredients: []
+// Custom hooks for better separation of concerns
+const useSelectedGroup = () => {
+  return useGroupsStore(state => {
+    const activeGroupId = state.activeGroupId;
+    return activeGroupId ? state.groups.find(g => g.id === activeGroupId) || null : null;
   });
-  const [selectedMember, setSelectedMember] = useState<string>('');
-  const [showNoGroupModal, setShowNoGroupModal] = useState(false);
-  const [selectedPerson, setSelectedPerson] = useState<string>('');
+};
 
-  
-
-  useEffect(() => {
-    // Reset customizations when pastry changes
-    setCustomizations({
-      removedIngredients: []
-    });
-  }, [pastry]);
-
-  const groupAllergens = useMemo(() => {
+const useGroupAllergens = (groupMembers: GroupMember[]) => {
+  return useMemo(() => {
     const allergenSet = new Set<string>();
     groupMembers.forEach(member => {
-      member.allergens.forEach(allergen => allergenSet.add(allergen));
+      member.allergens?.forEach(allergen => allergenSet.add(allergen));
     });
     return Array.from(allergenSet);
   }, [groupMembers]);
+};
 
-  if (!pastry) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Button onClick={onBack} variant="outline" className="mb-4">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Menu
-        </Button>
-        <div className="text-center py-8">
-          <p className="text-muted-foreground">Pastry not found</p>
+// Component for pastry not found state
+const PastryNotFound: React.FC<{ onBack: () => void }> = ({ onBack }) => (
+  <div className="space-y-6">
+    <Button onClick={onBack} variant="outline">
+      <ArrowLeft className="h-4 w-4 mr-2" />
+      Back to Menu
+    </Button>
+    <div className="text-center text-muted-foreground">
+      Pastry not found
+    </div>
+  </div>
+);
+
+// Component for removable ingredients display
+const RemovableIngredients: React.FC<{
+  ingredients: string[];
+  pastry: Pastry;
+  groupAllergens: string[];
+  relevantDetectedAllergens: string[];
+}> = ({ ingredients, pastry, groupAllergens, relevantDetectedAllergens }) => (
+  <div>
+    <h2 className="text-lg font-semibold mb-3">Ingredients</h2>
+    <p className="text-muted-foreground mb-3">
+      The following ingredients can be removed from your pastry:
+    </p>
+    <div className="flex flex-wrap gap-2 mb-3">
+      {ingredients.map((ingredient: string) => (
+        <Badge 
+          key={ingredient} 
+          variant="outline" 
+          className="text-xs"
+        >
+          {ingredient}
+        </Badge>
+      ))}
+    </div>
+    
+    {/* Allergen Information */}
+    {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
+      <div className="pt-3">
+        <AllergenTag item={pastry} groupAllergens={groupAllergens} />
+      </div>
+    )}
+  </div>
+);
+
+// Component for order summary
+const OrderSummary: React.FC<{
+  pastry: Pastry;
+  customizations: PastryCustomizationType;
+  selectedPerson?: string;
+}> = ({ pastry, customizations, selectedPerson }) => (
+  <div>
+    <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
+    
+    <div className="flex justify-between items-center mb-3">
+      <p>{pastry.name}</p>
+      <p>${pastry.price.toFixed(2)}</p>
+    </div>
+    
+    {customizations.removedIngredients.length > 0 && (
+      <div className="pt-2 border-t border-border">
+        <p className="text-sm font-medium text-muted-foreground mb-2">Removed ingredients:</p>
+        <div className="space-y-1">
+          {customizations.removedIngredients.map((ingredient, index) => (
+            <div key={`removed-${ingredient}-${index}`} className="text-sm text-muted-foreground">
+              • No {ingredient}
+            </div>
+          ))}
         </div>
       </div>
-    );
-  }
+    )}
 
-  const pastryIndex = pastryMenu.findIndex(p => p.id === pastry.id);
-  const imageUrl = pastry.image || '/coffee-icon.svg';
+    {selectedPerson && selectedPerson !== "unassigned" && (
+      <div className="pt-2 border-t border-border">
+        <div className="flex justify-between items-center text-sm text-muted-foreground">
+          <span>• Assigned to:</span>
+          <span>{selectedPerson}</span>
+        </div>
+      </div>
+    )}
+  </div>
+);
+
+export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({ 
+  pastryId, 
+  onBack 
+}) => {
+  const pastry = useMemo(() => pastryMenu.find(p => p.id === pastryId), [pastryId]);
   
-  const comprehensiveAllergens = getComprehensiveAllergens({
-    ...pastry,
-    allergens: pastry.allergens
-  });
+  const [customizations, setCustomizations] = useState<PastryCustomizationType>(DEFAULT_CUSTOMIZATIONS);
+  const [showNoGroupModal, setShowNoGroupModal] = useState(false);
+  
+  // Store hooks
+  const { selectedPerson, resetForNewItem } = useGroupMemberAssignmentStore();
+  const selectedGroup = useSelectedGroup();
+  const groupMembers = useMemo(() => selectedGroup?.members || [], [selectedGroup]);
+  const groupAllergens = useGroupAllergens(groupMembers);
+  
+  const { addToCart } = useGroupsStore();
+  const activeGroup = useGroupsStore(state => state.getActiveGroup());
+  const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
+  const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
+  const { showAddToCartModal, showAllergenWarning } = useModalsStore();
 
-  const relevantDetectedAllergens = comprehensiveAllergens.filter(allergen => 
-    !pastry.allergens.includes(allergen) && groupAllergens.includes(allergen)
+  // Computed values
+  const isFavorited = useMemo(() => 
+    pastry ? isItemFavorited('pastry', pastry.id, customizations) : false,
+    [isItemFavorited, pastry, customizations]
   );
-  const allItemAllergens = [...pastry.allergens, ...comprehensiveAllergens];
 
-  const handleAddToCart = () => {
+  const comprehensiveAllergens = useMemo(() => 
+    pastry ? getComprehensiveAllergens({ ...pastry, allergens: pastry.allergens }) : [],
+    [pastry]
+  );
+
+  const relevantDetectedAllergens = useMemo(() => 
+    pastry ? comprehensiveAllergens.filter(allergen => 
+      !pastry.allergens.includes(allergen) && groupAllergens.includes(allergen)
+    ) : [],
+    [pastry, comprehensiveAllergens, groupAllergens]
+  );
+
+  const allItemAllergens = useMemo(() => 
+    pastry ? [...pastry.allergens, ...comprehensiveAllergens] : [],
+    [pastry, comprehensiveAllergens]
+  );
+
+  const hasRemovableIngredients = useMemo(() => 
+    pastry?.removableIngredients && pastry.removableIngredients.length > 0,
+    [pastry]
+  );
+
+  // Effects
+  useEffect(() => {
+    setCustomizations(DEFAULT_CUSTOMIZATIONS);
+  }, [pastryId]);
+
+  useEffect(() => {
+    resetForNewItem(groupMembers);
+  }, [pastryId, resetForNewItem, groupMembers]);
+
+  // Event handlers
+  const handleAddToCart = useCallback(() => {
+    if (!pastry) return;
+
     if (!selectedGroup) {
       setShowNoGroupModal(true);
       return;
     }
+
     const cartItem: CartItem = {
       id: `pastry-${Date.now()}-${Math.random()}`,
       type: 'pastry',
       item: pastry,
       customizations,
       quantity: 1,
-      assignedTo: selectedMember || undefined
+      assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
     };
     
     // Check for allergen conflicts
-    const itemAllergens = comprehensiveAllergens;
-    const affectedMemberNames = groupMembers
-      .filter(member => member.allergens.some(allergen => itemAllergens.includes(allergen)))
-      .map(member => member.name);
+    const itemAllergens = getComprehensiveAllergens(pastry);
+    const conflictingMembers: string[] = [];
+    const conflictingAllergens: string[] = [];
     
-    if (affectedMemberNames.length > 0) {
-      // If there are allergen conflicts, show the warning
-      onAllergenConflict(itemAllergens, affectedMemberNames, pastry.name, () => {
-        // This callback will be executed if the user proceeds despite the warning
-        onAddToCart(cartItem);
+    groupMembers.forEach(member => {
+      if (member.allergens) {
+        const memberConflicts = itemAllergens.filter(allergen => 
+          member.allergens!.includes(allergen)
+        );
+        if (memberConflicts.length > 0) {
+          conflictingMembers.push(member.name);
+          conflictingAllergens.push(...memberConflicts);
+        }
+      }
+    });
+    
+    if (conflictingAllergens.length > 0) {
+      const uniqueAllergens = [...new Set(conflictingAllergens)];
+      const affectedGroupMembers = groupMembers.filter(member => 
+        conflictingMembers.includes(member.name)
+      );
+      
+      showAllergenWarning(uniqueAllergens, affectedGroupMembers, pastry.name, () => {
+        if (activeGroup) addToCart(activeGroup.id, cartItem);
+        showAddToCartModal(pastry.name);
       });
     } else {
-      // No conflicts, add to cart directly
-      onAddToCart(cartItem);
+      if (activeGroup) addToCart(activeGroup.id, cartItem);
+      showAddToCartModal(pastry.name);
     }
-  };
+  }, [pastry, selectedGroup, customizations, selectedPerson, groupMembers, addToCart, showAddToCartModal, showAllergenWarning]);
 
-  const handleToggleFavorite = () => {
-    onToggleFavorite('pastry', pastry, customizations);
-  };
+  const handleToggleFavorite = useCallback(() => {
+    if (!pastry) return;
+    toggleFavorite('pastry', pastry, customizations);
+  }, [pastry, customizations, toggleFavorite]);
+
+  // Early return for pastry not found
+  if (!pastry) {
+    return <PastryNotFound onBack={onBack} />;
+  }
+
+  const imageUrl = pastry.image || '/coffee-icon.svg';
 
   return (
     <div className="mx-auto space-y-6">
-        <Button onClick={onBack} variant="outline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Menu
-        </Button>
+      <Button onClick={onBack} variant="outline">
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Menu
+      </Button>
+      
       {/* Header */}
-      <div className="flex items-center justify-between">
-
-        <div className="space-y-4">
-            <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">{pastry.name}</h1>
-              <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
-            </div>
-          </div>
+      <header className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-primary mb-2">{pastry.name}</h1>
+          <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
+        </div>
         <Button
           variant="ghost"
           onClick={handleToggleFavorite}
           className="flex items-center gap-2"
+          aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         >
           <Star 
             className={`h-5 w-5 ${
@@ -151,11 +279,11 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
           />
           {isFavorited ? 'Favorited' : 'Add to Favorites'}
         </Button>
-      </div>
+      </header>
 
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
-        <div className="space-y-6">
+        <section className="space-y-6" aria-label="Product information">
           <div className="aspect-square rounded-2xl overflow-hidden max-w-xl mx-auto">
             <ImageWithFallback
               src={imageUrl}
@@ -163,96 +291,57 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
               className="w-full h-full object-cover"
             />
           </div>
-          
+        </section>
 
- 
-        </div>
+        {/* Customization & Assignment */}
+        <section className="space-y-6" aria-label="Customization options">
+          <GroupMemberAssignment itemAllergens={allItemAllergens} />
 
-        {/* Customization & Order */}
-        <div className="space-y-6">
-        <GroupMemberAssignment
-            groupMembers={groupMembers}
-            selectedPerson={selectedPerson}
-            onPersonChange={setSelectedPerson}
-            itemAllergens={allItemAllergens}
-          />
-
- {/* Ingredients */}
- {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
-              <div>
-                <h2 className="text-lg font-semibold mb-3">Ingredients</h2>
-                {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
-                  <>
-                    <span className="text-muted-foreground mb-3">
-                      The following ingredients can be removed from your pastry:
-                    </span>
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      {pastry.removableIngredients.map((ingredient: string) => (
-                        <Badge 
-                          key={ingredient} 
-                          variant="outline" 
-                          className="text-xs"
-                        >
-                          {ingredient}
-                        </Badge>
-                      ))}
-                    </div>
-                  </>
-                )}
-                 
-                {/* Allergen Information - same style as product cards */}
-                {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
-                  <div className="pt-3">
-                    <AllergenTag item={pastry} groupAllergens={groupAllergens} />
-                  </div>
-                )}
-                <div className="mt-4 pt-4"></div>
-              </div>
-            )}
-          {/* Direct customization without extra card wrapper - only show if there are removable ingredients */}
-          {pastry.removableIngredients && pastry.removableIngredients.length > 0 && (
-            <PastryCustomizationComponent
+          {/* Ingredients section */}
+          {hasRemovableIngredients && (
+            <RemovableIngredients
+              ingredients={pastry.removableIngredients!}
               pastry={pastry}
-              customization={customizations}
-              onChange={setCustomizations}
+              groupAllergens={groupAllergens}
+              relevantDetectedAllergens={relevantDetectedAllergens}
             />
           )}
 
-          {/* Order Summary */}
-          
-          
-        </div>
-        <div className='flex-col space-y-4'>
-          <div>
-            <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
-            
-            <div className="flex justify-between items-center">
-              <p className="">{pastry.name}</p>
-              <p>${pastry.price.toFixed(2)}</p>
+          {/* Customization component - only show if there are removable ingredients */}
+          {hasRemovableIngredients && (
+            <PastryCustomizationComponent
+              pastry={pastry}
+              customizations={customizations}
+              setCustomizations={setCustomizations}
+            />
+          )}
+
+          {/* Show allergen info separately if no removable ingredients */}
+          {!hasRemovableIngredients && (pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
+            <div className="pt-3">
+              <AllergenTag item={pastry} groupAllergens={groupAllergens} />
             </div>
-            
-            {customizations.removedIngredients.length > 0 && (
-              <div className="pt-2 mt-3 border-border border-t">
-                <p className="text-sm font-medium text-muted-foreground mb-1">Removed ingredients:</p>
-                {customizations.removedIngredients.map((ingredient, index) => (
-                  <div key={index} className="text-sm text-muted-foreground">
-                    • No {ingredient}
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="mt-4 pt-4"></div>
-          </div>
+          )}
+        </section>
+
+        {/* Order Summary & Add to Cart */}
+        <section className="flex flex-col space-y-4" aria-label="Order summary">
+          <OrderSummary
+            pastry={pastry}
+            customizations={customizations}
+            selectedPerson={selectedPerson}
+          />
           
           <Button 
             onClick={handleAddToCart}
             className="w-full"
             size="lg"
+            aria-label={`Add ${pastry.name} to cart for $${pastry.price.toFixed(2)}`}
           >
             <Plus className="h-5 w-5 mr-2" />
             Add to Cart
           </Button>
-        </div>
+        </section>
       </div>
     </div>
   );

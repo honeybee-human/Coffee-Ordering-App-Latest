@@ -1,45 +1,48 @@
-// OrderCompleteModal.tsx - Refactored to use stores directly
 import React from 'react';
-import { CheckCircle, Clock, Coffee } from 'lucide-react';
+import { CheckCircle, Clock, Coffee, ArrowRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { Button } from '@/ui/button';
-import { Badge } from '@/ui/badge';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
 
-export const OrderCompleteModal: React.FC = () => {
+export const PaymentCompleteModal: React.FC = () => {
   const { 
-    modals: { orderComplete }, 
-    closeOrderCompleteModal 
+    modals: { paymentComplete }, 
+    closePaymentCompleteModal 
   } = useModalsStore();
   
-  const { navigateToOrderHistory } = useNavigationStore();
+  const { navigateToOrderHistory, navigateToMenu } = useNavigationStore();
+
+  const handleGoToOrderHistory = () => {
+    navigateToOrderHistory();
+    closePaymentCompleteModal();
+  };
 
   const handleBackToMenu = () => {
-    navigateToOrderHistory();
-    closeOrderCompleteModal();
+    navigateToMenu();
+    closePaymentCompleteModal();
   };
 
   return (
-    <Dialog open={orderComplete.isOpen} onOpenChange={closeOrderCompleteModal}>
+    <Dialog open={paymentComplete.isOpen} onOpenChange={closePaymentCompleteModal}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-center justify-center">
             <CheckCircle className="h-6 w-6 text-green-500" />
-            Order Confirmed!
+            Payment Completed!
           </DialogTitle>
           <DialogDescription className="text-center">
-            Your order has been placed successfully and is now being prepared. We'll notify you when it's ready for pickup.
+            Your payment has been processed successfully. Your order is now being prepared.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-6 text-center">
           <div className="space-y-2">
             <div className="space-y-1">
-              <p>Order Number: <span className="text-primary">{orderComplete.orderNumber}</span></p>
+              <p>Order Number: <span className="text-primary">{paymentComplete.orderNumber}</span></p>
               <div className="flex items-center justify-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span className="text-sm text-muted-foreground">
-                  Estimated time: {orderComplete.estimatedTime} minutes
+                  Estimated time: {paymentComplete.estimatedTime} minutes
                 </span>
               </div>
             </div>
@@ -48,16 +51,22 @@ export const OrderCompleteModal: React.FC = () => {
           <div className="bg-muted/50 rounded-lg p-4">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Coffee className="h-5 w-5 text-primary" />
-              <span>We'll notify you when your order is ready!</span>
+              <span className="font-medium">Your order is being prepared</span>
             </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-700">
-              Order Status: Preparing
-            </Badge>
+            <p className="text-sm text-muted-foreground">
+              We'll notify you when it's ready for pickup
+            </p>
           </div>
 
-          <Button onClick={handleBackToMenu} className="w-full">
-            View Order History
-          </Button>
+          <div className="flex flex-col gap-3">
+            <Button onClick={handleGoToOrderHistory} className="w-full">
+              View Order History
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Button>
+            <Button onClick={handleBackToMenu} variant="outline" className="w-full">
+              Back to Menu
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

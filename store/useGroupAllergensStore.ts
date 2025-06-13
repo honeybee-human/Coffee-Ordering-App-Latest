@@ -1,173 +1,117 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
-import { GroupMember } from '@/types';
-import { useAppStore } from '@/store/useAppStore';
+import { Coffee, Pastry, GroupMember } from '@/types';
+import { useGroupsStore } from './useGroupsStore';
 
-interface GroupAllergensState {
-  // Map of groupId -> memberName -> allergens
-  groupMemberAllergens: Record<string, Record<string, string[]>>;
-  // Count of allergens per group
-  allergenCounts: Record<string, Record<string, number>>;
+interface AllergensStore {
+  // State
+  excludedAllergens: string[];
   
   // Actions
-  setMemberAllergens: (groupId: string, memberName: string, allergens: string[]) => void;
-  removeMemberAllergens: (groupId: string, memberName: string) => void;
-  removeGroup: (groupId: string) => void;
-  
-  // Getters
-  getMemberAllergens: (groupId: string, memberName: string) => string[];
-  getGroupAllergenCount: (groupId: string) => Record<string, number>;
-  getActiveGroupAllergenCount: () => Record<string, number>;
-  getAllergenCountForMember: (groupId: string, memberName: string, allergen: string) => number;
+  setExcludedAllergens: (allergens: string[]) => void;
+  toggleAllergenFilter: (allergen: string) => void;
+  clearAllergenFilters: () => void;
+  addMemberAllergensToFilters: (memberName: string, groupId: string, allergens: string[]) => void;
   
   // Helper functions
-  updateAllergenCounts: (groupId: string) => void;
+  getItemAllergens: (item: Coffee | Pastry) => string[];
+  hasAllergenConflict: (item: Coffee | Pastry) => boolean;
+  checkAllergenConflicts: (itemAllergens: string[], members: GroupMember[]) => GroupMember[];
 }
 
-type GroupAllergensPersist = {
-  groupMemberAllergens: Record<string, Record<string, string[]>>;
-  allergenCounts: Record<string, Record<string, number>>;
+type AllergensPersist = {
+  excludedAllergens: string[];
 };
 
-export const useGroupAllergensStore = create<GroupAllergensState>()(
+export const useAllergensStore = create<AllergensStore>()(  
   persist(
     (set, get) => ({
       // Initial state
-      groupMemberAllergens: {},
-      allergenCounts: {},
+      excludedAllergens: [],
       
       // Actions
-      setMemberAllergens: (groupId: string, memberName: string, allergens: string[]) => {
-        set((state) => {
-          // Create deep copies to avoid direct state mutation
-          const newGroupMemberAllergens = { ...state.groupMemberAllergens };
-          
-          // Initialize group if it doesn't exist
-          if (!newGroupMemberAllergens[groupId]) {
-            newGroupMemberAllergens[groupId] = {};
-          }
-          
-          // Set member allergens
-          newGroupMemberAllergens[groupId][memberName] = [...allergens];
-          
-          // Update the app store with the new allergens
-          const appStore = useAppStore.getState();
-          const group = appStore.groups.find(g => g.id === groupId);
-          
-          if (group) {
-            const existingMemberIndex = group.members.findIndex(m => m.name === memberName);
-            
-            if (existingMemberIndex >= 0) {
-              // Update existing member's allergens
-              appStore.removeGroupMember(groupId, memberName);
-              appStore.addGroupMember(groupId, {
-                name: memberName,
-                allergens: [...allergens]
-              });
-            } else {
-              // Add new member to the group
-              appStore.addGroupMember(groupId, {
-                name: memberName,
-                allergens: [...allergens]
-              });
-            }
-          }
-          
-          return { groupMemberAllergens: newGroupMemberAllergens };
-        });
-        
-        // Update allergen counts after setting member allergens
-        get().updateAllergenCounts(groupId);
+      setExcludedAllergens: (allergens: string[]) => {
+        set({ excludedAllergens: allergens });
       },
       
-      removeMemberAllergens: (groupId: string, memberName: string) => {
-        set((state) => {
-          const newGroupMemberAllergens = { ...state.groupMemberAllergens };
+      toggleAllergenFilter: (allergen: string) => {
+        set(state => {
+          const currentAllergens = state.excludedAllergens;
+          const allergenIndex = currentAllergens.indexOf(allergen);
           
-          if (newGroupMemberAllergens[groupId]) {
-            // Remove member allergens
-            const { [memberName]: _, ...restMembers } = newGroupMemberAllergens[groupId];
-            newGroupMemberAllergens[groupId] = restMembers;
+          if (allergenIndex === -1) {
+            return { excludedAllergens: [...currentAllergens, allergen] };
+          } else {
+            return { 
+              excludedAllergens: [
+                ...currentAllergens.slice(0, allergenIndex),
+                ...currentAllergens.slice(allergenIndex + 1)
+              ] 
+            };
           }
-          
-          return { groupMemberAllergens: newGroupMemberAllergens };
         });
-        
-        // Update allergen counts after removing member allergens
-        get().updateAllergenCounts(groupId);
       },
       
-      removeGroup: (groupId: string) => {
-        set((state) => {
-          const { [groupId]: _, ...restGroups } = state.groupMemberAllergens;
-          const { [groupId]: __, ...restCounts } = state.allergenCounts;
-          
-          return { 
-            groupMemberAllergens: restGroups,
-            allergenCounts: restCounts
+      clearAllergenFilters: () => {
+        set({ excludedAllergens: [] });
+      },
+      
+      addMemberAllergensToFilters: (memberName: string, groupId: string, allergens: string[]) => {
+        const appStore = useGroupsStore.getState();
+        const group = appStore.groups.find(g => g.id === groupId);
+        if (!group) return;
+        
+        const existingMemberIndex = group.members.findIndex((m: { name: string; }) => m.name === memberName);
+        
+        if (existingMemberIndex >= 0) {
+          const updatedMember = {
+            ...group.members[existingMemberIndex],
+            allergens: allergens
           };
-        });
-      },
-      
-      // Getters
-      getMemberAllergens: (groupId: string, memberName: string) => {
-        const { groupMemberAllergens } = get();
-        return groupMemberAllergens[groupId]?.[memberName] || [];
-      },
-      
-      getGroupAllergenCount: (groupId: string) => {
-        const { allergenCounts } = get();
-        return allergenCounts[groupId] || {};
-      },
-      
-      getActiveGroupAllergenCount: () => {
-        const { allergenCounts } = get();
-        const activeGroupId = useAppStore.getState().activeGroupId;
+          
+          appStore.removeGroupMember(groupId, memberName);
+          appStore.addGroupMember(groupId, updatedMember);
+        } else {
+          const newMember: GroupMember = {
+            name: memberName,
+            allergens: allergens
+          };
+          
+          appStore.addGroupMember(groupId, newMember);
+        }
         
-        if (!activeGroupId) return {};
-        return allergenCounts[activeGroupId] || {};
-      },
-      
-      getAllergenCountForMember: (groupId: string, memberName: string, allergen: string) => {
-        const memberAllergens = get().getMemberAllergens(groupId, memberName);
-        return memberAllergens.includes(allergen) ? 1 : 0;
+        set(state => {
+          const currentAllergens = new Set(state.excludedAllergens);
+          allergens.forEach(allergen => currentAllergens.add(allergen));
+          return { excludedAllergens: Array.from(currentAllergens) };
+        });
       },
       
       // Helper functions
-      updateAllergenCounts: (groupId: string) => {
-        set((state) => {
-          const groupMembers = state.groupMemberAllergens[groupId] || {};
-          const allergenCount: Record<string, number> = {};
-          
-          // Count allergens across all members in the group
-          Object.values(groupMembers).forEach(memberAllergens => {
-            memberAllergens.forEach(allergen => {
-              allergenCount[allergen] = (allergenCount[allergen] || 0) + 1;
-            });
-          });
-          
-          return {
-            allergenCounts: {
-              ...state.allergenCounts,
-              [groupId]: allergenCount
-            }
-          };
-        });
+      getItemAllergens: (item: Coffee | Pastry): string[] => {
+        return item.allergens || [];
+      },
+      
+      hasAllergenConflict: (item: Coffee | Pastry): boolean => {
+        const { excludedAllergens, getItemAllergens } = get();
+        if (!excludedAllergens.length) return false;
+        
+        const itemAllergens = getItemAllergens(item);
+        return itemAllergens.some(allergen => excludedAllergens.includes(allergen));
+      },
+
+      checkAllergenConflicts: (itemAllergens: string[], members: GroupMember[]) => {
+        return members.filter(member =>
+          member.allergens.some(allergen => itemAllergens.includes(allergen))
+        );
       }
     }),
     {
-      name: 'bean-bite-group-allergens',
-      partialize: (state) => ({
-        groupMemberAllergens: state.groupMemberAllergens,
-        allergenCounts: state.allergenCounts
-      })
-    } as PersistOptions<GroupAllergensState, GroupAllergensPersist>
+      name: 'bean-bite-allergens',
+      partialize: (state) => ({ excludedAllergens: state.excludedAllergens })
+    } as PersistOptions<AllergensStore, AllergensPersist>
   )
 );
 
-// Selector hooks for better performance
-export const useActiveGroupAllergenCount = () => useGroupAllergensStore(state => state.getActiveGroupAllergenCount());
-export const useMemberAllergens = (groupId: string, memberName: string) => 
-  useGroupAllergensStore(state => state.getMemberAllergens(groupId, memberName));
-export const useGroupAllergenCount = (groupId: string) => 
-  useGroupAllergensStore(state => state.getGroupAllergenCount(groupId));
+// Selector hooks
+export const useAllergenFilters = () => useAllergensStore(state => state.excludedAllergens);

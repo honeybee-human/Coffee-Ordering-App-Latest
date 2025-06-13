@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { ArrowLeft, Clock, CheckCircle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
@@ -8,45 +8,44 @@ import { Alert, AlertDescription } from '@/ui/alert';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CheckoutForm } from '@/components/features/CheckoutForm';
 import { CartItem, GroupMember, Order } from '@/types';
-import { useCartSubtotal, useCartTax, useCartTotal, useActiveGroup } from '@/store/useAppStore';
-import { useActiveGroupAllergenCount } from '@/store/useGroupAllergensStore';
-import { useCheckoutForm } from '@/hooks/useCheckoutForm';
+import { useCartSubtotal, useCartTax, useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
+import { useCheckoutStore } from '@/store/useCheckoutStore';
+import { useModalsStore } from '@/store/useModalsStore';
+import { useOrdersStore } from '@/store/useOrdersStore';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import { v4 as uuidv4 } from 'uuid';
+import { useAllergensStore } from '@/store/useAllergensStore';
 
 interface CheckoutPageProps {
   cartItems: CartItem[];
-  groupMembers: GroupMember[];
   onBack: () => void;
   onOrderComplete: (order: Order) => void;
 }
 
 export const CheckoutPage: React.FC<CheckoutPageProps> = ({
-  cartItems,
-  groupMembers,
+  cartItems: propCartItems,
   onBack,
   onOrderComplete
 }) => {
+  const cartItems = propCartItems;
   // Use the checkout form hook to manage form state and validation
   const {
     paymentInfo,
     errors,
     isProcessing,
     setIsProcessing,
-    handlePaymentInfoChange,
     validateForm,
-    resetForm
-  } = useCheckoutForm();
-
+    resetCheckout,
+    setError
+  } = useCheckoutStore();
   // Use the centralized cart calculations from the store
   const subtotal = useCartSubtotal();
   const tax = useCartTax();
   const finalTotal = useCartTotal();
-
   // Get the active group and its allergen counts
   const activeGroup = useActiveGroup();
-  const allergenCounts = useActiveGroupAllergenCount();
-  
+  const allergenCounts = useAllergensStore();
+  const groupMembers = activeGroup?.members || [];
   // Effect to check for allergen conflicts when component mounts
   useEffect(() => {
     if (activeGroup && cartItems.length > 0) {
@@ -76,13 +75,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const paymentSuccess = await processPayment();
       
       if (!paymentSuccess) {
-        // Use the errors object from the hook
-        const newErrors = { ...errors, payment: 'Payment failed. Please try again.' };
-        // We need to manually set this error since it's not a field error
+        // Properly set the payment error using the hook method
+        setError('payment', 'Payment failed. Please try again.');
         setIsProcessing(false);
         return;
       }
 
+      const estimatedTime = Math.floor(Math.random() * 10) + 5; // 5-15 minutes
+      const orderNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+      
       const order: Order = {
         id: uuidv4(),
         items: cartItems,
@@ -90,18 +91,24 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         orderDate: new Date(),
         status: 'pending',
         groupMembers: groupMembers,
-        estimatedTime: Math.floor(Math.random() * 10) + 5, // 5-15 minutes
-        orderNumber: Math.floor(Math.random() * 1000).toString().padStart(3, '0'),
+        estimatedTime: estimatedTime,
+        orderNumber: orderNumber,
         groupId: activeGroup?.id || '', // Use the active group ID
+        groupName: activeGroup?.name || '',
         paymentInfo: paymentInfo
       };
 
-      onOrderComplete(order);
-      resetForm(); // Reset the form after successful order
+      // Add order to history
+      useOrdersStore.getState().completeOrder(activeGroup?.id || '', order);
+      
+      // Show payment complete modal
+      useModalsStore.getState().showPaymentCompleteModal(orderNumber, estimatedTime);
+      
+      resetCheckout(); // Reset the form after successful order
+      setIsProcessing(false);
     } catch (error) {
-      // Use the errors object from the hook
-      const newErrors = { ...errors, payment: 'An error occurred during payment processing.' };
-      // We need to manually set this error since it's not a field error
+      // Properly set the payment error using the hook method
+      setError('payment', 'An error occurred during payment processing.');
       setIsProcessing(false);
     }
   };
@@ -111,22 +118,23 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const custom = item.customizations as any;
       const parts: string[] = [];
       
-      if (custom.milk !== 'Whole Milk') {
-        parts.push(`${custom.milk}`);
+      if (custom.milk && custom.milk !== 'Whole Milk') {
+        parts.push(`• ${custom.milk} milk`);
       }
       
-      if (custom.syrups.length > 0) {
-        const syrupText = custom.syrups
-          .map((s: any) => `${s.pumps} pump${s.pumps !== 1 ? 's' : ''} ${s.flavor}`)
-          .join(', ');
-        parts.push(syrupText);
+      if (custom.syrups && custom.syrups.length > 0) {
+        custom.syrups.forEach((syrup: any) => {
+          const syrupCost = syrup.pumps * 0.10;
+          parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
+        });
       }
       
-      return parts.join(', ');
+      return parts.join('\n');
     } else {
       const custom = item.customizations as any;
-      if (custom.removedIngredients.length > 0) {
-        return `No ${custom.removedIngredients.join(', ')}`;
+      if (custom.removedIngredients && custom.removedIngredients.length > 0) {
+        const parts = custom.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
+        return parts.join('\n');
       }
       return '';
     }
@@ -142,31 +150,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-6">
           <CheckoutForm
-            paymentInfo={paymentInfo}
-            errors={errors}
-            isProcessing={isProcessing}
-            onPaymentInfoChange={handlePaymentInfoChange}
           />
           
-          {/* Display allergen information if available */}
-          {activeGroup && Object.keys(allergenCounts).length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Group Allergen Information</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <p className="text-sm">Allergens in this group:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {Object.entries(allergenCounts).map(([allergen, count]) => (
-                      <Badge key={allergen} variant="outline" className="text-xs">
-                        {allergen} ({count})
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+
+          {/* Display payment error if it exists */}
+          {errors.payment && (
+            <Alert variant="destructive">
+              <AlertDescription>{errors.payment}</AlertDescription>
+            </Alert>
           )}
         </div>
 
@@ -176,7 +167,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {cartItems.map((item, index) => (
+              {cartItems.length > 0 ? cartItems.map((item, index) => (
                 <div key={item.id}>
                   <div className="flex justify-between items-start">
                     <div className="flex-1 flex gap-3">
@@ -200,9 +191,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                           ${calculateItemPrice(item).toFixed(2)} × {item.quantity}
                         </p>
                         {formatCustomizations(item) && (
-                          <p className="text-sm text-muted-foreground">
+                          <div className="text-sm text-muted-foreground whitespace-pre-line">
                             {formatCustomizations(item)}
-                          </p>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -210,7 +201,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   </div>
                   {index < cartItems.length - 1 && <Separator className="mt-4" />}
                 </div>
-              ))}
+              )) : (
+                <div className="text-center text-muted-foreground py-4">
+                  No items in cart
+                </div>
+              )}
 
               <Separator />
 
@@ -238,7 +233,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
 
               <Button 
                 onClick={handleSubmitOrder} 
-                disabled={isProcessing}
+                disabled={isProcessing || cartItems.length === 0}
                 className="w-full" 
                 size="lg"
               >

@@ -1,8 +1,13 @@
-import { v4 as uuidv4 } from 'uuid';
-import { useAppStore } from '@/store/useAppStore';
-import { useNavigationStore } from '@/store/useNavigationStore';
+// Instead of useBusinessLogic hook, create utility functions
+// utils/businessLogic.ts
 
-import { useAllergensStore } from '@/store/useAllergensStore';
+import { v4 as uuidv4 } from 'uuid';
+import { useNavigationStore } from '@/store/useNavigationStore';
+import { useModalsStore } from '@/store/useModalsStore';
+import { useGroupsStore } from '@/store/useGroupsStore';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { useOrdersStore } from '@/store/useOrdersStore';
+
 import { 
   Group, 
   GroupMember, 
@@ -15,65 +20,55 @@ import {
   CoffeeCustomization,
   PastryCustomization
 } from '@/types';
-import { useModalsStore } from '@/store/useModalsStore';
 
-/**
- * Custom hook that provides all business logic functions
- * This centralizes all business operations and makes them available through a single hook
- */
-export const useBusinessLogic = () => {
+// Pure utility functions that work with store state
+export const businessLogic = {
   // Group Management Functions
-  const createGroup = (name: string): void => {
-    const appStore = useAppStore.getState();
-    appStore.createGroup(name);
-  };
+  createGroup: (name: string): void => {
+    useGroupsStore.getState().createGroup(name);
+  },
 
-  const selectGroup = (groupId: string): void => {
-    const appStore = useAppStore.getState();
-    appStore.selectGroup(groupId);
-  };
+  selectGroup: (groupId: string): void => {
+    useGroupsStore.getState().selectGroup(groupId);
+  },
 
-  const deleteGroup = (groupId: string): void => {
-    const appStore = useAppStore.getState();
-    appStore.deleteGroup(groupId);
-  };
+  deleteGroup: (groupId: string): void => {
+    useGroupsStore.getState().deleteGroup(groupId);
+  },
 
-  const renameGroup = (groupId: string, newName: string): void => {
-    const appStore = useAppStore.getState();
-    appStore.renameGroup(groupId, newName);
-  };
+  renameGroup: (groupId: string, newName: string): void => {
+    useGroupsStore.getState().renameGroup(groupId, newName);
+  },
 
-  const addGroupMember = (groupId: string, name: string, allergens: string[] = []): void => {
-    const appStore = useAppStore.getState();
+  addGroupMember: (groupId: string, name: string, allergens: string[] = []): void => {
     const newMember: GroupMember = {
       name,
       allergens
     };
-    
-    appStore.addGroupMember(groupId, newMember);
-  };
+    useGroupsStore.getState().addGroupMember(groupId, newMember);
+  },
 
-  const removeGroupMember = (groupId: string, memberName: string): void => {
-    const appStore = useAppStore.getState();
-    const group = appStore.groups.find(g => g.id === groupId);
+  removeGroupMember: (groupId: string, memberName: string): void => {
+    const { groups } = useGroupsStore.getState();
+    const group = groups.find(g => g.id === groupId);
     if (!group) return;
     
     const member = group.members.find(m => m.name === memberName);
     if (!member) return;
     
-    appStore.removeGroupMember(groupId, member.name);
-  };
+    useGroupsStore.getState().removeGroupMember(groupId, member.name);
+  },
 
   // Cart Management Functions
-  const addToCart = (
+  addToCart: (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
     quantity: number = 1, 
     assignedTo?: string, 
     customizations?: CoffeeCustomization | PastryCustomization
   ): void => {
-    const appStore = useAppStore.getState();
-    const activeGroup = appStore.getActiveGroup();
+    const { getActiveGroup } = useGroupsStore.getState();
+    const activeGroup = getActiveGroup();
     if (!activeGroup) return;
     
     const newCartItem: CartItem = {
@@ -87,46 +82,45 @@ export const useBusinessLogic = () => {
         { removedIngredients: [] } as PastryCustomization)
     };
     
-    appStore.addToCart(activeGroup.id, newCartItem);
-    
-    // Close the add to cart modal if it's open
+    useGroupsStore.getState().addToCart(activeGroup.id, newCartItem);
     useModalsStore.getState().closeAddToCartModal();
-  };
+  },
 
-  const removeFromCart = (cartItemId: string): void => {
-    const appStore = useAppStore.getState();
-    const activeGroup = appStore.getActiveGroup();
+  removeFromCart: (cartItemId: string): void => {
+    const { getActiveGroup } = useGroupsStore.getState();
+    const activeGroup = getActiveGroup();
     if (!activeGroup) return;
     
-    appStore.removeFromCart(activeGroup.id, cartItemId);
-  };
+    useGroupsStore.getState().removeFromCart(activeGroup.id, cartItemId);
+  },
 
-  const updateCartItemQuantity = (cartItemId: string, quantity: number): void => {
-    const appStore = useAppStore.getState();
-    const activeGroup = appStore.getActiveGroup();
+  updateCartItemQuantity: (cartItemId: string, quantity: number): void => {
+    const { getActiveGroup } = useGroupsStore.getState();
+    const activeGroup = getActiveGroup();
     if (!activeGroup) return;
     
-    appStore.updateCartQuantity(activeGroup.id, cartItemId, quantity);
-  };
+    useGroupsStore.getState().updateCartQuantity(activeGroup.id, cartItemId, quantity);
+  },
 
-  const clearCart = (): void => {
-    const appStore = useAppStore.getState();
-    const activeGroup = appStore.getActiveGroup();
+  clearCart: (): void => {
+    const { getActiveGroup } = useGroupsStore.getState();
+    const activeGroup = getActiveGroup();
     if (!activeGroup) return;
     
-    appStore.clearCart(activeGroup.id);
-  };
+    useGroupsStore.getState().clearCart(activeGroup.id);
+  },
 
   // Favorites Management Functions
-  const addToFavorites = (
+  addToFavorites: (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
     customizations?: CoffeeCustomization | PastryCustomization,
     assignedTo?: string
   ): void => {
-    const appStore = useAppStore.getState();
-    // Check if this item is already in favorites
-    if (appStore.isItemFavorited(type, item.id, customizations, assignedTo)) return;
+    const { isItemFavorited, addToFavorites } = useFavoritesStore.getState();
+    
+    if (isItemFavorited(type, item.id, customizations, assignedTo)) return;
+    
     const newFavorite: FavoriteItem = {
       id: uuidv4(),
       item,
@@ -137,43 +131,21 @@ export const useBusinessLogic = () => {
       dateAdded: new Date(),
       assignedTo
     };
-    appStore.addToFavorites(newFavorite);
-  };
+    addToFavorites(newFavorite);
+  },
 
-  const removeFromFavorites = (favoriteId: string): void => {
-    const appStore = useAppStore.getState();
-    appStore.removeFromFavorites(favoriteId);
-  };
-
-  const createFavoriteItem = (
-    item: Coffee | Pastry, 
-    type: 'coffee' | 'pastry', 
-    customizations?: CoffeeCustomization | PastryCustomization,
-    assignedTo?: string
-  ): FavoriteItem => {
-    return {
-      id: uuidv4(),
-      item,
-      type,
-      customizations: customizations || (type === 'coffee' ? 
-        { syrups: [], milk: 'whole' } as CoffeeCustomization : 
-        { removedIngredients: [] } as PastryCustomization),
-      dateAdded: new Date(),
-      assignedTo
-    };
-  };
+  removeFromFavorites: (favoriteId: string): void => {
+    useFavoritesStore.getState().removeFromFavorites(favoriteId);
+  },
 
   // Order Management Functions
-  const completeOrder = (paymentInfo: PaymentInfo): void => {
-    const appStore = useAppStore.getState();
-    const activeGroup = appStore.getActiveGroup();
-    const navigationStore = useNavigationStore.getState();
-    const modalsStore = useModalsStore.getState();
-    
+  completeOrder: (paymentInfo: PaymentInfo): void => {
+    const { getActiveGroup } = useGroupsStore.getState();
+    const activeGroup = getActiveGroup();
     if (!activeGroup || activeGroup.cart.length === 0) return;
     
     const orderNumber = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-    const estimatedTime = Math.floor(Math.random() * 10) + 5; // 5-15 minutes
+    const estimatedTime = Math.floor(Math.random() * 10) + 5;
     
     const newOrder: Order = {
       id: uuidv4(),
@@ -182,93 +154,70 @@ export const useBusinessLogic = () => {
       groupName: activeGroup.name,
       items: [...activeGroup.cart],
       orderDate: new Date(),
-      totalAmount: calculateOrderTotal(activeGroup.cart),
+      totalAmount: businessLogic.calculateOrderTotal(activeGroup.cart),
       paymentInfo,
       estimatedTime,
       status: 'pending',
       groupMembers: [...activeGroup.members]
     };
     
-    // Add to order history and clear cart
-    appStore.completeOrder(activeGroup.id, newOrder);
+    useOrdersStore.getState().completeOrder(activeGroup.id, newOrder);
+    useModalsStore.getState().showPaymentCompleteModal(orderNumber, estimatedTime);
     
-    // Show order complete modal
-    modalsStore.showOrderCompleteModal(orderNumber, estimatedTime);
-    
-    // Navigate to order history after a short delay
-    setTimeout(() => {
-      navigationStore.navigateToOrderHistory();
-    }, 1000);
-  };
+    // Note: Navigation is now handled by the PaymentCompleteModal user interaction
+  },
 
-  const reorderFromHistory = (orderId: string): void => {
-    const appStore = useAppStore.getState();
-    const activeGroup = appStore.getActiveGroup();
-    const navigationStore = useNavigationStore.getState();
-    
+  reorderFromHistory: (orderId: string): void => {
+    const { getActiveGroup } = useGroupsStore.getState();
+    const activeGroup = getActiveGroup();
     if (!activeGroup) return;
     
-    const order = appStore.orderHistory.find(o => o.id === orderId);
+    const { orderHistory, reorderItems } = useOrdersStore.getState();
+    const order = orderHistory.find(o => o.id === orderId);
     if (!order) return;
     
-    // Add items to cart
-    appStore.reorderItems(activeGroup.id, orderId);
-    
-    // Navigate to cart
-    navigationStore.navigateToCart();
-  };
+    reorderItems(activeGroup.id, orderId);
+    useNavigationStore.getState().navigateToCart();
+  },
 
   // Helper Functions
-  const isItemFavorited = (type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string): boolean => {
-    const appStore = useAppStore.getState();
-    return appStore.isItemFavorited(type, itemId, customizations, assignedTo);
-  };
-
-  const findExistingFavorite = (favorites: FavoriteItem[], type: 'coffee' | 'pastry', itemId: string, customizations?: CoffeeCustomization | PastryCustomization, assignedTo?: string): FavoriteItem | undefined => {
-    return favorites.find(fav => 
-      fav.type === type && 
-      fav.item.id === itemId &&
-      (!customizations || JSON.stringify(fav.customizations) === JSON.stringify(customizations)) &&
-      (fav.assignedTo === assignedTo)
-    );
-  };
-
-  const calculateOrderTotal = (cartItems: CartItem[]): number => {
+  calculateOrderTotal: (cartItems: CartItem[]): number => {
     return cartItems.reduce((total, item) => {
-      const itemPrice = item.item.price * item.quantity;
-      // Add any additional costs from customizations if needed
-      return total + itemPrice;
+      return total + (item.item.price * item.quantity);
     }, 0);
-  };
-
-  // Return all business logic functions
-  return {
-    // Group Management
-    createGroup,
-    selectGroup,
-    deleteGroup,
-    renameGroup,
-    addGroupMember,
-    removeGroupMember,
-    
-    // Cart Management
-    addToCart,
-    removeFromCart,
-    updateCartItemQuantity,
-    clearCart,
-    
-    // Favorites Management
-    addToFavorites,
-    removeFromFavorites,
-    createFavoriteItem,
-    isItemFavorited,
-    findExistingFavorite,
-    
-    // Order Management
-    completeOrder,
-    reorderFromHistory,
-    
-    // Helper Functions
-    calculateOrderTotal
-  };
+  }
 };
+
+// Example of how to use in components:
+/*
+// In your React component:
+import { businessLogic } from '@/utils/businessLogic';
+import { useGroupsStore } from '@/store/useGroupsStore';
+
+export function MyComponent() {
+  // Use hooks for reactive state
+  const { groups, activeGroupId } = useGroupsStore();
+  
+  // Use utility functions for actions
+  const handleAddToCart = (item, type) => {
+    businessLogic.addToCart(item, type, 1);
+  };
+  
+  const handleCreateGroup = (name) => {
+    businessLogic.createGroup(name);
+  };
+  
+  return (
+    <div>
+      {groups.map(group => (
+        <div key={group.id}>
+          <span>{group.name}</span>
+          <button onClick={() => businessLogic.selectGroup(group.id)}>
+            Select
+          </button>
+        </div>
+      ))}
+    </div>
+  );
+}
+*/

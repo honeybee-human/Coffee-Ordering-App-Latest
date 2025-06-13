@@ -5,44 +5,33 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Separator } from '@/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { CartItem, GroupMember } from '@/types';
+import { GroupMember, CartItem } from '@/types';
 import { combineIdenticalItems } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import { GroupOrderContent } from '@/components/features/GroupOrderContent';
-import { useCartTotal } from '@/store/useAppStore';
+import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
+import { useGroupsStore } from '@/store/useGroupsStore';
+
 interface CartProps {
-  cartItems: CartItem[];
-  groupMembers: GroupMember[];
-  onUpdateQuantity: (itemId: string, quantity: number) => void;
-  onRemoveItem: (itemId: string) => void;
-  onClearCart: () => void;
-  onCheckout: () => void;
-  getAllAllergens: (item: CartItem) => string[];
-  groupName?: string;
+  onNavigateToCheckout?: () => void;
 }
 
-export const Cart: React.FC<CartProps> = ({
-  cartItems,
-  groupMembers,
-  onUpdateQuantity,
-  onRemoveItem,
-  onClearCart,
-  onCheckout,
-  getAllAllergens,
-  groupName = 'Group'
-}) => {
+export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
+  const activeGroup = useActiveGroup();
+  const groupMembers = activeGroup?.members || [];
+  const cartItems = activeGroup?.cart || [];
+  const cartTotal = useCartTotal();
+  const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
+  const groupName = 'Group';
   // Helper function to check allergen conflicts for a cart item
   const getAllergenConflicts = (item: CartItem): { conflicts: string[]; affectedMembers: string[] } => {
-    const itemAllergens = getAllAllergens(item);
+    const itemAllergens = item.item.allergens || [];
     const affectedMembers: string[] = [];
     const conflicts: string[] = [];
-    
-    // Check each group member for allergen conflicts
     groupMembers.forEach(member => {
       const memberConflicts = itemAllergens.filter(allergen => 
         member.allergens.includes(allergen)
       );
-      
       if (memberConflicts.length > 0) {
         affectedMembers.push(member.name);
         memberConflicts.forEach(conflict => {
@@ -52,8 +41,6 @@ export const Cart: React.FC<CartProps> = ({
         });
       }
     });
-    
-    // If the item is assigned to a specific person, also check their conflicts
     if (item.assignedTo) {
       const person = groupMembers.find(member => member.name === item.assignedTo);
       if (person) {
@@ -67,34 +54,30 @@ export const Cart: React.FC<CartProps> = ({
         });
       }
     }
-    
     return { conflicts, affectedMembers };
   };
-
-  // Use the centralized cart total calculation from the store
-  const cartTotal = useCartTotal();
-
-  const formatCustomizations = (item: CartItem) => {
+  const formatCustomizations = (item: CartItem): string => {
     if (item.type === 'coffee') {
       const customizations = item.customizations as any;
       const parts = [];
       
       if (customizations.milk && customizations.milk !== 'Whole Milk') {
-        parts.push(`${customizations.milk} milk`);
+        parts.push(`• ${customizations.milk} milk`);
       }
       
       if (customizations.syrups && customizations.syrups.length > 0) {
-        const syrupDescriptions = customizations.syrups.map((syrup: any) => 
-          `${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`
-        );
-        parts.push(...syrupDescriptions);
+        customizations.syrups.forEach((syrup: any) => {
+          const syrupCost = syrup.pumps * 0.10;
+          parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
+        });
       }
       
-      return parts.length > 0 ? parts.join(', ') : 'No customizations';
+      return parts.length > 0 ? parts.join('\n') : 'No customizations';
     } else {
       const customizations = item.customizations as any;
       if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-        return `No ${customizations.removedIngredients.join(', ')}`;
+        const parts = customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
+        return parts.join('\n');
       }
       return 'No customizations';
     }
@@ -123,7 +106,7 @@ export const Cart: React.FC<CartProps> = ({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2>Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
-        <Button variant="outline" onClick={onClearCart} size="sm">
+        <Button variant="outline" onClick={() => activeGroup && clearCart(activeGroup.id)} size="sm">
           <Trash2 className="h-4 w-4 mr-2" />
           Clear Cart
         </Button>
@@ -161,14 +144,14 @@ export const Cart: React.FC<CartProps> = ({
                               <AlertTriangle className="h-4 w-4 text-destructive" />
                             )}
                           </h4>
-                          <p className="text-sm text-muted-foreground">
+                          <div className="text-sm text-muted-foreground whitespace-pre-line">
                             {formatCustomizations(item)}
-                          </p>
+                          </div>
                         </div>
                       </div>
 
                       {(() => {
-                        const getAssignedPerson = (item: CartItem): string | undefined => {
+                        const getAssignedPerson = (item: CartItem) => {
                           if (item.assignedTo) return item.assignedTo;
                           if (groupMembers.length === 1) return groupMembers[0].name;
                           return undefined;
@@ -200,7 +183,7 @@ export const Cart: React.FC<CartProps> = ({
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => onRemoveItem(item.id)}
+                        onClick={() => activeGroup && removeFromCart(activeGroup.id, item.id)}
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -209,7 +192,7 @@ export const Cart: React.FC<CartProps> = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                          onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity - 1)}
                           disabled={item.quantity <= 1}
                         >
                           <Minus className="h-3 w-3" />
@@ -218,7 +201,7 @@ export const Cart: React.FC<CartProps> = ({
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                          onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity + 1)}
                         >
                           <Plus className="h-3 w-3" />
                         </Button>
@@ -238,13 +221,7 @@ export const Cart: React.FC<CartProps> = ({
         </TabsContent>
 
         <TabsContent value="by-person">
-
-          <GroupOrderContent
-            cartItems={cartItems}
-            groupMembers={groupMembers}
-            getAllAllergens={getAllAllergens}
-            groupName={groupName}
-          />
+          <GroupOrderContent />
         </TabsContent>
       </Tabs>
 
@@ -252,9 +229,14 @@ export const Cart: React.FC<CartProps> = ({
             <Separator />
             <div className="flex items-center justify-between text-lg">
               <span>Total:</span>
-              <span>${cartTotal.total.toFixed(2)}</span>
+              <span>${cartTotal.subtotal.toFixed(2)}</span>
             </div>
-            <Button onClick={onCheckout} className="w-full" size="lg">
+            <Button 
+              onClick={onNavigateToCheckout} 
+              className="w-full" 
+              size="lg"
+              disabled={cartItems.length === 0}
+            >
               Proceed to Checkout
             </Button>
           </div>

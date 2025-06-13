@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { Users, Plus, Trash2, Edit2, UserPlus, X, Check, AlertTriangle, ChevronDown } from 'lucide-react';
+import { Users, Plus, Trash2, Edit2, UserPlus, X, Check, AlertTriangle, ChevronDown, RotateCcw } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Input } from '@/ui/input';
@@ -7,31 +7,25 @@ import { Label } from '@/ui/label';
 import { Badge } from '@/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/ui/alert-dialog';
 import { Separator } from '@/ui/separator';
 import { Group, GroupMember } from '@/types';
 import { COMMON_ALLERGENS, normalizeAllergens } from '@/utils/allergens';
+import { useGroupsStore } from '@/store/useGroupsStore';
 
-interface GroupManagementProps {
-  groups: Group[];
-  activeGroupId: string | null;
-  onCreateGroup: (name: string) => void;
-  onSelectGroup: (groupId: string) => void;
-  onDeleteGroup: (groupId: string) => void;
-  onRenameGroup: (groupId: string, newName: string) => void;
-  onAddMember: (groupId: string, member: GroupMember) => void;
-  onRemoveMember: (groupId: string, memberName: string) => void;
-}
+export const GroupManagement: React.FC = () => {
+  const {
+    groups,
+    activeGroupId,
+    createGroup,
+    selectGroup,
+    deleteGroup,
+    renameGroup,
+    addGroupMember,
+    removeGroupMember,
+    resetAllData
+  } = useGroupsStore();
 
-export const GroupManagement: React.FC<GroupManagementProps> = ({
-  groups,
-  activeGroupId,
-  onCreateGroup,
-  onSelectGroup,
-  onDeleteGroup,
-  onRenameGroup,
-  onAddMember,
-  onRemoveMember
-}) => {
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
@@ -72,19 +66,19 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
 
   const handleCreateGroup = useCallback(() => {
     if (newGroupName.trim()) {
-      onCreateGroup(newGroupName.trim());
+      createGroup(newGroupName.trim());
       setNewGroupName('');
       setIsCreateGroupOpen(false);
     }
-  }, [newGroupName, onCreateGroup]);
+  }, [newGroupName, createGroup]);
 
   const handleRenameGroup = useCallback((groupId: string) => {
     if (editGroupName.trim()) {
-      onRenameGroup(groupId, editGroupName.trim());
+      renameGroup(groupId, editGroupName.trim());
       setEditingGroupId(null);
       setEditGroupName('');
     }
-  }, [editGroupName, onRenameGroup]);
+  }, [editGroupName, renameGroup]);
 
   const handleAddMember = useCallback(() => {
     if (newMember.name.trim() && activeGroupId) {
@@ -93,11 +87,11 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
         allergens: normalizeAllergens(newMember.allergens)
       };
       
-      onAddMember(activeGroupId, memberToAdd);
+      addGroupMember(activeGroupId, memberToAdd);
       resetNewMemberForm();
       setIsAddMemberOpen(false);
     }
-  }, [newMember, activeGroupId, onAddMember, resetNewMemberForm]);
+  }, [newMember, activeGroupId, addGroupMember, resetNewMemberForm]);
 
   const handleAddAllergen = useCallback((allergen?: string) => {
     const allergenToAdd = allergen || newAllergen.trim();
@@ -227,9 +221,43 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5" />
-            <span className="text-lg font-bold">Group Management</span>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              <span className="text-lg font-bold">Group Management</span>
+            </div>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <RotateCcw className="h-4 w-4 mr-2" />
+                  Reset All Data
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-destructive" />
+                    Reset All Group Data
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to reset all group data? This will delete all groups and their members, and cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={resetAllData}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Reset All Data
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -239,7 +267,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
             <div className="flex gap-2">
               <Select 
                 value={activeGroupId || ''} 
-                onValueChange={onSelectGroup}
+                onValueChange={selectGroup}
               >
                 <SelectTrigger className="flex-1 bg-muted">
                   <SelectValue placeholder="Select a group or create new one" />
@@ -252,12 +280,12 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                   ))}
                 </SelectContent>
               </Select>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
+                size="icon"
                 onClick={() => setIsCreateGroupOpen(true)}
               >
-                <Plus className="h-4 w-4 mr-2" />
-                New Group
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
           </div>
@@ -329,7 +357,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => onDeleteGroup(group.id)}
+                        onClick={() => deleteGroup(group.id)}
                         disabled={groups.length <= 1}
                       >
                         <Trash2 className="h-3 w-3" />
@@ -403,7 +431,7 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => onRemoveMember(activeGroup.id, member.name)}
+                          onClick={() => removeGroupMember(activeGroup.id, member.name)}
                         >
                           <Trash2 className="h-3 w-3" />
                         </Button>
@@ -423,33 +451,27 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
           <DialogHeader>
             <DialogTitle>Create New Group</DialogTitle>
             <DialogDescription>
-              Create a new group to organize orders and manage member allergies.
+              Enter a name for your new group
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="group-name">Group Name</Label>
+            <div className="space-y-2">
+              <Label htmlFor="groupName">Group Name</Label>
               <Input
-                id="group-name"
+                id="groupName"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
                 placeholder="Enter group name"
-                onKeyDown={(e) => e.key === 'Enter' && handleCreateGroup()}
               />
             </div>
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
                 onClick={handleCloseCreateGroupDialog}
-                className="flex-1"
               >
                 Cancel
               </Button>
-              <Button 
-                onClick={handleCreateGroup}
-                className="flex-1"
-                disabled={!newGroupName.trim()}
-              >
+              <Button onClick={handleCreateGroup}>
                 Create Group
               </Button>
             </div>
@@ -459,119 +481,85 @@ export const GroupManagement: React.FC<GroupManagementProps> = ({
 
       {/* Add Member Dialog */}
       <Dialog open={isAddMemberOpen} onOpenChange={setIsAddMemberOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Group Member</DialogTitle>
             <DialogDescription>
-              Add a new member to the group and specify any allergies they may have.
+              Enter member details and any allergies
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
-            <div>
-              <Label htmlFor="member-name">Name</Label>
+            <div className="space-y-2">
+              <Label htmlFor="memberName">Name</Label>
               <Input
-                id="member-name"
+                id="memberName"
                 value={newMember.name}
                 onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
                 placeholder="Enter member name"
-                disabled={activeGroup && activeGroup.name === 'Just You'}
               />
             </div>
-            
-            <div className="space-y-3">
-              <Label>Allergens (optional)</Label>
-              
-              {/* Simple Autocomplete */}
-              <div className="flex gap-2">
-                <div className="flex-1 relative">
-                  <Input
-                    ref={inputRef}
-                    value={newAllergen}
-                    onChange={handleInputChange}
-                    onKeyDown={handleInputKeyDown}
-                    onFocus={handleInputFocus}
-                    onBlur={handleInputBlur}
-                    placeholder="Type allergen name (e.g., Milk, Nuts)"
-                    autoComplete="off"
-                  />
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                  
-                  {/* Suggestions Dropdown */}
-                  {showSuggestions && suggestions.length > 0 && (
-                    <div 
-                      ref={suggestionsRef}
-                      className="absolute top-full left-0 right-0 mt-1 bg-white border border-border rounded-md shadow-lg z-50 max-h-60 overflow-y-auto"
-                    >
-                      {suggestions.map((suggestion, index) => (
-                        <div
-                          key={suggestion}
-                          className={`px-3 py-2 cursor-pointer transition-colors border-b border-border/30 last:border-b-0 ${
-                            index === selectedIndex 
-                              ? 'bg-accent/10 text-accent-foreground' 
-                              : 'hover:bg-muted/50'
-                          }`}
-                          onClick={() => handleSuggestionClick(suggestion)}
-                        >
-                          <span className="text-sm">{suggestion}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                
-                <Button 
-                  type="button" 
-                  onClick={() => handleAddAllergen()}
-                  disabled={!newAllergen.trim()}
-                  variant="destructive"
-                  size="sm"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
 
-              {/* Added Allergens Display */}
-              {newMember.allergens.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-xs text-muted-foreground">Added allergens:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {newMember.allergens.map((allergen, index) => (
-                      <Badge 
-                        key={`${allergen}-${index}`} 
-                        variant="destructive"
-                        className="cursor-pointer hover:opacity-80 flex items-center gap-1"
-                        onClick={() => handleRemoveAllergen(allergen)}
+            <div className="space-y-2">
+              <Label>Allergies</Label>
+              <div className="relative">
+                <Input
+                  ref={inputRef}
+                  value={newAllergen}
+                  onChange={handleInputChange}
+                  onKeyDown={handleInputKeyDown}
+                  onFocus={handleInputFocus}
+                  onBlur={handleInputBlur}
+                  placeholder="Type to add allergies"
+                />
+                {showSuggestions && suggestions.length > 0 && (
+                  <div
+                    ref={suggestionsRef}
+                    className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg max-h-48 overflow-auto"
+                  >
+                    {suggestions.map((suggestion, index) => (
+                      <div
+                        key={suggestion}
+                        className={`px-3 py-2 cursor-pointer hover:bg-muted ${
+                          index === selectedIndex ? 'bg-muted' : ''
+                        }`}
+                        onClick={() => handleSuggestionClick(suggestion)}
                       >
-                        <AlertTriangle className="h-3 w-3" />
-                        {allergen}
-                        <X className="h-3 w-3 ml-1" />
-                      </Badge>
+                        {suggestion}
+                      </div>
                     ))}
                   </div>
-                  <p className="text-xs text-muted-foreground">Click on an allergen to remove it</p>
+                )}
+              </div>
+
+              {newMember.allergens.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newMember.allergens.map(allergen => (
+                    <Badge
+                      key={allergen}
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
+                      {allergen}
+                      <button
+                        onClick={() => handleRemoveAllergen(allergen)}
+                        className="hover:text-destructive"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
                 </div>
               )}
-
-              {/* Helpful Text */}
-              <div className="text-xs text-muted-foreground bg-muted/50 p-3 rounded-md">
-                <p className="font-medium mb-1">💡 Tip:</p>
-                <p>Type to search allergens starting with your input. Use arrow keys to navigate suggestions, Enter to select, or type custom allergens and press Enter to add them.</p>
-              </div>
             </div>
 
-            <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
                 onClick={handleCloseAddMemberDialog}
-                className="flex-1"
               >
                 Cancel
               </Button>
-              <Button 
-                onClick={handleAddMember}
-                disabled={!newMember.name.trim() || (activeGroup && activeGroup.name === 'Just You')}
-                className="flex-1"
-              >
+              <Button onClick={handleAddMember}>
                 Add Member
               </Button>
             </div>

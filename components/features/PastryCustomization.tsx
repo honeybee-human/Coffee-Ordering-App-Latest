@@ -1,31 +1,29 @@
 import React from 'react';
-import { Check, X } from 'lucide-react';
-import { Button } from '@/ui/button';
 import { Checkbox } from '@/ui/checkbox';
 import { Pastry, PastryCustomization } from '@/types';
 
 interface PastryCustomizationProps {
   pastry: Pastry;
-  customization: PastryCustomization;
-  onChange: (customization: PastryCustomization) => void;
+  customizations: PastryCustomization;
+  setCustomizations: (customizations: PastryCustomization) => void;
 }
 
 export const PastryCustomizationComponent: React.FC<PastryCustomizationProps> = ({
   pastry,
-  customization,
-  onChange
+  customizations,
+  setCustomizations
 }) => {
   const toggleIngredient = (ingredient: string) => {
-    const isRemoved = customization.removedIngredients.includes(ingredient);
+    const isRemoved = customizations.removedIngredients.includes(ingredient);
     if (isRemoved) {
-      onChange({
-        ...customization,
-        removedIngredients: customization.removedIngredients.filter(i => i !== ingredient)
+      setCustomizations({
+        ...customizations,
+        removedIngredients: customizations.removedIngredients.filter(i => i !== ingredient)
       });
     } else {
-      onChange({
-        ...customization,
-        removedIngredients: [...customization.removedIngredients, ingredient]
+      setCustomizations({
+        ...customizations,
+        removedIngredients: [...customizations.removedIngredients, ingredient]
       });
     }
   };
@@ -46,7 +44,7 @@ export const PastryCustomizationComponent: React.FC<PastryCustomizationProps> = 
           <div key={ingredient} className="flex items-center space-x-2">
             <Checkbox
               id={ingredient}
-              checked={customization.removedIngredients.includes(ingredient)}
+              checked={customizations.removedIngredients.includes(ingredient)}
               onCheckedChange={() => toggleIngredient(ingredient)}
             />
             <label htmlFor={ingredient} className="text-sm cursor-pointer">

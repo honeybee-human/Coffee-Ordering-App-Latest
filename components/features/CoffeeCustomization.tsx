@@ -3,54 +3,53 @@ import { Plus, Minus } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Badge } from '@/ui/badge';
-import { CoffeeCustomization } from '@/types';
 import { syrupOptions, milkOptions } from '@/data/menu';
+import { CoffeeCustomization } from '@/types';
 
-interface CoffeeCustomizationProps {
-  customization: CoffeeCustomization;
-  onChange: (customization: CoffeeCustomization) => void;
+interface CoffeeCustomizationComponentProps {
+  customizations: CoffeeCustomization;
+  setCustomizations: (customizations: CoffeeCustomization) => void;
 }
 
-export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = ({
-  customization,
-  onChange
-}) => {
+export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponentProps> = ({ customizations, setCustomizations }) => {
   const [selectedSyrup, setSelectedSyrup] = useState<string>('');
 
-  const addSyrup = () => {
-    if (!selectedSyrup) return;
-    
-    const existingSyrup = customization.syrups.find(s => s.flavor === selectedSyrup);
+  const setMilk = (milk: string) => {
+    setCustomizations({ ...customizations, milk });
+  };
+
+  const addSyrup = (flavor: string) => {
+    const existingSyrup = customizations.syrups.find(s => s.flavor === flavor);
     if (existingSyrup) {
-      onChange({
-        ...customization,
-        syrups: customization.syrups.map(s =>
-          s.flavor === selectedSyrup ? { ...s, pumps: s.pumps + 1 } : s
-        )
-      });
+      updateSyrupPumps(flavor, existingSyrup.pumps + 1);
     } else {
-      onChange({
-        ...customization,
-        syrups: [...customization.syrups, { flavor: selectedSyrup, pumps: 1 }]
+      setCustomizations({
+        ...customizations,
+        syrups: [...customizations.syrups, { flavor, pumps: 1 }]
       });
     }
-    setSelectedSyrup('');
   };
 
   const updateSyrupPumps = (flavor: string, pumps: number) => {
     if (pumps <= 0) {
-      onChange({
-        ...customization,
-        syrups: customization.syrups.filter(s => s.flavor !== flavor)
+      setCustomizations({
+        ...customizations,
+        syrups: customizations.syrups.filter(s => s.flavor !== flavor)
       });
     } else {
-      onChange({
-        ...customization,
-        syrups: customization.syrups.map(s =>
+      setCustomizations({
+        ...customizations,
+        syrups: customizations.syrups.map(s => 
           s.flavor === flavor ? { ...s, pumps } : s
         )
       });
     }
+  };
+
+  const handleAddSyrup = () => {
+    if (!selectedSyrup) return;
+    addSyrup(selectedSyrup);
+    setSelectedSyrup('');
   };
 
   return (
@@ -58,7 +57,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
       <div>
         <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
         <div>
-          <Select value={customization.milk} onValueChange={(milk) => onChange({ ...customization, milk })}>
+          <Select value={customizations.milk} onValueChange={setMilk}>
             <SelectTrigger className="bg-muted">
               <SelectValue placeholder="Select milk type" />
             </SelectTrigger>
@@ -86,14 +85,14 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationProps> = 
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={addSyrup} disabled={!selectedSyrup}>
+            <Button onClick={handleAddSyrup} disabled={!selectedSyrup}>
               <Plus className="h-4 w-4" />
             </Button>
           </div>
 
-          {customization.syrups.length > 0 && (
+          {customizations.syrups.length > 0 && (
             <div className="space-y-2">
-              {customization.syrups.map(syrup => (
+              {customizations.syrups.map(syrup => (
                 <div key={syrup.flavor} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="text-sm">{syrup.flavor}</span>
                   <div className="flex items-center gap-2">

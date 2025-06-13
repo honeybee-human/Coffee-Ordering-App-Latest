@@ -1,7 +1,9 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
-import { Coffee, Pastry, Group, GroupMember } from '@/types';
-import { useAppStore } from '@/store/useAppStore';
+import { Coffee, Pastry, Group, GroupMember, CartItem, CoffeeCustomization } from '@/types';
+import { useGroupsStore } from './useGroupsStore';
+import { containsDairy } from '@/data/menu';
+import { normalizeAllergens } from '@/utils/allergens';
 
 interface AllergensStore {
   // State
@@ -15,7 +17,9 @@ interface AllergensStore {
   
   // Helper functions
   getItemAllergens: (item: Coffee | Pastry) => string[];
+  getAllAllergens: (item: CartItem) => string[];
   hasAllergenConflict: (item: Coffee | Pastry) => boolean;
+  checkAllergenConflicts: (allergens: string[], members: GroupMember[]) => string[];
 }
 
 // Define the shape of the persisted state
@@ -60,7 +64,7 @@ export const useAllergensStore = create<AllergensStore>()(
       
       addMemberAllergensToFilters: (memberName: string, groupId: string, allergens: string[]) => {
         // Get the current app state to access groups
-        const appStore = useAppStore.getState();
+        const appStore = useGroupsStore.getState();
         const group = appStore.groups.find(g => g.id === groupId);
         if (!group) return;
         
@@ -101,6 +105,22 @@ export const useAllergensStore = create<AllergensStore>()(
       getItemAllergens: (item: Coffee | Pastry): string[] => {
         return item.allergens || [];
       },
+
+      getAllAllergens: (item: CartItem): string[] => {
+        const baseAllergens = [...item.item.allergens];
+        
+        // Add milk allergen if the item uses dairy milk
+        if (item.type === 'coffee') {
+          const customizations = item.customizations as CoffeeCustomization;
+          if (customizations.milk && containsDairy(customizations.milk)) {
+            if (!baseAllergens.includes('Milk')) {
+              baseAllergens.push('Milk');
+            }
+          }
+        }
+        
+        return normalizeAllergens(baseAllergens);
+      },
       
       hasAllergenConflict: (item: Coffee | Pastry): boolean => {
         const { excludedAllergens, getItemAllergens } = get();
@@ -108,6 +128,12 @@ export const useAllergensStore = create<AllergensStore>()(
         
         const itemAllergens = getItemAllergens(item);
         return itemAllergens.some(allergen => excludedAllergens.includes(allergen));
+      },
+
+      checkAllergenConflicts: (allergens: string[], members: GroupMember[]): string[] => {
+        return members
+          .filter(member => allergens.some(allergen => member.allergens.includes(allergen)))
+          .map(member => member.name);
       }
     }),
     {

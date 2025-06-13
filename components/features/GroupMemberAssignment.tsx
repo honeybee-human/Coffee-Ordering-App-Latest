@@ -1,58 +1,38 @@
 import React from 'react';
 import { User, AlertTriangle } from 'lucide-react';
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Label } from '@/ui/label';
 import { Badge } from '@/ui/badge';
 import { GroupMember } from '@/types';
+import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
+import { useGroupsStore } from '@/store/useGroupsStore';
 
 interface GroupMemberAssignmentProps {
-  groupMembers: GroupMember[];
-  selectedPerson: string;
-  onPersonChange: (person: string) => void;
   itemAllergens?: string[];
   className?: string;
 }
 
 export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
-  groupMembers,
-  selectedPerson,
-  onPersonChange,
   itemAllergens = [],
   className = ''
 }) => {
-  // Function to check if a member has allergen conflicts with the item
-  const hasAllergenConflict = (member: GroupMember): boolean => {
-    if (!member.allergens || member.allergens.length === 0 || itemAllergens.length === 0) {
-      return false;
-    }
-    return member.allergens.some(allergen => 
-      itemAllergens.some(itemAllergen => 
-        itemAllergen.toLowerCase().includes(allergen.toLowerCase()) ||
-        allergen.toLowerCase().includes(itemAllergen.toLowerCase())
-      )
-    );
-  };
+  const activeGroup = useGroupsStore(state => state.getActiveGroup());
+  const { 
+    selectedPerson, 
+    setSelectedPerson, 
+    hasAllergenConflict, 
+    getSortedMembers,
+    getConflictingAllergens 
+  } = useGroupMemberAssignmentStore();
 
-  // Sort members to show those with conflicts at the bottom
-  const sortedMembers = [...groupMembers].sort((a, b) => {
-    const aHasConflict = hasAllergenConflict(a);
-    const bHasConflict = hasAllergenConflict(b);
-    
-    if (aHasConflict && !bHasConflict) return 1;
-    if (!aHasConflict && bHasConflict) return -1;
-    return a.name.localeCompare(b.name);
-  });
-
-  if (groupMembers.length === 0) {
+  if (!activeGroup || activeGroup.members.length === 0) {
     return null;
   }
-  // If there is only one group member, always assign to them by default
-  React.useEffect(() => {
-    if (groupMembers.length === 1 && selectedPerson !== groupMembers[0].name) {
-      onPersonChange(groupMembers[0].name);
-    }
-  }, [groupMembers, selectedPerson, onPersonChange]);
+
+
+
+  const sortedMembers = getSortedMembers(activeGroup.members, itemAllergens);
+
   return (
     <div className={className}>
       <div className="pb-3">
@@ -65,14 +45,17 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
         <div className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="person-select">Who is this for? (Optional)</Label>
-            <Select value={selectedPerson || "unassigned"} onValueChange={(value) => onPersonChange(value === "unassigned" ? "" : value)}>
+            <Select 
+              value={selectedPerson || "unassigned"} 
+              onValueChange={(value) => setSelectedPerson(value === "unassigned" ? "" : value)}
+            >
               <SelectTrigger id="person-select" className="bg-muted">
                 <SelectValue placeholder="Select a person or leave unassigned" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="unassigned">Unassigned</SelectItem>
                 {sortedMembers.map((member) => {
-                  const hasConflict = hasAllergenConflict(member);
+                  const hasConflict = hasAllergenConflict(member, itemAllergens);
                   
                   return (
                     <SelectItem 
@@ -102,16 +85,11 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
 
           {/* Show warning if selected person has allergen conflicts */}
           {selectedPerson && selectedPerson !== "unassigned" && (() => {
-            const selectedMember = groupMembers.find(m => m.name === selectedPerson);
-            const hasConflict = selectedMember && hasAllergenConflict(selectedMember);
+            const selectedMember = activeGroup.members.find(m => m.name === selectedPerson);
+            const hasConflict = selectedMember && hasAllergenConflict(selectedMember, itemAllergens);
             
             if (hasConflict && selectedMember) {
-              const conflictingAllergens = selectedMember.allergens.filter(allergen =>
-                itemAllergens.some(itemAllergen =>
-                  itemAllergen.toLowerCase().includes(allergen.toLowerCase()) ||
-                  allergen.toLowerCase().includes(itemAllergen.toLowerCase())
-                )
-              );
+              const conflictingAllergens = getConflictingAllergens(selectedMember, itemAllergens);
 
               return (
                 <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">

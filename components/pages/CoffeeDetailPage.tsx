@@ -8,28 +8,16 @@ import { AllergenTag } from '@/components/shared/AllergenTag';
 import { coffeeMenu } from '@/data/menu';
 import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
+import { useGroupsStore } from '@/store/useGroupsStore';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { useModalsStore } from '@/store/useModalsStore';
+import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
 
-interface CoffeeDetailPageProps {
-  coffeeId: string;
-  groupMembers: GroupMember[];
-  onBack: () => void;
-  onAddToCart: (item: CartItem) => void;
-  onAllergenConflict: (allergens: string[], affectedMembers: string[], itemName: string, addCallback: () => void) => void;
-  onToggleFavorite: (type: 'coffee' | 'pastry', item: any, customizations?: any) => void;
-  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: any) => boolean;
-  initialCustomizations?: CoffeeCustomizationType;
-}
-
-export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
-  coffeeId,
-  groupMembers,
-  onBack,
-  onAddToCart,
-  onAllergenConflict,
-  onToggleFavorite,
-  isItemFavorited,
-  initialCustomizations
-}) => {
+export const CoffeeDetailPage: React.FC<{ 
+  coffeeId: string; 
+  onBack: () => void; 
+  initialCustomizations?: CoffeeCustomizationType 
+}> = ({ coffeeId, onBack, initialCustomizations }) => {
   const coffee = coffeeMenu.find(c => c.id === coffeeId);
   const [customizations, setCustomizations] = useState<CoffeeCustomizationType>(
     initialCustomizations || {
@@ -37,13 +25,31 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
       milk: 'Whole Milk'
     }
   );
-  const [selectedPerson, setSelectedPerson] = useState<string>('');
+  const { selectedPerson, resetForNewItem } = useGroupMemberAssignmentStore();
+  
+  const groupMembers = useGroupsStore(state => {
+    const activeGroupId = state.activeGroupId;
+    return activeGroupId ? state.groups.find(g => g.id === activeGroupId)?.members || [] : [];
+  });
 
   useEffect(() => {
     if (initialCustomizations) {
       setCustomizations(initialCustomizations);
+    } else {
+      // Reset customizations when switching to a new coffee
+      setCustomizations({
+        syrups: [],
+        milk: 'Whole Milk'
+      });
     }
-  }, [initialCustomizations]);
+  }, [coffeeId, initialCustomizations]);
+
+  useEffect(() => {
+    // Reset assignment when switching to a new coffee
+    resetForNewItem(groupMembers);
+  }, [coffeeId, resetForNewItem, groupMembers]);
+
+
 
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
@@ -83,6 +89,11 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
   // Get all allergens for this coffee item (original + detected)
   const allItemAllergens = [...coffee.allergens, ...comprehensiveAllergens];
 
+  const { addToCart } = useGroupsStore();
+  const activeGroup = useGroupsStore(state => state.getActiveGroup());
+  const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
+  const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
+  const { showAddToCartModal, showAllergenWarning } = useModalsStore();
   const isFavorited = isItemFavorited('coffee', coffee.id, customizations);
 
   const handleAddToCart = () => {
@@ -94,31 +105,60 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
       quantity: 1,
       assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
     };
-    onAddToCart(cartItem);
+    
+    // Check for allergen conflicts
+    const itemAllergens = getComprehensiveAllergens(coffee);
+    const conflictingMembers: string[] = [];
+    const conflictingAllergens: string[] = [];
+    
+    groupMembers.forEach(member => {
+      if (member.allergens) {
+        const memberConflicts = itemAllergens.filter(allergen => 
+          member.allergens!.includes(allergen)
+        );
+        if (memberConflicts.length > 0) {
+          conflictingMembers.push(member.name);
+          conflictingAllergens.push(...memberConflicts);
+        }
+      }
+    });
+    
+    if (conflictingAllergens.length > 0) {
+      const uniqueAllergens = [...new Set(conflictingAllergens)];
+      const affectedGroupMembers = groupMembers.filter(member => 
+        conflictingMembers.includes(member.name)
+      );
+      
+      showAllergenWarning(uniqueAllergens, affectedGroupMembers, coffee.name, () => {
+        if (activeGroup) addToCart(activeGroup.id, cartItem);
+        showAddToCartModal(coffee.name);
+      });
+    } else {
+      if (activeGroup) addToCart(activeGroup.id, cartItem);
+      showAddToCartModal(coffee.name);
+    }
   };
 
   const handleToggleFavorite = () => {
-    onToggleFavorite('coffee', coffee, customizations);
+    toggleFavorite('coffee', coffee, customizations);
   };
 
   // Fixed syrup pricing to $0.10 per pump
   const totalPrice = coffee.price + customizations.syrups.reduce((total, syrup) => total + (syrup.pumps * 0.10), 0);
 
-
-
   return (
     <div className="mx-auto space-y-6">
-       <Button onClick={onBack} variant="outline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Menu
-        </Button>
+      <Button onClick={onBack} variant="outline">
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to Menu
+      </Button>
+      
       {/* Header */}
       <div className="flex items-center justify-between">
- 
-              <div>
-              <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
-              <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
-            </div>
+        <div>
+          <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
+          <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
+        </div>
         <Button
           variant="ghost"
           onClick={handleToggleFavorite}
@@ -147,8 +187,6 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
           </div>
           
           <div className="space-y-4">
- 
-
             {/* Allergen Information - same style as product cards */}
             {(coffee.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
               <div className="pt-3">
@@ -156,30 +194,20 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
               </div>
             )}
           </div>
-          
-          
         </div>
 
         {/* Customization & Order */}
         <div className="space-y-6">
- 
-
-                          {/* Person Assignment using the new component */}
+          {/* Person Assignment using the new component */}
           <GroupMemberAssignment
-            groupMembers={groupMembers}
-            selectedPerson={selectedPerson}
-            onPersonChange={setSelectedPerson}
             itemAllergens={allItemAllergens}
           />
 
           {/* Direct customization without extra card wrapper */}
           <CoffeeCustomizationComponent
-            customization={customizations}
-            onChange={setCustomizations}
+            customizations={customizations}
+            setCustomizations={setCustomizations}
           />
-
-
-
         </div>
 
         <div className='flex-col space-y-5'>
@@ -194,29 +222,29 @@ export const CoffeeDetailPage: React.FC<CoffeeDetailPageProps> = ({
               <div>${coffee.price.toFixed(2)}</div>
             </div>
               
-              {customizations.milk !== 'Whole Milk' && (
-                <div className="flex justify-between items-center text-sm text-muted-foreground mt-2 border-t border-border">
-                  <span>• {customizations.milk}</span>
-                  <span>Included</span>
-                </div>
-              )}
-              
-              {customizations.syrups.map((syrup, index) => (
-                <div key={index} className="flex justify-between items-center text-sm text-muted-foreground mt-2 border-t border-border">
-                  <span>• {syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''} {syrup.flavor}</span>
-                  <span>+${(syrup.pumps * 0.10).toFixed(2)}</span>
-                </div>
-              ))}
+            {customizations.milk !== 'Whole Milk' && (
+              <div className="flex justify-between items-center text-sm text-muted-foreground mt-2 border-t border-border">
+                <span>• {customizations.milk}</span>
+                <span>Included</span>
+              </div>
+            )}
+            
+            {customizations.syrups.map((syrup, index) => (
+              <div key={index} className="flex justify-between items-center text-sm text-muted-foreground mt-2 border-t border-border">
+                <span>• {syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''} {syrup.flavor}</span>
+                <span>+${(syrup.pumps * 0.10).toFixed(2)}</span>
+              </div>
+            ))}
 
-              {selectedPerson && selectedPerson !== "unassigned" && (
-                <div className="mt-2 pt-2 border-t border-border">
-                  <div className="flex justify-between items-center text-sm text-muted-foreground">
-                    <span>• Assigned to:</span>
-                    <span>{selectedPerson}</span>
-                  </div>
+            {selectedPerson && selectedPerson !== "unassigned" && (
+              <div className="mt-2 pt-2 border-t border-border">
+                <div className="flex justify-between items-center text-sm text-muted-foreground">
+                  <span>• Assigned to:</span>
+                  <span>{selectedPerson}</span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
+          </div>
 
           <Button 
             onClick={handleAddToCart}

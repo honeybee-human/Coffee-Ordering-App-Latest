@@ -11,39 +11,28 @@ import { AllergenFilter } from '@/components/shared/AllergenFilter';
 import { coffeeMenu, pastryMenu } from '@/data/menu';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
-import { GroupMember } from '@/types';
+import { useGroupsStore } from '@/store/useGroupsStore';
+import { useAllergensStore } from '@/store/useAllergensStore';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
-interface MenuProps {
-  groupMembers: GroupMember[];
-  onSelectCoffee: (coffeeId: string) => void;
-  onSelectPastry: (pastryId: string) => void;
-  onToggleFavorite: (type: 'coffee' | 'pastry', item: any, customizations?: any) => void;
-  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: any) => boolean;
-  excludedAllergens: string[];
-  onToggleAllergenFilter: (allergen: string) => void;
-  onClearAllergenFilters: () => void;
-}
-
-
-
-
-export const Menu: React.FC<MenuProps> = ({ 
-  groupMembers, 
-  onSelectCoffee, 
-  onSelectPastry,
-  onToggleFavorite,
-  isItemFavorited,
-  excludedAllergens,
-  onToggleAllergenFilter,
-  onClearAllergenFilters
-}) => {
+export const Menu: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'name' | 'description'>('name');
+  
+  const groupMembers = useGroupsStore(state => {
+    const activeGroupId = state.activeGroupId;
+    return activeGroupId ? state.groups.find(g => g.id === activeGroupId)?.members || [] : [];
+  });
+  
+  const { excludedAllergens, toggleAllergenFilter, clearAllergenFilters } = useAllergensStore();
+  const { toggleFavorite, isItemFavorited } = useFavoritesStore();
+  const { navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
 
   const handleFavoriteClick = (e: React.MouseEvent, type: 'coffee' | 'pastry', item: any) => {
     e.stopPropagation(); // Prevent card click
-    onToggleFavorite(type, item);
+    toggleFavorite(type, item);
   };
 
   // Get all group member allergens for filtering detected allergens
@@ -95,8 +84,6 @@ export const Menu: React.FC<MenuProps> = ({
   // Count filtered items
   const filteredOutCount = (coffeeMenu.length - filteredCoffeeMenu.length) + (pastryMenu.length - filteredPastryMenu.length);
 
-
-
   return (
     <div className="space-y-6">
       {/* Search and Filter Section */}
@@ -114,8 +101,8 @@ export const Menu: React.FC<MenuProps> = ({
           filtersOpen={filtersOpen}
           setFiltersOpen={setFiltersOpen}
           excludedAllergens={excludedAllergens}
-          onToggleAllergenFilter={onToggleAllergenFilter}
-          onClearAllergenFilters={onClearAllergenFilters}
+          onToggleAllergenFilter={toggleAllergenFilter}
+          onClearAllergenFilters={clearAllergenFilters}
           allAllergens={allAllergens}
           groupBasedAllergens={groupBasedAllergens}
           filteredOutCount={filteredOutCount}
@@ -162,7 +149,7 @@ export const Menu: React.FC<MenuProps> = ({
                   </Button>
                 )}
                 {excludedAllergens.length > 0 && (
-                  <Button variant="outline" onClick={onClearAllergenFilters}>
+                  <Button variant="outline" onClick={clearAllergenFilters}>
                     Clear Allergen Filters
                   </Button>
                 )}
@@ -172,15 +159,11 @@ export const Menu: React.FC<MenuProps> = ({
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredCoffeeMenu.map((coffee, index) => {
-              const isFavorited = isItemFavorited('coffee', coffee.id);
-              
               return (
                 <CoffeeCard
                   key={coffee.id}
                   coffee={coffee}
-                  onSelect={onSelectCoffee}
-                  onToggleFavorite={handleFavoriteClick}
-                  isFavorited={isFavorited}
+                  onSelect={navigateToCoffeeDetail}
                   groupAllergens={groupAllergens}
                 />
               );
@@ -189,7 +172,7 @@ export const Menu: React.FC<MenuProps> = ({
         </TabsContent>
 
         <TabsContent value="pastries" className="space-y-6">
-          <div className="text-center space-y-2 mb-8  mt-8">
+          <div className="text-center space-y-2 mb-8 mt-8">
             <h2 className="text-3xl font-bold text-primary">Fresh Baked Pastries</h2>
             <p className="text-muted-foreground mx-auto">
               Delicious pastries baked fresh daily with customizable options to suit your preferences
@@ -216,7 +199,7 @@ export const Menu: React.FC<MenuProps> = ({
                   </Button>
                 )}
                 {excludedAllergens.length > 0 && (
-                  <Button variant="outline" onClick={onClearAllergenFilters}>
+                  <Button variant="outline" onClick={clearAllergenFilters}>
                     Clear Allergen Filters
                   </Button>
                 )}
@@ -226,15 +209,11 @@ export const Menu: React.FC<MenuProps> = ({
           
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredPastryMenu.map((pastry, index) => {
-              const isFavorited = isItemFavorited('pastry', pastry.id);
-              
               return (
                 <PastryCard
                   key={pastry.id}
                   pastry={pastry}
-                  onSelect={onSelectPastry}
-                  onToggleFavorite={handleFavoriteClick}
-                  isFavorited={isFavorited}
+                  onSelect={navigateToPastryDetail}
                   groupAllergens={groupAllergens}
                 />
               );

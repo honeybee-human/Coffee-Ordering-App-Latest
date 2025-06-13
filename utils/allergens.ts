@@ -1,3 +1,5 @@
+import { CoffeeCustomization } from "@/types";
+
 // Comprehensive list of common allergens for autocomplete
 export const COMMON_ALLERGENS = [
   'Almonds',

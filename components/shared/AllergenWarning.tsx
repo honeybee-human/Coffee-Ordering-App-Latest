@@ -1,28 +1,20 @@
+// AllergenWarning.tsx - Refactored to use stores directly
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/ui/alert';
 import { Button } from '@/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/ui/dialog';
+import { useModalsStore } from '@/store/useModalsStore';
 
-interface AllergenWarningProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onProceed: () => void;
-  allergens: string[];
-  affectedMembers: string[];
-  itemName: string;
-}
+export const AllergenWarning: React.FC = () => {
+  const { 
+    modals: { allergenWarning }, 
+    closeAllergenWarning, 
+    proceedWithAllergen 
+  } = useModalsStore();
 
-export const AllergenWarning: React.FC<AllergenWarningProps> = ({
-  isOpen,
-  onClose,
-  onProceed,
-  allergens,
-  affectedMembers,
-  itemName
-}) => {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={allergenWarning.isOpen} onOpenChange={closeAllergenWarning}>
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
@@ -30,7 +22,7 @@ export const AllergenWarning: React.FC<AllergenWarningProps> = ({
             Allergen Warning
           </DialogTitle>
           <DialogDescription>
-            The item "{itemName}" contains allergens that may affect group members.
+            The item "{allergenWarning.itemName}" contains allergens that may affect group members.
           </DialogDescription>
         </DialogHeader>
         
@@ -40,20 +32,20 @@ export const AllergenWarning: React.FC<AllergenWarningProps> = ({
           <AlertDescription>
             <div className="mt-2 space-y-2">
               <div>
-                <strong>Conflicting allergens:</strong> {allergens.join(', ')}
+                <strong>Conflicting allergens:</strong> {allergenWarning.allergens.join(', ')}
               </div>
               <div>
-                <strong>Affected members:</strong> {affectedMembers.join(', ')}
+                <strong>Affected members:</strong> {allergenWarning.affectedMembers.map(member => member.name).join(', ')}
               </div>
             </div>
           </AlertDescription>
         </Alert>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={closeAllergenWarning}>
             Cancel
           </Button>
-          <Button variant="destructive" onClick={onProceed}>
+          <Button variant="destructive" onClick={proceedWithAllergen}>
             Add Anyway
           </Button>
         </DialogFooter>

@@ -1,8 +1,8 @@
 import React, { ReactNode } from 'react';
 import { AppProvider } from '@/context/AppContext';
-import { NavigationProvider } from '@/context/NavigationContext';
+
 import { ModalsProvider } from '@/context/ModalsContext';
-import { AllergensProvider } from '@/context/AllergensContext';
+
 
 interface AppProvidersProps {
   children: ReactNode;
@@ -15,13 +15,9 @@ interface AppProvidersProps {
 export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <AppProvider>
-      <NavigationProvider>
-        <ModalsProvider>
-          <AllergensProvider>
-            {children}
-          </AllergensProvider>
-        </ModalsProvider>
-      </NavigationProvider>
+      <ModalsProvider>
+        {children}
+      </ModalsProvider>
     </AppProvider>
   );
 };

@@ -1,32 +1,30 @@
+// AddToCartModal.tsx - Refactored to use stores directly
 import React from 'react';
 import { CheckCircle, ShoppingCart } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { Button } from '@/ui/button';
+import { useModalsStore } from '@/store/useModalsStore';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
-interface AddToCartModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  itemName: string;
-  onViewCart: () => void;
-}
+export const AddToCartModal: React.FC = () => {
+  const { 
+    modals: { addToCart }, 
+    closeAddToCartModal 
+  } = useModalsStore();
+  
+  const { navigateToCart } = useNavigationStore();
 
-export const AddToCartModal: React.FC<AddToCartModalProps> = ({
-  isOpen,
-  onClose,
-  itemName,
-  onViewCart
-}) => {
   const handleViewCart = () => {
-    onViewCart();
-    onClose();
+    navigateToCart();
+    closeAddToCartModal();
   };
 
   const handleContinueShopping = () => {
-    onClose();
+    closeAddToCartModal();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={addToCart.isOpen} onOpenChange={closeAddToCartModal}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -34,8 +32,8 @@ export const AddToCartModal: React.FC<AddToCartModalProps> = ({
             Added to Cart!
           </DialogTitle>
           <DialogDescription>
-            {itemName && typeof itemName === 'string' && itemName.length > 0 
-              ? itemName[0].toUpperCase() + itemName.substring(1) 
+            {addToCart.itemName && typeof addToCart.itemName === 'string' && addToCart.itemName.length > 0 
+              ? addToCart.itemName[0].toUpperCase() + addToCart.itemName.substring(1) 
               : 'Item'} has been successfully added to your cart.
           </DialogDescription>
         </DialogHeader>

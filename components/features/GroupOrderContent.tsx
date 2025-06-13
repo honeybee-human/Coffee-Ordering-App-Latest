@@ -5,26 +5,26 @@ import { Separator } from '@/ui/separator';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CartItem, GroupMember } from '@/types';
 import { groupAndCombineItems } from '@/utils/cart-helpers';
+import { useGroupsStore } from '@/store/useGroupsStore';
 
-interface GroupOrderContentProps {
-  cartItems: CartItem[];
-  groupMembers: GroupMember[];
-  getAllAllergens: (item: CartItem) => string[];
-  groupName?: string;
-}
+export const GroupOrderContent: React.FC = () => {
+  const activeGroup = useGroupsStore(state => state.getActiveGroup());
+  const cartItems = activeGroup?.cart || [];
 
-export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
-  cartItems,
-  groupMembers,
-  getAllAllergens,
-  groupName = 'Group'
-}) => {
+  if (!activeGroup) return null;
+
+  const { groupMembers, groupName } = {
+    groupMembers: activeGroup.members,
+    groupName: activeGroup.name
+  };
+
   // Helper to get assigned person, defaulting to the only member if groupMembers.length === 1
   const getAssignedPerson = (item: CartItem): string | undefined => {
     if (item.assignedTo) return item.assignedTo;
     if (groupMembers.length === 1) return groupMembers[0].name;
     return undefined;
   };
+
   // Helper function to calculate item price including customizations
   const calculateItemPrice = (item: CartItem): number => {
     let itemPrice = item.item.price;
@@ -68,7 +68,7 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
     
     const conflicts = new Set<string>();
     items.forEach(item => {
-      const itemAllergens = getAllAllergens(item);
+      const itemAllergens = item.item.allergens || [];
       itemAllergens.forEach(allergen => {
         if (member.allergens.includes(allergen)) {
           conflicts.add(allergen);
@@ -86,21 +86,22 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
       const parts = [];
       
       if (customizations.milk && customizations.milk !== 'Whole Milk') {
-        parts.push(`${customizations.milk} milk`);
+        parts.push(`• ${customizations.milk} milk`);
       }
       
       if (customizations.syrups && customizations.syrups.length > 0) {
-        const syrupDescriptions = customizations.syrups.map((syrup: any) => 
-          `${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`
-        );
-        parts.push(...syrupDescriptions);
+        customizations.syrups.forEach((syrup: any) => {
+          const syrupCost = syrup.pumps * 0.10;
+          parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
+        });
       }
       
-      return parts.length > 0 ? parts.join(', ') : '';
+      return parts.length > 0 ? parts.join('\n') : '';
     } else {
       const customizations = item.customizations as any;
       if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-        return `No ${customizations.removedIngredients.join(', ')}`;
+        const parts = customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
+        return parts.join('\n');
       }
       return '';
     }
@@ -114,14 +115,13 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
 
   return (
     <div className="space-y-6">
-                <h2 className='mb-5'>{groupName} Order Summary</h2>
-                <Separator/>
+      <h2 className='mb-5'>{groupName} Order Summary</h2>
+      <Separator/>
       {/* Group Members */}
       {groupMembers.map(member => {
         const memberItems = groupedItems[member.name] || [];
         const memberTotal = personTotals[member.name] || 0;
         const conflicts = getPersonAllergenConflicts(memberItems, member.name);
-        // Use getAssignedPerson for assignment logic
         
         return (
           <div key={member.name} className="space-y-3">
@@ -164,7 +164,7 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
                             )}
                           </div>
                           {customizations && (
-                            <div className="text-xs text-muted-foreground mt-1">
+                            <div className="text-xs text-muted-foreground mt-1 whitespace-pre-line">
                               {customizations}
                             </div>
                           )}
@@ -223,7 +223,7 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
                         <span>{item.quantity}x {item.item.name}</span>
                       </div>
                       {customizations && (
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-xs text-muted-foreground mt-1 whitespace-pre-line">
                           {customizations}
                         </div>
                       )}
@@ -238,7 +238,6 @@ export const GroupOrderContent: React.FC<GroupOrderContentProps> = ({
           </div>
         </div>
       )}
-
     </div>
   );
 };

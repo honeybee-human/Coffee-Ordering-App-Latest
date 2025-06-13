@@ -6,31 +6,11 @@ import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { AllergenTag } from '@/components/shared/AllergenTag';
 import { FavoriteItem, CartItem, GroupMember } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
-import { GroupMemberAssignment } from '../features/GroupMemberAssignment';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
 
-interface FavoriteCardProps {
-  favorite: FavoriteItem;
-  groupAllergens: string[];
-  groupMembers: GroupMember[];
-  assignedTo?: string;
-  onAssignToMember?: (favoriteId: string, memberName: string) => void;
-  onAddToCart: (item: CartItem) => void;
-  onRemoveFromFavorites: (favoriteId: string) => void;
-  onNavigateToDetail: (favorite: FavoriteItem) => void;
-  formatCustomizations: (favorite: FavoriteItem) => string;
-}
-
-export const FavoriteCard: React.FC<FavoriteCardProps> = ({
-  favorite,
-  groupAllergens,
-  groupMembers = [],
-  // assignedTo and onAssignToMember are no longer needed
-  onAddToCart,
-  onRemoveFromFavorites,
-  onNavigateToDetail,
-  formatCustomizations
-}) => {
+export const FavoriteCard: React.FC<{ favorite: FavoriteItem; groupAllergens: string[]; groupMembers: GroupMember[]; onAddToCart: (item: CartItem) => void; onNavigateToDetail: (favorite: FavoriteItem) => void; formatCustomizations: (favorite: FavoriteItem) => string; }> = ({ favorite, groupAllergens, groupMembers = [], onAddToCart, onNavigateToDetail, formatCustomizations }) => {
   const comprehensiveAllergens = getComprehensiveAllergens(favorite.item);
+  const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const handleAddToCart = () => {
     const cartItem: CartItem = {
       id: `favorite-${Date.now()}-${Math.random()}`,
@@ -41,6 +21,10 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
       assignedTo: favorite.assignedTo || undefined
     };
     onAddToCart(cartItem);
+  };
+  const handleRemoveFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    toggleFavorite(favorite.type, favorite.item, favorite.customizations, favorite.assignedTo);
   };
   return (
     <Card 
@@ -65,9 +49,10 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
           <div className="space-y-1">
             <h3 className="text-xs font-bold text-primary line-clamp-1">{favorite.item.name}</h3>
             {formatCustomizations(favorite) && (
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium">Custom:</span> {formatCustomizations(favorite)}
-              </p>
+              <div className="text-xs text-muted-foreground">
+                <span className="font-medium">Custom:</span>
+                <div className="mt-1 whitespace-pre-line">{formatCustomizations(favorite)}</div>
+              </div>
             )}
             {favorite.assignedTo && (
               <p className="text-xs text-muted-foreground">
@@ -93,15 +78,13 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
               Add
             </Button>
             <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemoveFromFavorites(favorite.id);
-              }}
+              onClick={handleRemoveFavorite}
               variant="outline"
+              className="flex-1 text-xs h-7"
               size="sm"
-              className="h-7 w-7 p-0"
             >
-              <Trash2 className="h-3 w-3" />
+              <Trash2 className="h-3 w-3 mr-1" />
+              Remove
             </Button>
           </div>
         </div>
@@ -124,9 +107,10 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
         <CardContent className="pt-0 space-y-2">
           <div className="space-y-2">
             {formatCustomizations(favorite) && (
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium">Customizations:</span> {formatCustomizations(favorite)}
-              </p>
+              <div className="text-xs text-muted-foreground">
+                <span className="font-medium">Customizations:</span>
+                <div className="mt-1 whitespace-pre-line">{formatCustomizations(favorite)}</div>
+              </div>
             )}
             {favorite.assignedTo && (
               <p className="text-xs text-muted-foreground">
@@ -150,7 +134,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                onRemoveFromFavorites(favorite.id);
+                handleRemoveFavorite(e);
               }}
               variant="outline"
               size="sm"

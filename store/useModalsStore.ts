@@ -1,127 +1,144 @@
 import { create } from 'zustand';
-import { ModalState } from '@/types';
+import { GroupMember } from '@/types';
 
 interface ModalsStore {
   // State
-  modals: ModalState;
+  modals: {
+    addToCart: { isOpen: boolean; itemName: string };
+    orderComplete: { isOpen: boolean; orderNumber: string; estimatedTime: number };
+    paymentComplete: { isOpen: boolean; orderNumber: string; estimatedTime: number };
+    allergenWarning: { 
+      isOpen: boolean; 
+      allergens: string[]; 
+      affectedMembers: GroupMember[]; 
+      itemName: string;
+      onProceed?: () => void;
+    };
+  };
   
   // Actions
-  showAddToCartModal: (itemId: string, itemType: 'coffee' | 'pastry', customizations?: any) => void;
+  showAddToCartModal: (itemName: string) => void;
   closeAddToCartModal: () => void;
   showOrderCompleteModal: (orderNumber: string, estimatedTime: number) => void;
   closeOrderCompleteModal: () => void;
-  showAllergenWarningModal: (itemId: string, itemType: 'coffee' | 'pastry', allergens: string[]) => void;
-  closeAllergenWarningModal: () => void;
+  showPaymentCompleteModal: (orderNumber: string, estimatedTime: number) => void;
+  closePaymentCompleteModal: () => void;
+  showAllergenWarning: (allergens: string[], affectedMembers: GroupMember[], itemName: string, onProceed: () => void) => void;
+  closeAllergenWarning: () => void;
+  closeAllergenWarningModal: () => void; // Added alias for backward compatibility
+  proceedWithAllergen: () => void;
 }
 
-// Define a complete modal state that includes allergenWarning
-interface CompleteModalState extends ModalState {
-  allergenWarning: {
-    isOpen: boolean;
-    itemId: string;
-    itemType: 'coffee' | 'pastry';
-    allergens: string[];
-  };
-}
-
-const initialModalState: CompleteModalState = {
-  addToCart: {
-    isOpen: false,
-    itemName: ''
-  },
-  orderComplete: {
-    isOpen: false,
-    orderNumber: '',
-    estimatedTime: 0
-  },
-  allergenWarning: {
-    isOpen: false,
-    itemId: '',
-    itemType: 'coffee',
-    allergens: []
-  }
-};
-
-export const useModalsStore = create<ModalsStore>((set) => ({
+export const useModalsStore = create<ModalsStore>((set, get) => ({
   // Initial state
-  modals: initialModalState,
+  modals: {
+    addToCart: { isOpen: false, itemName: '' },
+    orderComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 },
+    paymentComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 },
+    allergenWarning: { 
+      isOpen: false, 
+      allergens: [], 
+      affectedMembers: [], 
+      itemName: '',
+      onProceed: undefined
+    }
+  },
   
   // Actions
-  showAddToCartModal: (itemId: string, itemType: 'coffee' | 'pastry', customizations?: any) => {
-    set(state => ({
+  showAddToCartModal: (itemName: string) => {
+    set((state) => ({
       modals: {
         ...state.modals,
-        addToCart: {
-          isOpen: true,
-          itemName: itemId
-        }
+        addToCart: { isOpen: true, itemName }
       }
     }));
   },
-  
+
   closeAddToCartModal: () => {
-    set(state => ({
+    set((state) => ({
       modals: {
         ...state.modals,
-        addToCart: {
-          ...state.modals.addToCart,
-          isOpen: false
-        }
+        addToCart: { isOpen: false, itemName: '' }
       }
     }));
   },
-  
+
   showOrderCompleteModal: (orderNumber: string, estimatedTime: number) => {
-    set(state => ({
+    set((state) => ({
       modals: {
         ...state.modals,
-        orderComplete: {
-          isOpen: true,
-          orderNumber,
-          estimatedTime
-        }
+        orderComplete: { isOpen: true, orderNumber, estimatedTime }
       }
     }));
   },
-  
+
   closeOrderCompleteModal: () => {
-    set(state => ({
+    set((state) => ({
       modals: {
         ...state.modals,
-        orderComplete: {
-          ...state.modals.orderComplete,
-          isOpen: false
-        }
+        orderComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 }
       }
     }));
   },
-  
-  showAllergenWarningModal: (itemId: string, itemType: 'coffee' | 'pastry', allergens: string[]) => {
-    set(state => ({
+
+  showPaymentCompleteModal: (orderNumber: string, estimatedTime: number) => {
+    set((state) => ({
+      modals: {
+        ...state.modals,
+        paymentComplete: { isOpen: true, orderNumber, estimatedTime }
+      }
+    }));
+  },
+
+  closePaymentCompleteModal: () => {
+    set((state) => ({
+      modals: {
+        ...state.modals,
+        paymentComplete: { isOpen: false, orderNumber: '', estimatedTime: 0 }
+      }
+    }));
+  },
+
+  showAllergenWarning: (allergens: string[], affectedMembers: GroupMember[], itemName: string, onProceed: () => void) => {
+    set((state) => ({
       modals: {
         ...state.modals,
         allergenWarning: {
           isOpen: true,
-          itemId,
-          itemType,
-          allergens
+          allergens,
+          affectedMembers,
+          itemName,
+          onProceed
         }
       }
     }));
   },
-  
-  closeAllergenWarningModal: () => {
-    set(state => ({
+
+  closeAllergenWarning: () => {
+    set((state) => ({
       modals: {
         ...state.modals,
         allergenWarning: {
-          ...state.modals.allergenWarning,
           isOpen: false,
-          itemId: '',
-          itemType: 'coffee',
-          allergens: []
+          allergens: [],
+          affectedMembers: [],
+          itemName: '',
+          onProceed: undefined
         }
       }
     }));
+  },
+
+  // Added alias for backward compatibility
+  closeAllergenWarningModal: function() {
+    return this.closeAllergenWarning();
+  },
+
+  proceedWithAllergen: () => {
+    const { modals } = get();
+    if (modals.allergenWarning.onProceed) {
+      modals.allergenWarning.onProceed();
+    }
+    get().closeAllergenWarning();
   }
 }));
