@@ -1,13 +1,15 @@
 import React from 'react';
-import { Coffee, ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
+import { Coffee, ShoppingCart, History, Heart, Menu as MenuIcon, Users, ChevronDown } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Group, AppState } from '@/types';
+import { useGroupsStore } from '@/store/useGroupsStore';
 
 export interface HeaderProps {
   activeGroup?: Group;
-  appState: AppState;
+  appState: AppState & { groups?: Group[] };
   isMobileMenuOpen: boolean;
   setIsMobileMenuOpen: (isOpen: boolean) => void;
   onNavigateToMenu: () => void;
@@ -81,11 +83,45 @@ export const Header: React.FC<HeaderProps> = ({
             </div>
           </div>
 
-          {/* Active Group Display - Hidden on small screens to save space */}
-          {activeGroup && appState.currentPage !== 'groups' && (
-            <div className="hidden sm:block text-xs sm:text-sm text-white/80 text-center px-2 sm:px-4 max-w-xs lg:max-w-none truncate">
-              <span className="text-white font-medium">{activeGroup.name}</span>
-              <span className="hidden md:inline"> • {activeGroup.members.length} member{activeGroup.members.length !== 1 ? 's' : ''}</span>
+          {/* Active Group Display with Dropdown - Hidden on small screens to save space */}
+          {activeGroup && (
+            <div className="hidden sm:flex items-center text-xs sm:text-sm text-white/80 text-center px-2 sm:px-4 max-w-xs lg:max-w-none truncate">
+              <div className="flex items-center gap-2">
+                {appState.groups && appState.groups.length > 1 ? (
+                  <Select
+                    value={activeGroup.id}
+                    onValueChange={(value) => {
+                      useGroupsStore.getState().selectGroup(value);
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white">
+                      <SelectValue placeholder="Select a group">
+                        <span className="text-white font-medium">{activeGroup.name}</span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white/90 backdrop-blur-sm border-white/20 z-50">
+                      {appState.groups.map(group => (
+                        <SelectItem 
+                          key={group.id} 
+                          value={group.id}
+                          className="hover:bg-accent/10"
+                        >
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div 
+                    className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={onNavigateToGroups}
+                  >
+                    <span className="text-white font-medium">{activeGroup.name}</span>
+                    <ChevronDown className="h-4 w-4 text-white/70" />
+                  </div>
+                )}
+                <span className="hidden md:inline text-white/70"> • {activeGroup.members.length} member{activeGroup.members.length !== 1 ? 's' : ''}</span>
+              </div>
             </div>
           )}
           

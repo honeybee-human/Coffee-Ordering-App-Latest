@@ -62,25 +62,6 @@ const GroupsPage: React.FC = () => {
         </Button>
       </div>
 
-      {/* Dropdown for selecting active group */}
-      {allGroups.length > 0 && (
-        <div className="flex items-center gap-4 mb-6 z-[999] bg-muted px-4 py-2 rounded-md relative">
-          <Label htmlFor="group-select" className="text-sm font-medium">Active Group:</Label>
-          <select
-            id="group-select"
-            className="bg-background border border-border text-foreground rounded px-2 py-1 text-sm z-[999]"
-            value={activeGroupId || ''}
-            onChange={(e) => selectGroup(e.target.value)}
-          >
-            {allGroups.map((group) => (
-              <option key={group.id} value={group.id}>
-                {group.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-
       {allGroups.length === 0 ? (
         <div className="text-center py-8 bg-muted/50 rounded-lg">
           <p className="text-muted-foreground mb-4">No groups created yet. Create your first group to start ordering together!</p>

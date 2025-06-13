@@ -10,7 +10,7 @@ import { useModalsStore } from '@/store/useModalsStore';
 import OnboardingModal from '@/components/modals/OnboardingModal';
 import { AllergenWarning } from '@/components/shared/AllergenWarning';
 // Store imports
-import { useActiveGroup, useCartCount, useGroups } from '@/store/useGroupsStore';
+import { useActiveGroup, useCartCount, useGroups, useGroupsStore } from '@/store/useGroupsStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
 
@@ -32,6 +32,7 @@ export function AppContent() {
   const activeGroup = useActiveGroup();
   const cartCount = useCartCount();
   const groups = useGroups();
+  const selectGroup = useGroupsStore(state => state.selectGroup);
   const favorites = useFavorites(activeGroup?.id);
 
   // Count calculations for navigation
@@ -59,7 +60,10 @@ export function AppContent() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header 
         activeGroup={activeGroup}
-        appState={appState}
+        appState={{
+          ...appState,
+          groups: groups
+        }}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
         onNavigateToMenu={navigateToMenu}

@@ -8,7 +8,7 @@ import { CreateGroupModal } from '@/components/modals/CreateGroupModal';
 import { AllMembersTab } from './AllMembersTab';
 import { GroupMembersSection } from './GroupMembersSection';
 import { CardHeader, CardTitle, CardContent, Card } from '@/ui/card';
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@radix-ui/react-select';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/ui/select';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { Button } from '@/ui/button';
@@ -179,15 +179,14 @@ export const GroupManagement: React.FC = () => {
                     value={activeGroup?.id || ''}
                     onValueChange={selectGroup}
                   >
-                    <SelectTrigger className="w-[180px] bg-white/90 backdrop-blur-sm border-white/20">
+                    <SelectTrigger className="w-[180px]">
                       <SelectValue placeholder="Select a group" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white/90 backdrop-blur-sm border-white/20 z-50">
+                    <SelectContent>
                       {groups.map(group => (
                         <SelectItem 
                           key={group.id} 
                           value={group.id}
-                          className="hover:bg-accent/10"
                         >
                           {group.name}
                         </SelectItem>
