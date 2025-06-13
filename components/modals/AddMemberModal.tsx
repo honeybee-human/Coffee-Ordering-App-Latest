@@ -1,9 +1,10 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, AlertTriangle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Input } from '@/ui/input';
 import { Label } from '@/ui/label';
+import { Alert, AlertDescription } from '@/ui/alert';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { GroupMember } from '@/types';
 import { COMMON_ALLERGENS, normalizeAllergens } from '@/utils/allergens';
@@ -12,12 +13,14 @@ interface AddMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddMember: (member: GroupMember) => void;
+  existingMembers?: GroupMember[];
 }
 
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({
   isOpen,
   onClose,
-  onAddMember
+  onAddMember,
+  existingMembers = []
 }) => {
   const [newMember, setNewMember] = useState<{ name: string; allergens: string[] }>({
     name: '',
@@ -26,6 +29,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
   const [newAllergen, setNewAllergen] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [nameError, setNameError] = useState('');
 
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
@@ -48,20 +52,37 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
     setNewAllergen('');
     setShowSuggestions(false);
     setSelectedIndex(-1);
+    setNameError('');
   }, []);
 
   const handleAddMember = useCallback(() => {
-    if (newMember.name.trim()) {
-      const memberToAdd: GroupMember = {
-        name: newMember.name.trim(),
-        allergens: normalizeAllergens(newMember.allergens)
-      };
-      
-      onAddMember(memberToAdd);
-      resetForm();
-      onClose();
+    const trimmedName = newMember.name.trim();
+    
+    if (!trimmedName) {
+      setNameError('Name cannot be empty.');
+      return;
     }
-  }, [newMember, onAddMember, resetForm, onClose]);
+    
+    // Check for duplicate names
+    const existingMember = existingMembers.find(member => 
+      member.name.toLowerCase() === trimmedName.toLowerCase()
+    );
+    
+    if (existingMember) {
+      setNameError('A member with this name already exists. Usernames must be unique.');
+      return;
+    }
+    
+    setNameError('');
+    const memberToAdd: GroupMember = {
+      name: trimmedName,
+      allergens: normalizeAllergens(newMember.allergens)
+    };
+    
+    onAddMember(memberToAdd);
+    resetForm();
+    onClose();
+  }, [newMember, onAddMember, resetForm, onClose, existingMembers]);
 
   const handleAddAllergen = useCallback((allergen?: string) => {
     const allergenToAdd = allergen || newAllergen.trim();
@@ -187,9 +208,19 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
             <Input
               id="memberName"
               value={newMember.name}
-              onChange={(e) => setNewMember(prev => ({ ...prev, name: e.target.value }))}
+              onChange={(e) => {
+                setNewMember(prev => ({ ...prev, name: e.target.value }));
+                if (nameError) setNameError(''); // Clear error when user starts typing
+              }}
               placeholder="Enter member name"
+              className={nameError ? 'border-destructive' : ''}
             />
+            {nameError && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>{nameError}</AlertDescription>
+              </Alert>
+            )}
           </div>
 
           <div className="space-y-2">

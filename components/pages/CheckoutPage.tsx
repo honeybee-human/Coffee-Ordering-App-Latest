@@ -97,13 +97,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
         groupName: activeGroup?.name || '',
         paymentInfo: paymentInfo
       };
-
       // Add order to history
-      useOrdersStore.getState().completeOrder(activeGroup?.id || '', order);
+      useOrdersStore.getState().completeOrder(order);
       
       // Show payment complete modal
       useModalsStore.getState().showPaymentCompleteModal(orderNumber, estimatedTime);
-      
       resetCheckout(); // Reset the form after successful order
       setIsProcessing(false);
     } catch (error) {

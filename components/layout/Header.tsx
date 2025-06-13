@@ -5,22 +5,16 @@ import { Badge } from '@/ui/badge';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
 import { Group, AppState } from '@/types';
 
-interface HeaderProps {
-  activeGroup: Group | undefined;
+export interface HeaderProps {
+  activeGroup?: Group;
   appState: AppState;
   isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (open: boolean) => void;
-  navigationItems: Array<{
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    page: string;
-    count: number | null;
-    action: () => void;
-    isCart?: boolean;
-  }>;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
   onNavigateToMenu: () => void;
-  onNavigateToCheckout: () => void;
-  cartItemCount: number;
+  onNavigateToCart: () => void;
+  onNavigateToGroups: () => void;
+  onNavigateToFavorites: () => void;
+  onNavigateToOrderHistory: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,11 +22,51 @@ export const Header: React.FC<HeaderProps> = ({
   appState,
   isMobileMenuOpen,
   setIsMobileMenuOpen,
-  navigationItems,
   onNavigateToMenu,
-  onNavigateToCheckout,
-  cartItemCount
+  onNavigateToCart,
+  onNavigateToGroups,
+  onNavigateToFavorites,
+  onNavigateToOrderHistory
 }) => {
+  const navigationItems = [
+    {
+      icon: Coffee,
+      label: 'Menu',
+      page: 'menu',
+      count: null,
+      action: onNavigateToMenu
+    },
+    {
+      icon: ShoppingCart,
+      label: 'Cart',
+      page: 'cart',
+      count: activeGroup?.cart.length || 0,
+      action: onNavigateToCart,
+      isCart: true
+    },
+    {
+      icon: Users,
+      label: 'Groups',
+      page: 'groups',
+      count: null,
+      action: onNavigateToGroups
+    },
+    {
+      icon: Heart,
+      label: 'Favorites',
+      page: 'favorites',
+      count: null,
+      action: onNavigateToFavorites
+    },
+    {
+      icon: History,
+      label: 'Orders',
+      page: 'order-history',
+      count: null,
+      action: onNavigateToOrderHistory
+    }
+  ];
+
   return (
     <header className="coffee-header sticky top-0 z-50 backdrop-blur-md">
       <div className="container mx-auto">
@@ -180,20 +214,6 @@ export const Header: React.FC<HeaderProps> = ({
                       </Button>
                     ))}
                   </div>
-
-                  {/* Quick Actions in Mobile Menu */}
-                  {activeGroup && activeGroup.cart.length > 0 && appState.currentPage !== 'cart' && (
-                    <div className="mt-6 pt-6 border-t">
-                      <Button 
-                        onClick={onNavigateToCheckout}
-                        className="w-full"
-                        size="lg"
-                      >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        Quick Checkout ({cartItemCount} items)
-                      </Button>
-                    </div>
-                  )}
                 </SheetContent>
               </Sheet>
             </div>

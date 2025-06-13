@@ -14,7 +14,7 @@ import { GroupOrderContent } from '../features/GroupOrderContent';
 
 export const OrderHistoryPage: React.FC = () => {
   const { navigateToMenu } = useNavigationStore();
-  const orderHistory = useOrdersStore(state => state.orderHistory);
+  const orderHistory = useOrdersStore(state => state.orders);
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const { showAllergenWarning } = useModalsStore();
 

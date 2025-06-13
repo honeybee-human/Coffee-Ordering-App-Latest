@@ -32,7 +32,7 @@ export function AppContent() {
   const activeGroup = useActiveGroup();
   const cartCount = useCartCount();
   const groups = useGroups();
-  const favorites = useFavorites();
+  const favorites = useFavorites(activeGroup?.id);
 
   // Count calculations for navigation
   const counts = {
@@ -62,10 +62,11 @@ export function AppContent() {
         appState={appState}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
-        navigationItems={mobileNavItems}
         onNavigateToMenu={navigateToMenu}
-        onNavigateToCheckout={navigateToCheckout}
-        cartItemCount={counts.cart}
+        onNavigateToCart={navigateToCart}
+        onNavigateToGroups={navigateToGroups}
+        onNavigateToFavorites={navigateToFavorites}
+        onNavigateToOrderHistory={navigateToOrderHistory}
       />
       
       <div className="py-16 px-20">

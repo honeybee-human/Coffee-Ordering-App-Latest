@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage, PersistOptions } from 'zustand/middleware';
 import type { StateCreator } from 'zustand';
+import { v4 as uuidv4 } from 'uuid';
 import { 
   FavoriteItem, 
   Coffee, 
@@ -15,6 +16,7 @@ export interface FavoritesStore {
   // Actions
   addToFavorites: (favorite: FavoriteItem) => void;
   removeFromFavorites: (favoriteId: string) => void;
+  updateFavorite: (favoriteId: string, updates: Partial<FavoriteItem>) => void;
   getGroupFavorites: (groupId: string) => FavoriteItem[];
   isItemFavorited: (
     type: 'coffee' | 'pastry', 
@@ -57,6 +59,16 @@ const storeImplementation: StateCreator<
     }));
   },
 
+  updateFavorite: (favoriteId: string, updates: Partial<FavoriteItem>) => {
+    set((state) => ({
+      favorites: state.favorites.map(fav => 
+        fav.id === favoriteId 
+          ? { ...fav, ...updates, dateAdded: new Date() }
+          : fav
+      )
+    }));
+  },
+
   getGroupFavorites: (groupId: string) => {
     const { favorites } = get();
     return favorites.filter(fav => fav.groupId === groupId);
@@ -71,24 +83,16 @@ const storeImplementation: StateCreator<
   ) => {
     const { favorites } = get();
     
-    // If no customizations provided, check for basic favorite (no customizations)
-    if (!customizations) {
-      return favorites.some(fav => 
-        fav.type === type && 
-        fav.item.id === itemId &&
-        fav.groupId === groupId &&
-        (!fav.customizations || 
-         (type === 'coffee' && JSON.stringify(fav.customizations) === JSON.stringify({ syrups: [], milk: 'Whole Milk' })) ||
-         (type === 'pastry' && JSON.stringify(fav.customizations) === JSON.stringify({ removedIngredients: [] }))) &&
-        (!fav.assignedTo || fav.assignedTo === assignedTo)
-      );
-    }
+    // Normalize customizations for consistent comparison
+    const normalizedCustomizations = customizations || (type === 'coffee' ? 
+      { syrups: [], milk: 'Whole Milk' } as CoffeeCustomization : 
+      { removedIngredients: [] } as PastryCustomization);
     
     return favorites.some(fav => 
       fav.type === type && 
       fav.item.id === itemId &&
       fav.groupId === groupId &&
-      JSON.stringify(fav.customizations) === JSON.stringify(customizations) &&
+      JSON.stringify(fav.customizations) === JSON.stringify(normalizedCustomizations) &&
       fav.assignedTo === assignedTo
     );
   },
@@ -100,32 +104,26 @@ const storeImplementation: StateCreator<
     customizations?: CoffeeCustomization | PastryCustomization, 
     assignedTo?: string
   ) => {
-    const { favorites, isItemFavorited, addToFavorites, removeFromFavorites } = get();
+    const { favorites, addToFavorites, removeFromFavorites } = get();
     
     // Normalize customizations for consistent comparison
     const normalizedCustomizations = customizations || (type === 'coffee' ? 
       { syrups: [], milk: 'Whole Milk' } as CoffeeCustomization : 
       { removedIngredients: [] } as PastryCustomization);
     
-    const existingFavorite = favorites.find(fav => {
-      if (fav.type !== type || fav.item.id !== item.id || fav.groupId !== groupId) return false;
-      
-      // If no customizations provided, match basic favorites
-      if (!customizations) {
-        return (!fav.customizations || 
-               JSON.stringify(fav.customizations) === JSON.stringify(normalizedCustomizations)) &&
-               (!fav.assignedTo || fav.assignedTo === assignedTo);
-      }
-      
-      return JSON.stringify(fav.customizations) === JSON.stringify(customizations) &&
-             fav.assignedTo === assignedTo;
-    });
+    const existingFavorite = favorites.find(fav => 
+      fav.type === type && 
+      fav.item.id === item.id && 
+      fav.groupId === groupId &&
+      JSON.stringify(fav.customizations) === JSON.stringify(normalizedCustomizations) &&
+      fav.assignedTo === assignedTo
+    );
 
     if (existingFavorite) {
       removeFromFavorites(existingFavorite.id);
     } else {
       const newFavorite: FavoriteItem = {
-        id: Date.now().toString(),
+        id: uuidv4(),
         item,
         type,
         customizations: normalizedCustomizations,
@@ -168,4 +166,10 @@ export const useFavoritesStore = create<FavoritesStore>()(
 );
 
 // selector hooks
-export const useFavorites = () => useFavoritesStore(state => state.favorites);
+export const useFavorites = (activeGroupId?: string) => {
+  const getGroupFavorites = useFavoritesStore(state => state.getGroupFavorites);
+  return activeGroupId ? getGroupFavorites(activeGroupId) : [];
+};
+
+// Hook to get all favorites (for admin purposes)
+export const useAllFavorites = () => useFavoritesStore(state => state.favorites);

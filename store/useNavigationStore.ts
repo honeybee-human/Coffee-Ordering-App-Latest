@@ -12,8 +12,16 @@ interface NavigationStore {
   navigateToMenu: () => void;
   navigateToCart: () => void;
   navigateToGroups: () => void;
-  navigateToCoffeeDetail: (coffeeId: string, initialCustomizations?: CoffeeCustomization) => void;
-  navigateToPastryDetail: (pastryId: string, initialCustomizations?: PastryCustomization) => void;
+  navigateToCoffeeDetail: (
+    coffeeId: string, 
+    initialCustomizations?: CoffeeCustomization, 
+    onSave?: (customizations: CoffeeCustomization) => void
+  ) => void;
+  navigateToPastryDetail: (
+    pastryId: string, 
+    initialCustomizations?: PastryCustomization, 
+    onSave?: (customizations: PastryCustomization) => void
+  ) => void;
   navigateToCheckout: () => void;
   navigateToOrderHistory: () => void;
   navigateToFavorites: () => void;
@@ -51,23 +59,33 @@ export const useNavigationStore = create<NavigationStore>((set, get) => ({
     });
   },
   
-  navigateToCoffeeDetail: (coffeeId: string, initialCoffeeCustomizations?: CoffeeCustomization) => {
+  navigateToCoffeeDetail: (
+    coffeeId: string, 
+    initialCustomizations?: CoffeeCustomization, 
+    onSave?: (customizations: CoffeeCustomization) => void
+  ) => {
     set({ 
       appState: { 
         currentPage: 'coffee-detail', 
         selectedItemId: coffeeId, 
-        initialCoffeeCustomizations 
+        initialCoffeeCustomizations: initialCustomizations,
+        onSaveCoffeeCustomizations: onSave
       },
       isMobileMenuOpen: false
     });
   },
   
-  navigateToPastryDetail: (pastryId: string, initialPastryCustomizations?: PastryCustomization) => {
+  navigateToPastryDetail: (
+    pastryId: string, 
+    initialCustomizations?: PastryCustomization, 
+    onSave?: (customizations: PastryCustomization) => void
+  ) => {
     set({ 
       appState: { 
         currentPage: 'pastry-detail', 
         selectedItemId: pastryId, 
-        initialPastryCustomizations 
+        initialPastryCustomizations: initialCustomizations,
+        onSavePastryCustomizations: onSave
       },
       isMobileMenuOpen: false
     });

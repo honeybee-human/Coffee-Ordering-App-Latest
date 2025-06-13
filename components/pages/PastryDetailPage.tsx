@@ -26,6 +26,8 @@ const DEFAULT_CUSTOMIZATIONS: PastryCustomizationType = {
 interface PastryDetailPageProps {
   pastryId: string;
   onBack: () => void;
+  initialCustomizations?: PastryCustomizationType;
+  onSave?: (customizations: PastryCustomizationType) => void;
 }
 
 // Custom hooks for better separation of concerns
@@ -132,15 +134,17 @@ const OrderSummary: React.FC<{
 
 export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({ 
   pastryId, 
-  onBack 
+  onBack,
+  initialCustomizations,
+  onSave
 }) => {
   const pastry = useMemo(() => pastryMenu.find(p => p.id === pastryId), [pastryId]);
   
-  const [customizations, setCustomizations] = useState<PastryCustomizationType>(DEFAULT_CUSTOMIZATIONS);
+  const [customizations, setCustomizations] = useState<PastryCustomizationType>(initialCustomizations || DEFAULT_CUSTOMIZATIONS);
   const [showNoGroupModal, setShowNoGroupModal] = useState(false);
   
   // Store hooks
-  const { selectedPerson, resetForNewItem } = useGroupMemberAssignmentStore();
+  const { selectedPerson, resetForNewItem, setSelectedPerson } = useGroupMemberAssignmentStore();
   const selectedGroup = useSelectedGroup();
   const groupMembers = useMemo(() => selectedGroup?.members || [], [selectedGroup]);
   const groupAllergens = useGroupAllergens(groupMembers);
@@ -153,8 +157,8 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   // Computed values
   const isFavorited = useMemo(() => 
-    pastry && activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id, customizations) : false,
-    [isItemFavorited, pastry, activeGroup, customizations]
+    pastry && activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false,
+    [isItemFavorited, pastry, activeGroup, customizations, selectedPerson]
   );
 
   const comprehensiveAllergens = useMemo(() => 
@@ -181,8 +185,16 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   // Effects
   useEffect(() => {
-    setCustomizations(DEFAULT_CUSTOMIZATIONS);
-  }, [pastryId]);
+    if (initialCustomizations) {
+      setCustomizations(initialCustomizations);
+      // Initialize assignment if it exists in customizations
+      if ('assignedTo' in initialCustomizations) {
+        setSelectedPerson(initialCustomizations.assignedTo || '');
+      }
+    } else {
+      setCustomizations(DEFAULT_CUSTOMIZATIONS);
+    }
+  }, [pastryId, initialCustomizations, setSelectedPerson]);
 
   useEffect(() => {
     resetForNewItem(groupMembers);
@@ -190,12 +202,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   // Event handlers
   const handleAddToCart = useCallback(() => {
-    if (!pastry) return;
-
-    if (!selectedGroup) {
-      setShowNoGroupModal(true);
-      return;
-    }
+    if (!pastry || !activeGroup) return;
 
     const cartItem: CartItem = {
       id: `pastry-${Date.now()}-${Math.random()}`,
@@ -205,44 +212,44 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       quantity: 1,
       assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
     };
-    
+
     // Check for allergen conflicts
-    const itemAllergens = getComprehensiveAllergens(pastry);
-    const conflictingMembers: string[] = [];
-    const conflictingAllergens: string[] = [];
-    
-    groupMembers.forEach(member => {
-      if (member.allergens) {
-        const memberConflicts = itemAllergens.filter(allergen => 
-          member.allergens!.includes(allergen)
-        );
-        if (memberConflicts.length > 0) {
-          conflictingMembers.push(member.name);
-          conflictingAllergens.push(...memberConflicts);
-        }
-      }
+    const affectedMembers = groupMembers.filter(member => {
+      if (!member.allergens) return false;
+      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
     });
-    
-    if (conflictingAllergens.length > 0) {
-      const uniqueAllergens = [...new Set(conflictingAllergens)];
-      const affectedGroupMembers = groupMembers.filter(member => 
-        conflictingMembers.includes(member.name)
+
+    if (affectedMembers.length > 0) {
+      showAllergenWarning(
+        allItemAllergens,
+        affectedMembers,
+        pastry.name,
+        () => {
+          addToCart(activeGroup.id, cartItem);
+          showAddToCartModal(pastry.name);
+        }
       );
-      
-      showAllergenWarning(uniqueAllergens, affectedGroupMembers, pastry.name, () => {
-        if (activeGroup) addToCart(activeGroup.id, cartItem);
-        showAddToCartModal(pastry.name);
-      });
     } else {
-      if (activeGroup) addToCart(activeGroup.id, cartItem);
+      addToCart(activeGroup.id, cartItem);
       showAddToCartModal(pastry.name);
     }
-  }, [pastry, selectedGroup, customizations, selectedPerson, groupMembers, addToCart, showAddToCartModal, showAllergenWarning]);
+  }, [pastry, activeGroup, customizations, selectedPerson, groupMembers, allItemAllergens, addToCart, showAddToCartModal, showAllergenWarning]);
 
   const handleToggleFavorite = useCallback(() => {
     if (!pastry || !activeGroup) return;
-    toggleFavorite('pastry', pastry, activeGroup.id, customizations);
-  }, [pastry, activeGroup, customizations, toggleFavorite]);
+    const assignedTo = (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined;
+    toggleFavorite('pastry', pastry, activeGroup.id, customizations, assignedTo);
+  }, [pastry, activeGroup, customizations, selectedPerson, toggleFavorite]);
+
+  const handleSave = useCallback(() => {
+    if (onSave) {
+      onSave({
+        ...customizations,
+        assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
+      });
+      onBack();
+    }
+  }, [onSave, customizations, selectedPerson, onBack]);
 
   // Early return for pastry not found
   if (!pastry) {
@@ -264,21 +271,32 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
           <h1 className="text-3xl font-bold text-primary mb-2">{pastry.name}</h1>
           <p className="text-muted-foreground text-lg leading-relaxed">{pastry.description}</p>
         </div>
-        <Button
-          variant="ghost"
-          onClick={handleToggleFavorite}
-          className="flex items-center gap-2"
-          aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-        >
-          <Star 
-            className={`h-5 w-5 ${
-              isFavorited 
-                ? 'fill-accent text-accent' 
-                : 'text-muted-foreground'
-            }`}
-          />
-          {isFavorited ? 'Favorited' : 'Add to Favorites'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {onSave && (
+            <Button
+              variant="default"
+              onClick={handleSave}
+              className="flex items-center gap-2"
+            >
+              Save Changes
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            onClick={handleToggleFavorite}
+            className="flex items-center gap-2"
+            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <Star 
+              className={`h-5 w-5 ${
+                isFavorited 
+                  ? 'fill-accent text-accent' 
+                  : 'text-muted-foreground'
+              }`}
+            />
+            {isFavorited ? 'Favorited' : 'Add to Favorites'}
+          </Button>
+        </div>
       </header>
 
       <div className="grid lg:grid-cols-3 gap-8">

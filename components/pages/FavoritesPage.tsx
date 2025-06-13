@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Edit2 } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { FavoriteCard } from '../shared/FavoriteCard';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
@@ -8,18 +8,18 @@ import { useGroupsStore } from '@/store/useGroupsStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { AllergenFilter } from '../shared/AllergenFilter';
-import { FavoriteItem } from '@/types';
+import { FavoriteItem, CoffeeCustomization, PastryCustomization } from '@/types';
 import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 
 export const FavoritesPage: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const getGroupFavorites = useFavoritesStore(state => state.getGroupFavorites);
-  const removeFromFavorites = useFavoritesStore(state => state.removeFromFavorites);
+  const updateFavorite = useFavoritesStore(state => state.updateFavorite);
   const excludedAllergens = useAllergensStore(state => state.excludedAllergens);
   const toggleAllergenFilter = useAllergensStore(state => state.toggleAllergenFilter);
   const clearAllergenFilters = useAllergensStore(state => state.clearAllergenFilters);
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
-  const { navigateToMenu, navigateToFavoriteDetail } = useNavigationStore();
+  const { navigateToMenu, navigateToFavoriteDetail, navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
   const { showAddToCartModal } = useModalsStore();
 
   const favorites = useMemo(() => {
@@ -57,7 +57,7 @@ export const FavoritesPage: React.FC = () => {
   const handleAddToCart = (favorite: FavoriteItem) => {
     if (activeGroup) {
       const cartItem = {
-        id: `favorite-${Date.now()}-${Math.random()}`,
+        id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         type: favorite.type,
         item: favorite.item,
         customizations: favorite.customizations,
@@ -66,6 +66,52 @@ export const FavoritesPage: React.FC = () => {
       };
       useGroupsStore.getState().addToCart(activeGroup.id, cartItem);
       showAddToCartModal(favorite.item.name);
+    }
+  };
+
+  const handleEditFavorite = (favorite: FavoriteItem) => {
+    // Navigate to the appropriate detail page with the current customizations
+    if (favorite.type === 'coffee' && 'syrups' in favorite.customizations) {
+      navigateToCoffeeDetail(
+        favorite.item.id, 
+        {
+          ...favorite.customizations as CoffeeCustomization,
+          assignedTo: favorite.assignedTo
+        },
+        (newCustomizations: CoffeeCustomization) => {
+          // Only update if customizations or assignment has changed
+          if (JSON.stringify(newCustomizations) !== JSON.stringify(favorite.customizations) ||
+              newCustomizations.assignedTo !== favorite.assignedTo) {
+            updateFavorite(favorite.id, {
+              customizations: {
+                syrups: newCustomizations.syrups,
+                milk: newCustomizations.milk
+              },
+              assignedTo: newCustomizations.assignedTo
+            });
+          }
+        }
+      );
+    } else if (favorite.type === 'pastry' && 'removedIngredients' in favorite.customizations) {
+      navigateToPastryDetail(
+        favorite.item.id, 
+        {
+          ...favorite.customizations as PastryCustomization,
+          assignedTo: favorite.assignedTo
+        },
+        (newCustomizations: PastryCustomization) => {
+          // Only update if customizations or assignment has changed
+          if (JSON.stringify(newCustomizations) !== JSON.stringify(favorite.customizations) ||
+              newCustomizations.assignedTo !== favorite.assignedTo) {
+            updateFavorite(favorite.id, {
+              customizations: {
+                removedIngredients: newCustomizations.removedIngredients
+              },
+              assignedTo: newCustomizations.assignedTo
+            });
+          }
+        }
+      );
     }
   };
 
@@ -103,6 +149,7 @@ export const FavoritesPage: React.FC = () => {
               groupMembers={activeGroup?.members || []}
               onAddToCart={() => handleAddToCart(fav)}
               onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
+              onEdit={() => handleEditFavorite(fav)}
               formatCustomizations={(favorite) => {
                 if (favorite.type === 'coffee') {
                   const customizations = favorite.customizations as any;
@@ -134,5 +181,3 @@ export const FavoritesPage: React.FC = () => {
     </div>
   );
 };
-
-

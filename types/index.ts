@@ -20,10 +20,12 @@ export interface Pastry {
 export interface CoffeeCustomization {
   syrups: { flavor: string; pumps: number }[];
   milk: string;
+  assignedTo?: string;
 }
 
 export interface PastryCustomization {
   removedIngredients: string[];
+  assignedTo?: string;
 }
 
 export interface CartItem {
@@ -95,11 +97,12 @@ export interface AppData {
 export type PageType = 'menu' | 'coffee-detail' | 'pastry-detail' | 'cart' | 'checkout' | 'order-history' | 'favorites' | 'groups';
 
 export interface AppState {
-  currentPage: PageType;
+  currentPage: 'menu' | 'cart' | 'groups' | 'coffee-detail' | 'pastry-detail' | 'checkout' | 'order-history' | 'favorites';
   selectedItemId?: string;
-  initialPastryCustomizations?: PastryCustomization;
   initialCoffeeCustomizations?: CoffeeCustomization;
-
+  initialPastryCustomizations?: PastryCustomization;
+  onSaveCoffeeCustomizations?: (customizations: CoffeeCustomization) => void;
+  onSavePastryCustomizations?: (customizations: PastryCustomization) => void;
 }
 
 export interface ModalState {

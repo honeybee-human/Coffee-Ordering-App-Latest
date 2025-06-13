@@ -5,17 +5,18 @@ import { Order } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
 
 export interface OrdersStore {
-  orderHistory: Order[];
+  orders: Order[];
   
   // Actions
-  completeOrder: (groupId: string, order: Order) => void;
+  completeOrder: (order: Order) => void;
   reorderItems: (groupId: string, orderId: string) => void;
   clearOrderHistory: () => void;
   removeOrder: (orderId: string) => void;
+  getGroupOrders: (groupId: string) => Order[];
 }
 
 type OrdersPersist = {
-  orderHistory: Order[];
+  orders: Order[];
 };
 
 const storeImplementation: StateCreator<
@@ -24,20 +25,17 @@ const storeImplementation: StateCreator<
   [],
   OrdersStore
 > = (set, get) => ({
-  orderHistory: [],
+  orders: [],
 
-  completeOrder: (groupId: string, order: Order) => {
-    set((state) => ({
-      orderHistory: [...state.orderHistory, order]
+  completeOrder: (order: Order) => {
+    set(state => ({
+      orders: [order, ...state.orders]
     }));
-    
-    // Clear the cart in the groups store
-    useGroupsStore.getState().clearCart(groupId);
   },
 
   reorderItems: (groupId: string, orderId: string) => {
-    const { orderHistory } = get();
-    const order = orderHistory.find(o => o.id === orderId);
+    const { orders } = get();
+    const order = orders.find(o => o.id === orderId);
     if (order) {
       // Add items to cart in the groups store
       const groupsStore = useGroupsStore.getState();
@@ -48,13 +46,18 @@ const storeImplementation: StateCreator<
   },
 
   clearOrderHistory: () => {
-    set({ orderHistory: [] });
+    set({ orders: [] });
   },
 
   removeOrder: (orderId: string) => {
     set((state) => ({
-      orderHistory: state.orderHistory.filter(order => order.id !== orderId)
+      orders: state.orders.filter(order => order.id !== orderId)
     }));
+  },
+
+  getGroupOrders: (groupId: string) => {
+    const { orders } = get();
+    return orders.filter(order => order.groupId === groupId);
   }
 });
 
@@ -65,11 +68,11 @@ export const useOrdersStore = create<OrdersStore>()(
       name: 'bean-bite-orders',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        orderHistory: state.orderHistory
+        orders: state.orders
       })
     } as PersistOptions<OrdersStore, OrdersPersist>
   )
 );
 
 // Selector hooks
-export const useOrderHistory = () => useOrdersStore(state => state.orderHistory);
+export const useOrderHistory = () => useOrdersStore(state => state.orders);

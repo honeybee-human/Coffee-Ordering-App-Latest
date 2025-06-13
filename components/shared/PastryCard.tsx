@@ -1,4 +1,5 @@
 import React from 'react';
+import { useMemo } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
@@ -25,7 +26,19 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
-  const isFavorited = activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id) : false;
+  // Add favorites as dependency to force re-render when favorites change
+  const favorites = useFavoritesStore(state => state.favorites);
+  
+  const isFavorited = useMemo(() => {
+    return activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id) : false;
+  }, [activeGroup, isItemFavorited, pastry.id, favorites]);
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (activeGroup) {
+      toggleFavorite('pastry', pastry, activeGroup.id);
+    }
+  };
 
   return (
     <Card 
@@ -46,10 +59,10 @@ export const PastryCard: React.FC<PastryCardProps> = ({
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0 hover:bg-accent/20"
-              onClick={(e) => { e.stopPropagation(); if (activeGroup) toggleFavorite('pastry', pastry, activeGroup.id); }}
+              onClick={handleToggleFavorite}
             >
               <Star 
-                className={`h-3 w-3 ${
+                className={`h-3 w-3 transition-colors ${
                   isFavorited 
                     ? 'fill-accent text-accent' 
                     : 'text-muted-foreground hover:text-accent'
@@ -100,10 +113,10 @@ export const PastryCard: React.FC<PastryCardProps> = ({
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0 hover:bg-accent/20"
-              onClick={(e) => { e.stopPropagation(); if (activeGroup) toggleFavorite('pastry', pastry, activeGroup.id); }}
+              onClick={handleToggleFavorite}
             >
               <Star 
-                className={`h-3 w-3 ${
+                className={`h-3 w-3 transition-colors ${
                   isFavorited 
                     ? 'fill-accent text-accent' 
                     : 'text-muted-foreground hover:text-accent'
@@ -118,7 +131,11 @@ export const PastryCard: React.FC<PastryCardProps> = ({
         <div className="p-3 flex flex-col gap-2">
           <h3 className="text-lg font-bold text-primary line-clamp-1">{pastry.name}</h3>
           <p className="text-xs text-muted-foreground line-clamp-2">{pastry.description}</p>
-          {comprehensiveAllergens.length > 0 && <div className="mt-2"><AllergenTag item={pastry} groupAllergens={groupAllergens} /></div>}
+          {comprehensiveAllergens.length > 0 && (
+            <div className="mt-2">
+              <AllergenTag item={pastry} groupAllergens={groupAllergens} />
+            </div>
+          )}
           {pastry.removableIngredients.length > 0 && (
             <div className="space-y-1">
               <p className="text-xs text-muted-foreground">Customizable:</p>

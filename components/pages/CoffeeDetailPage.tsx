@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
@@ -16,8 +16,9 @@ import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentS
 export const CoffeeDetailPage: React.FC<{ 
   coffeeId: string; 
   onBack: () => void; 
-  initialCustomizations?: CoffeeCustomizationType 
-}> = ({ coffeeId, onBack, initialCustomizations }) => {
+  initialCustomizations?: CoffeeCustomizationType;
+  onSave?: (customizations: CoffeeCustomizationType) => void;
+}> = ({ coffeeId, onBack, initialCustomizations, onSave }) => {
   const coffee = coffeeMenu.find(c => c.id === coffeeId);
   const [customizations, setCustomizations] = useState<CoffeeCustomizationType>(
     initialCustomizations || {
@@ -25,7 +26,7 @@ export const CoffeeDetailPage: React.FC<{
       milk: 'Whole Milk'
     }
   );
-  const { selectedPerson, resetForNewItem } = useGroupMemberAssignmentStore();
+  const { selectedPerson, resetForNewItem, setSelectedPerson } = useGroupMemberAssignmentStore();
   
   const groupMembers = useGroupsStore(state => {
     const activeGroupId = state.activeGroupId;
@@ -35,6 +36,10 @@ export const CoffeeDetailPage: React.FC<{
   useEffect(() => {
     if (initialCustomizations) {
       setCustomizations(initialCustomizations);
+      // Initialize assignment if it exists in customizations
+      if ('assignedTo' in initialCustomizations) {
+        setSelectedPerson(initialCustomizations.assignedTo || '');
+      }
     } else {
       // Reset customizations when switching to a new coffee
       setCustomizations({
@@ -42,14 +47,12 @@ export const CoffeeDetailPage: React.FC<{
         milk: 'Whole Milk'
       });
     }
-  }, [coffeeId, initialCustomizations]);
+  }, [coffeeId, initialCustomizations, setSelectedPerson]);
 
   useEffect(() => {
     // Reset assignment when switching to a new coffee
     resetForNewItem(groupMembers);
   }, [coffeeId, resetForNewItem, groupMembers]);
-
-
 
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
@@ -94,9 +97,19 @@ export const CoffeeDetailPage: React.FC<{
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
   const { showAddToCartModal, showAllergenWarning } = useModalsStore();
-  const isFavorited = activeGroup ? isItemFavorited('coffee', coffee.id, activeGroup.id, customizations) : false;
+  const isFavorited = useMemo(() => {
+    return activeGroup ? isItemFavorited('coffee', coffee.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false;
+  }, [activeGroup, isItemFavorited, coffee.id, customizations, selectedPerson]);
 
-  const handleAddToCart = () => {
+  const handleToggleFavorite = useCallback(() => {
+    if (!coffee || !activeGroup) return;
+    const assignedTo = (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined;
+    toggleFavorite('coffee', coffee, activeGroup.id, customizations, assignedTo);
+  }, [coffee, activeGroup, customizations, selectedPerson, toggleFavorite]);
+
+  const handleAddToCart = useCallback(() => {
+    if (!coffee || !activeGroup) return;
+
     const cartItem: CartItem = {
       id: `coffee-${Date.now()}-${Math.random()}`,
       type: 'coffee',
@@ -105,45 +118,38 @@ export const CoffeeDetailPage: React.FC<{
       quantity: 1,
       assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
     };
-    
+
     // Check for allergen conflicts
-    const itemAllergens = getComprehensiveAllergens(coffee);
-    const conflictingMembers: string[] = [];
-    const conflictingAllergens: string[] = [];
-    
-    groupMembers.forEach(member => {
-      if (member.allergens) {
-        const memberConflicts = itemAllergens.filter(allergen => 
-          member.allergens!.includes(allergen)
-        );
-        if (memberConflicts.length > 0) {
-          conflictingMembers.push(member.name);
-          conflictingAllergens.push(...memberConflicts);
-        }
-      }
+    const affectedMembers = groupMembers.filter(member => {
+      if (!member.allergens) return false;
+      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
     });
-    
-    if (conflictingAllergens.length > 0) {
-      const uniqueAllergens = [...new Set(conflictingAllergens)];
-      const affectedGroupMembers = groupMembers.filter(member => 
-        conflictingMembers.includes(member.name)
+
+    if (affectedMembers.length > 0) {
+      showAllergenWarning(
+        allItemAllergens,
+        affectedMembers,
+        coffee.name,
+        () => {
+          addToCart(activeGroup.id, cartItem);
+          showAddToCartModal(coffee.name);
+        }
       );
-      
-      showAllergenWarning(uniqueAllergens, affectedGroupMembers, coffee.name, () => {
-        if (activeGroup) addToCart(activeGroup.id, cartItem);
-        showAddToCartModal(coffee.name);
-      });
     } else {
-      if (activeGroup) addToCart(activeGroup.id, cartItem);
+      addToCart(activeGroup.id, cartItem);
       showAddToCartModal(coffee.name);
     }
-  };
+  }, [coffee, activeGroup, customizations, selectedPerson, groupMembers, allItemAllergens, addToCart, showAddToCartModal, showAllergenWarning]);
 
-  const handleToggleFavorite = () => {
-    if (activeGroup) {
-      toggleFavorite('coffee', coffee, activeGroup.id, customizations);
+  const handleSave = useCallback(() => {
+    if (onSave) {
+      onSave({
+        ...customizations,
+        assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
+      });
+      onBack();
     }
-  };
+  }, [onSave, customizations, selectedPerson, onBack]);
 
   // Fixed syrup pricing to $0.10 per pump
   const totalPrice = coffee.price + customizations.syrups.reduce((total, syrup) => total + (syrup.pumps * 0.10), 0);
@@ -161,20 +167,31 @@ export const CoffeeDetailPage: React.FC<{
           <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
           <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
         </div>
-        <Button
-          variant="ghost"
-          onClick={handleToggleFavorite}
-          className="flex items-center gap-2"
-        >
-          <Star 
-            className={`h-5 w-5 ${
-              isFavorited 
-                ? 'fill-accent text-accent' 
-                : 'text-muted-foreground'
-            }`}
-          />
-          {isFavorited ? 'Favorited' : 'Add to Favorites'}
-        </Button>
+        <div className="flex items-center gap-2">
+          {onSave && (
+            <Button
+              variant="default"
+              onClick={handleSave}
+              className="flex items-center gap-2"
+            >
+              Save Changes
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            onClick={handleToggleFavorite}
+            className="flex items-center gap-2"
+          >
+            <Star 
+              className={`h-5 w-5 ${
+                isFavorited 
+                  ? 'fill-accent text-accent' 
+                  : 'text-muted-foreground'
+              }`}
+            />
+            {isFavorited ? 'Favorited' : 'Add to Favorites'}
+          </Button>
+        </div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
