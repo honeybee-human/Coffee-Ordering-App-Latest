@@ -8,6 +8,7 @@ import { AllergenTag } from '@/components/shared/AllergenTag';
 import { Pastry } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { useGroupsStore } from '@/store/useGroupsStore';
 
 interface PastryCardProps {
   pastry: Pastry;
@@ -21,9 +22,10 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   groupAllergens = []
 }) => {
   const comprehensiveAllergens = getComprehensiveAllergens(pastry);
+  const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
-  const isFavorited = isItemFavorited('pastry', pastry.id);
+  const isFavorited = activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id) : false;
 
   return (
     <Card 
@@ -44,7 +46,7 @@ export const PastryCard: React.FC<PastryCardProps> = ({
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0 hover:bg-accent/20"
-              onClick={(e) => { e.stopPropagation(); toggleFavorite('pastry', pastry); }}
+              onClick={(e) => { e.stopPropagation(); if (activeGroup) toggleFavorite('pastry', pastry, activeGroup.id); }}
             >
               <Star 
                 className={`h-3 w-3 ${
@@ -98,7 +100,7 @@ export const PastryCard: React.FC<PastryCardProps> = ({
               variant="ghost"
               size="sm"
               className="h-6 w-6 p-0 hover:bg-accent/20"
-              onClick={(e) => { e.stopPropagation(); toggleFavorite('pastry', pastry); }}
+              onClick={(e) => { e.stopPropagation(); if (activeGroup) toggleFavorite('pastry', pastry, activeGroup.id); }}
             >
               <Star 
                 className={`h-3 w-3 ${

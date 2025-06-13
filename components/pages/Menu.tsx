@@ -21,6 +21,7 @@ export const Menu: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'name' | 'description'>('name');
   
+  const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const groupMembers = useGroupsStore(state => {
     const activeGroupId = state.activeGroupId;
     return activeGroupId ? state.groups.find(g => g.id === activeGroupId)?.members || [] : [];
@@ -32,7 +33,9 @@ export const Menu: React.FC = () => {
 
   const handleFavoriteClick = (e: React.MouseEvent, type: 'coffee' | 'pastry', item: any) => {
     e.stopPropagation(); // Prevent card click
-    toggleFavorite(type, item);
+    if (activeGroup) {
+      toggleFavorite(type, item, activeGroup.id);
+    }
   };
 
   // Get all group member allergens for filtering detected allergens

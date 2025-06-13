@@ -153,8 +153,8 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   // Computed values
   const isFavorited = useMemo(() => 
-    pastry ? isItemFavorited('pastry', pastry.id, customizations) : false,
-    [isItemFavorited, pastry, customizations]
+    pastry && activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id, customizations) : false,
+    [isItemFavorited, pastry, activeGroup, customizations]
   );
 
   const comprehensiveAllergens = useMemo(() => 
@@ -240,9 +240,9 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   }, [pastry, selectedGroup, customizations, selectedPerson, groupMembers, addToCart, showAddToCartModal, showAllergenWarning]);
 
   const handleToggleFavorite = useCallback(() => {
-    if (!pastry) return;
-    toggleFavorite('pastry', pastry, customizations);
-  }, [pastry, customizations, toggleFavorite]);
+    if (!pastry || !activeGroup) return;
+    toggleFavorite('pastry', pastry, activeGroup.id, customizations);
+  }, [pastry, activeGroup, customizations, toggleFavorite]);
 
   // Early return for pastry not found
   if (!pastry) {

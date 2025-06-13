@@ -94,7 +94,7 @@ export const CoffeeDetailPage: React.FC<{
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
   const { showAddToCartModal, showAllergenWarning } = useModalsStore();
-  const isFavorited = isItemFavorited('coffee', coffee.id, customizations);
+  const isFavorited = activeGroup ? isItemFavorited('coffee', coffee.id, activeGroup.id, customizations) : false;
 
   const handleAddToCart = () => {
     const cartItem: CartItem = {
@@ -140,7 +140,9 @@ export const CoffeeDetailPage: React.FC<{
   };
 
   const handleToggleFavorite = () => {
-    toggleFavorite('coffee', coffee, customizations);
+    if (activeGroup) {
+      toggleFavorite('coffee', coffee, activeGroup.id, customizations);
+    }
   };
 
   // Fixed syrup pricing to $0.10 per pump

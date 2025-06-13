@@ -3,12 +3,12 @@ import React from 'react';
 import { ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { PageRouter } from '@/components/layout/PageRouter';
-import { AddToCartModal } from '@/components/shared/AddToCartModal';
-import { OrderCompleteModal } from '@/components/shared/OrderCompleteModal';
-import { PaymentCompleteModal } from '@/components/shared/PaymentCompleteModal';
-import { AllergenWarning } from '@/components/shared/AllergenWarning';
-import OnboardingModal from '@/components/shared/OnboardingModal';
+import { AddToCartModal } from '@/components/modals/AddToCartModal';
+import { OrderCompleteModal } from '@/components/modals/OrderCompleteModal';
+import { PaymentCompleteModal } from '@/components/modals/PaymentCompleteModal';
 import { useModalsStore } from '@/store/useModalsStore';
+import OnboardingModal from '@/components/modals/OnboardingModal';
+import { AllergenWarning } from '@/components/shared/AllergenWarning';
 // Store imports
 import { useActiveGroup, useCartCount, useGroups } from '@/store/useGroupsStore';
 import { useFavorites } from '@/store/useFavoritesStore';

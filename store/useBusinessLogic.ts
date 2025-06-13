@@ -114,14 +114,16 @@ export const businessLogic = {
   addToFavorites: (
     item: Coffee | Pastry, 
     type: 'coffee' | 'pastry', 
+    groupId: string,
     customizations?: CoffeeCustomization | PastryCustomization,
     assignedTo?: string
   ): void => {
     const { isItemFavorited, addToFavorites } = useFavoritesStore.getState();
     
-    if (isItemFavorited(type, item.id, customizations, assignedTo)) return;
+    if (isItemFavorited(type, item.id, groupId, customizations, assignedTo || '')) return;
     
     const newFavorite: FavoriteItem = {
+      groupId: groupId,
       id: uuidv4(),
       item,
       type,
@@ -191,7 +193,7 @@ export const businessLogic = {
 // Example of how to use in components:
 /*
 // In your React component:
-import { businessLogic } from '@/utils/businessLogic';
+import { businessLogic } from '@/utils/business-logic';
 import { useGroupsStore } from '@/store/useGroupsStore';
 
 export function MyComponent() {

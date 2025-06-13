@@ -15,18 +15,22 @@ export interface FavoritesStore {
   // Actions
   addToFavorites: (favorite: FavoriteItem) => void;
   removeFromFavorites: (favoriteId: string) => void;
+  getGroupFavorites: (groupId: string) => FavoriteItem[];
   isItemFavorited: (
     type: 'coffee' | 'pastry', 
     itemId: string, 
+    groupId: string,
     customizations?: CoffeeCustomization | PastryCustomization, 
     assignedTo?: string
   ) => boolean;
   toggleFavorite: (
     type: 'coffee' | 'pastry', 
     item: Coffee | Pastry, 
+    groupId: string,
     customizations?: CoffeeCustomization | PastryCustomization, 
     assignedTo?: string
   ) => void;
+  resetFavorites: () => void;
 }
 
 type FavoritesPersist = {
@@ -53,9 +57,15 @@ const storeImplementation: StateCreator<
     }));
   },
 
+  getGroupFavorites: (groupId: string) => {
+    const { favorites } = get();
+    return favorites.filter(fav => fav.groupId === groupId);
+  },
+
   isItemFavorited: (
     type: 'coffee' | 'pastry', 
     itemId: string, 
+    groupId: string,
     customizations?: CoffeeCustomization | PastryCustomization, 
     assignedTo?: string
   ) => {
@@ -66,6 +76,7 @@ const storeImplementation: StateCreator<
       return favorites.some(fav => 
         fav.type === type && 
         fav.item.id === itemId &&
+        fav.groupId === groupId &&
         (!fav.customizations || 
          (type === 'coffee' && JSON.stringify(fav.customizations) === JSON.stringify({ syrups: [], milk: 'Whole Milk' })) ||
          (type === 'pastry' && JSON.stringify(fav.customizations) === JSON.stringify({ removedIngredients: [] }))) &&
@@ -76,6 +87,7 @@ const storeImplementation: StateCreator<
     return favorites.some(fav => 
       fav.type === type && 
       fav.item.id === itemId &&
+      fav.groupId === groupId &&
       JSON.stringify(fav.customizations) === JSON.stringify(customizations) &&
       fav.assignedTo === assignedTo
     );
@@ -84,6 +96,7 @@ const storeImplementation: StateCreator<
   toggleFavorite: (
     type: 'coffee' | 'pastry', 
     item: Coffee | Pastry, 
+    groupId: string,
     customizations?: CoffeeCustomization | PastryCustomization, 
     assignedTo?: string
   ) => {
@@ -95,7 +108,7 @@ const storeImplementation: StateCreator<
       { removedIngredients: [] } as PastryCustomization);
     
     const existingFavorite = favorites.find(fav => {
-      if (fav.type !== type || fav.item.id !== item.id) return false;
+      if (fav.type !== type || fav.item.id !== item.id || fav.groupId !== groupId) return false;
       
       // If no customizations provided, match basic favorites
       if (!customizations) {
@@ -117,10 +130,15 @@ const storeImplementation: StateCreator<
         type,
         customizations: normalizedCustomizations,
         dateAdded: new Date(),
-        assignedTo
+        assignedTo,
+        groupId
       };
       addToFavorites(newFavorite);
     }
+  },
+
+  resetFavorites: () => {
+    set({ favorites: [] });
   }
 });
 

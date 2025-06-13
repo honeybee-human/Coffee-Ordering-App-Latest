@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { FavoriteCard } from '../shared/FavoriteCard';
@@ -13,7 +13,7 @@ import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-ut
 
 export const FavoritesPage: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
-  const favorites = useFavoritesStore(state => state.favorites);
+  const getGroupFavorites = useFavoritesStore(state => state.getGroupFavorites);
   const removeFromFavorites = useFavoritesStore(state => state.removeFromFavorites);
   const excludedAllergens = useAllergensStore(state => state.excludedAllergens);
   const toggleAllergenFilter = useAllergensStore(state => state.toggleAllergenFilter);
@@ -21,6 +21,10 @@ export const FavoritesPage: React.FC = () => {
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const { navigateToMenu, navigateToFavoriteDetail } = useNavigationStore();
   const { showAddToCartModal } = useModalsStore();
+
+  const favorites = useMemo(() => {
+    return activeGroup ? getGroupFavorites(activeGroup.id) : [];
+  }, [activeGroup, getGroupFavorites]);
 
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();

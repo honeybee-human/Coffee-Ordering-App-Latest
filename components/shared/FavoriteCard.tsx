@@ -24,7 +24,7 @@ export const FavoriteCard: React.FC<{ favorite: FavoriteItem; groupAllergens: st
   };
   const handleRemoveFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
-    toggleFavorite(favorite.type, favorite.item, favorite.customizations, favorite.assignedTo);
+    toggleFavorite(favorite.type, favorite.item, favorite.groupId, favorite.customizations, favorite.assignedTo);
   };
   return (
     <Card 

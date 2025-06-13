@@ -82,6 +82,7 @@ export interface FavoriteItem {
   customizations: CoffeeCustomization | PastryCustomization;
   dateAdded: Date;
   assignedTo?: string;
+  groupId: string;
 }
 
 export interface AppData {
