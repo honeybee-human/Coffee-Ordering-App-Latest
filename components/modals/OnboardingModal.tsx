@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/ui/dialog";
-import { Users, Menu as MenuIcon, ShoppingCart, History, Heart } from "lucide-react";
+import { Users, Menu as MenuIcon, ShoppingCart, History, Heart, HelpCircle } from "lucide-react";
 
 interface OnboardingModalProps {
   open: boolean;
@@ -8,23 +8,39 @@ interface OnboardingModalProps {
 }
 
 const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
-  const [onboardingStep, setOnboardingStep] = useState(0); // 0: none, 1: group, 2: allergen
+  const [showHelpButton, setShowHelpButton] = useState(false);
+  const [modalOpen, setModalOpen] = useState(open);
 
   useEffect(() => {
-    if (!open && onboardingStep === 0) {
-      setOnboardingStep(1);
-    }
+    setModalOpen(open);
   }, [open]);
 
+  useEffect(() => {
+    // Show help button after modal is closed
+    if (!modalOpen) {
+      setShowHelpButton(true);
+    }
+  }, [modalOpen]);
+
   const handleClose = () => {
-    setOnboardingStep(0);
+    setModalOpen(false);
     onClose();
+  };
+
+  const handleOpenModal = (e: React.MouseEvent) => {
+    // Prevent event propagation and default behavior
+    e.stopPropagation();
+    e.preventDefault();
+    setModalOpen(true);
   };
 
   return (
     <>
       {/* Entry Modal */}
-      <Dialog open={open} onOpenChange={onClose}>
+      <Dialog open={modalOpen} onOpenChange={(open) => {
+        setModalOpen(open);
+        if (!open) onClose();
+      }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>
@@ -35,9 +51,17 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
             </DialogTitle>
             <DialogDescription asChild>
               <div>
-                <p className="mb-4 text-muted-foreground">
-                  Your first active group is just for you! Customize your allergens in the Groups tab, and create new groups/members as needed! We can automatically filter allergens for you.
+                <p className="mb-4 text-muted-foreground text-sm lg:text-base">
+                  An active group is the group of people you are currently ordering for. 
+                  Your first active group is set to only be for you! 
+                  Each group has its own cart and favorites, and you can filter your order history by group.
                 </p>
+                <hr/>
+                <p className="my-4 text-muted-foreground text-sm lg:text-base">
+                  Create new groups and new members as needed, and label each of their allergens.
+                  so that we can auto filter and warn you of potential conflicts. To test functionality,
+                  add a member who's allergic to blueberries. When a filter is off, you will see a warning chip on a product.
+                </p><hr/><br/>
                 <div className="flex flex-col gap-2 text-base">
                   <span className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> <span>Create or join a group</span></span>
                   <span className="flex items-center gap-2"><MenuIcon className="h-5 w-5 text-primary" /> <span>Add members and set allergens</span></span>
@@ -49,38 +73,20 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
             </DialogDescription>
           </DialogHeader>
           <div className="flex justify-end">
-            <button className="btn btn-primary" onClick={onClose}>Got it!</button>
+            <button className="btn btn-primary" onClick={handleClose}>Got it!</button>
           </div>
         </DialogContent>
       </Dialog>
-      {/* Overlay for onboarding step 1: highlight active group */}
-      {onboardingStep === 1 && (
-        <div className="fixed inset-0 z-[99999] bg-black/80 flex items-start justify-center" style={{zIndex:99999, pointerEvents:'auto'}}>
-          <div className="absolute top-0 left-0 w-full h-full" onClick={handleClose} style={{zIndex:99999, pointerEvents:'auto'}} />
-          <div className="absolute left-1/2 transform -translate-x-1/2 mt-8" style={{zIndex:100000, pointerEvents:'auto'}} onClick={e => e.stopPropagation()}>
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-xs mx-auto text-center">
-              <div className="mb-2 font-bold text-lg">This is where your active group is</div>
-              <div className="mb-4 text-sm text-muted-foreground">Control who's in what group, the current active group, and member allergies in the Group Management tab.</div>
-              <button className="btn btn-primary" style={{zIndex:100001, pointerEvents:'auto'}} onClick={e => { e.stopPropagation(); setOnboardingStep(2); }}>Next</button>
-            </div>
-          </div>
-        </div>
-      )}
-      {/* Overlay for onboarding step 2: highlight allergen filter */}
-      {onboardingStep === 2 && (
-        <div className="fixed inset-0 z-[99999] bg-black/80 flex items-start justify-center" style={{zIndex:99999, pointerEvents:'auto'}}>
-          <div className="absolute top-0 left-0 w-full h-full" onClick={handleClose} style={{zIndex:99999, pointerEvents:'auto'}} />
-          <div className="absolute left-1/2 transform -translate-x-1/2 mt-32" style={{zIndex:100000, pointerEvents:'auto'}} onClick={e => e.stopPropagation()}>
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-xs mx-auto text-center">
-              <div className="mb-2 font-bold text-lg">Allergen Filters</div>
-              <div className="mb-4 text-sm text-muted-foreground">Once you add a member with an allergy, if they're in the active group, we filter the menu for you. You can clear these as needed.</div>
-              {/* AllergenFilter modal integration */}
-              {/* Example props, replace with actual state/handlers as needed */}
-              {/* <AllergenFilter filtersOpen={true} setFiltersOpen={()=>{}} excludedAllergens={[]} onToggleAllergenFilter={()=>{}} onClearAllergenFilters={()=>{}} allAllergens={[]} groupBasedAllergens={[]} filteredOutCount={0} /> */}
-              <button className="btn btn-primary mt-4" style={{zIndex:100001, pointerEvents:'auto'}} onClick={handleClose}>Got it!</button>
-            </div>
-          </div>
-        </div>
+      
+      {/* Floating help button */}
+      {showHelpButton && (
+        <button 
+          onClick={handleOpenModal}
+          className="fixed bottom-4 right-4 bg-primary text-white rounded-full p-2 shadow-lg hover:bg-primary/90 transition-colors z-[9999] pointer-events-auto"
+          aria-label="Help"
+        >
+          <HelpCircle className="h-6 w-6" />
+        </button>
       )}
     </>
   );

@@ -153,12 +153,13 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
+  const favorites = useFavoritesStore(state => state.favorites); // Add this line - the missing dependency
   const { showAddToCartModal, showAllergenWarning } = useModalsStore();
 
   // Computed values
   const isFavorited = useMemo(() => 
     pastry && activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false,
-    [isItemFavorited, pastry, activeGroup, customizations, selectedPerson]
+    [isItemFavorited, pastry, activeGroup, customizations, selectedPerson, favorites] // Add favorites as dependency
   );
 
   const comprehensiveAllergens = useMemo(() => 
@@ -260,8 +261,8 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   return (
     <div className="mx-auto space-y-6">
-      <Button onClick={onBack} variant="outline">
-        <ArrowLeft className="h-4 w-4 mr-2" />
+      <Button onClick={onBack} variant="outline" className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors">
+        <ArrowLeft className="h-4 w-4" />
         Back to Menu
       </Button>
       

@@ -32,10 +32,16 @@ export const CoffeeCard: React.FC<CoffeeCardProps> = ({
     return activeGroup ? isItemFavorited('coffee', coffee.id, activeGroup.id) : false;
   }, [activeGroup, isItemFavorited, coffee.id, favorites]);
 
+  // Create a coffee object with comprehensive allergens for the toggle function
+  const coffeeWithComprehensiveAllergens = useMemo(() => ({
+    ...coffee,
+    allergens: [...coffee.allergens, ...comprehensiveAllergens]
+  }), [coffee, comprehensiveAllergens]);
+
   const handleToggleFavorite = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeGroup) {
-      toggleFavorite('coffee', coffee, activeGroup.id);
+      toggleFavorite('coffee', coffeeWithComprehensiveAllergens, activeGroup.id);
     }
   };
 

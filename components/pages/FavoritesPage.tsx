@@ -1,3 +1,4 @@
+// FavoritesPage.tsx - Fixed version
 import React, { useState, useMemo } from 'react';
 import { ArrowLeft, Edit2 } from 'lucide-react';
 import { Button } from '@/ui/button';
@@ -15,6 +16,7 @@ export const FavoritesPage: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const getGroupFavorites = useFavoritesStore(state => state.getGroupFavorites);
   const updateFavorite = useFavoritesStore(state => state.updateFavorite);
+  const allFavorites = useFavoritesStore(state => state.favorites); // Add this line
   const excludedAllergens = useAllergensStore(state => state.excludedAllergens);
   const toggleAllergenFilter = useAllergensStore(state => state.toggleAllergenFilter);
   const clearAllergenFilters = useAllergensStore(state => state.clearAllergenFilters);
@@ -22,9 +24,10 @@ export const FavoritesPage: React.FC = () => {
   const { navigateToMenu, navigateToFavoriteDetail, navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
   const { showAddToCartModal } = useModalsStore();
 
+  // Fixed: Add allFavorites as dependency
   const favorites = useMemo(() => {
     return activeGroup ? getGroupFavorites(activeGroup.id) : [];
-  }, [activeGroup, getGroupFavorites]);
+  }, [activeGroup, getGroupFavorites, allFavorites]);
 
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
@@ -140,7 +143,7 @@ export const FavoritesPage: React.FC = () => {
           No favorites match the selected filters.
         </div>
       ) : (
-        <div className="grid gap-4 pt-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
           {filteredFavorites.map(fav => (
             <FavoriteCard
               key={fav.id}

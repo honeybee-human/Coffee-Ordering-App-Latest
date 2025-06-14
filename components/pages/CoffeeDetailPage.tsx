@@ -1,3 +1,4 @@
+// CoffeeDetailPage.tsx - Fixed version
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
 import { Button } from '@/ui/button';
@@ -96,16 +97,26 @@ export const CoffeeDetailPage: React.FC<{
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
+  const favorites = useFavoritesStore(state => state.favorites); // Add this line
   const { showAddToCartModal, showAllergenWarning } = useModalsStore();
+  
+  // Fixed: Add favorites as dependency
   const isFavorited = useMemo(() => {
     return activeGroup ? isItemFavorited('coffee', coffee.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false;
-  }, [activeGroup, isItemFavorited, coffee.id, customizations, selectedPerson]);
+  }, [activeGroup, isItemFavorited, coffee.id, customizations, selectedPerson, favorites]);
 
   const handleToggleFavorite = useCallback(() => {
     if (!coffee || !activeGroup) return;
     const assignedTo = (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined;
-    toggleFavorite('coffee', coffee, activeGroup.id, customizations, assignedTo);
-  }, [coffee, activeGroup, customizations, selectedPerson, toggleFavorite]);
+    
+    // Create coffee object with comprehensive allergens
+    const coffeeWithComprehensiveAllergens = {
+      ...coffee,
+      allergens: allItemAllergens // This already includes comprehensive allergens
+    };
+    
+    toggleFavorite('coffee', coffeeWithComprehensiveAllergens, activeGroup.id, customizations, assignedTo);
+  }, [coffee, activeGroup, customizations, selectedPerson, toggleFavorite, allItemAllergens]);
 
   const handleAddToCart = useCallback(() => {
     if (!coffee || !activeGroup) return;
@@ -156,8 +167,8 @@ export const CoffeeDetailPage: React.FC<{
 
   return (
     <div className="mx-auto space-y-6">
-      <Button onClick={onBack} variant="outline">
-        <ArrowLeft className="h-4 w-4 mr-2" />
+      <Button onClick={onBack} variant="outline" className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors">
+        <ArrowLeft className="h-4 w-4" />
         Back to Menu
       </Button>
       
@@ -181,6 +192,7 @@ export const CoffeeDetailPage: React.FC<{
             variant="ghost"
             onClick={handleToggleFavorite}
             className="flex items-center gap-2"
+            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
           >
             <Star 
               className={`h-5 w-5 ${
@@ -278,3 +290,13 @@ export const CoffeeDetailPage: React.FC<{
     </div>
   );
 };
+
+// Similar fix needed for PastryDetailPage.tsx
+// Add this line near the other store hooks:
+// const favorites = useFavoritesStore(state => state.favorites);
+
+// And update the isFavorited useMemo to include favorites as dependency:
+// const isFavorited = useMemo(() => 
+//   pastry && activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false,
+//   [isItemFavorited, pastry, activeGroup, customizations, selectedPerson, favorites] // Add favorites here
+// );

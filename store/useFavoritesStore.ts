@@ -7,8 +7,11 @@ import {
   Coffee, 
   Pastry, 
   CoffeeCustomization, 
-  PastryCustomization 
+  PastryCustomization,
+  GroupMember
 } from '@/types';
+import { useGroupsStore } from './useGroupsStore';
+import { useModalsStore } from './useModalsStore';
 
 export interface FavoritesStore {
   favorites: FavoriteItem[];
@@ -121,7 +124,11 @@ const storeImplementation: StateCreator<
 
     if (existingFavorite) {
       removeFromFavorites(existingFavorite.id);
-    } else {
+      return;
+    }
+
+    // Helper function to add the favorite
+    const addFavoriteItem = () => {
       const newFavorite: FavoriteItem = {
         id: uuidv4(),
         item,
@@ -132,6 +139,60 @@ const storeImplementation: StateCreator<
         groupId
       };
       addToFavorites(newFavorite);
+    };
+
+    // Get active group and check for allergen conflicts
+    const activeGroup = useGroupsStore.getState().groups.find(g => g.id === groupId);
+    if (!activeGroup) {
+      addFavoriteItem();
+      return;
+    }
+
+    const itemAllergens = item.allergens || [];
+    
+    // Check for allergen conflicts with group members
+    let affectedMembers: GroupMember[] = [];
+    
+    if (assignedTo) {
+      // If assigned to specific member, check only that member
+      const member = activeGroup.members.find(m => m.name === assignedTo);
+      if (member && member.allergens && member.allergens.length > 0) {
+        const hasConflict = member.allergens.some(allergen => 
+          itemAllergens.some(itemAllergen => 
+            itemAllergen.toLowerCase().includes(allergen.toLowerCase()) ||
+            allergen.toLowerCase().includes(itemAllergen.toLowerCase())
+          )
+        );
+        
+        if (hasConflict) {
+          affectedMembers = [member];
+        }
+      }
+    } else {
+      // If not assigned to anyone, check all group members for conflicts
+      affectedMembers = activeGroup.members.filter(member => {
+        if (!member.allergens || member.allergens.length === 0) return false;
+        return member.allergens.some(allergen => 
+          itemAllergens.some(itemAllergen => 
+            itemAllergen.toLowerCase().includes(allergen.toLowerCase()) ||
+            allergen.toLowerCase().includes(itemAllergen.toLowerCase())
+          )
+        );
+      });
+    }
+    
+    // Show allergen warning if there are conflicts
+    if (affectedMembers.length > 0) {
+      const showAllergenWarning = useModalsStore.getState().showAllergenWarning;
+      showAllergenWarning(
+        itemAllergens,
+        affectedMembers,
+        item.name,
+        addFavoriteItem // Add to favorites if user confirms
+      );
+    } else {
+      // No conflicts, add to favorites directly
+      addFavoriteItem();
     }
   },
 

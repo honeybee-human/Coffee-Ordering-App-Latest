@@ -69,7 +69,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
     );
     
     if (existingMember) {
-      setNameError('A member with this name already exists. Usernames must be unique.');
+      setNameError('A member with this name already exists. Usernames must be unique. Change what groups this member is in with the All Members tab.');
       return;
     }
     

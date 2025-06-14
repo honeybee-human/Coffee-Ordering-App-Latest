@@ -1,5 +1,5 @@
 // AllergenWarning.tsx - Refactored to use stores directly
-import React from 'react';
+import React, { useMemo } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/ui/alert';
 import { Button } from '@/ui/button';
@@ -12,6 +12,22 @@ export const AllergenWarning: React.FC = () => {
     closeAllergenWarning, 
     proceedWithAllergen 
   } = useModalsStore();
+
+  // Filter allergens to only show those that match with affected members' allergens
+  const relevantAllergens = useMemo(() => {
+    if (!allergenWarning.allergens.length || !allergenWarning.affectedMembers.length) {
+      return [];
+    }
+    
+    // Create a set of all allergens from affected members
+    const memberAllergenSet = new Set<string>();
+    allergenWarning.affectedMembers.forEach(member => {
+      member.allergens.forEach(allergen => memberAllergenSet.add(allergen));
+    });
+    
+    // Only show allergens that are both in the item and in affected members' allergens
+    return allergenWarning.allergens.filter(allergen => memberAllergenSet.has(allergen));
+  }, [allergenWarning.allergens, allergenWarning.affectedMembers]);
 
   return (
     <Dialog open={allergenWarning.isOpen} onOpenChange={closeAllergenWarning}>
@@ -32,7 +48,7 @@ export const AllergenWarning: React.FC = () => {
           <AlertDescription>
             <div className="mt-2 space-y-2">
               <div>
-                <strong>Conflicting allergens:</strong> {allergenWarning.allergens.join(', ')}
+                <strong>Conflicting allergens:</strong> {relevantAllergens.join(', ')}
               </div>
               <div>
                 <strong>Affected members:</strong> {allergenWarning.affectedMembers.map(member => member.name).join(', ')}
