@@ -236,11 +236,40 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
     }
   }, [pastry, activeGroup, customizations, selectedPerson, groupMembers, allItemAllergens, addToCart, showAddToCartModal, showAllergenWarning]);
 
-  const handleToggleFavorite = useCallback(() => {
+  // Helper function to execute the favorite toggle
+  const executeFavoriteToggle = useCallback(() => {
     if (!pastry || !activeGroup) return;
     const assignedTo = (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined;
-    toggleFavorite('pastry', pastry, activeGroup.id, customizations, assignedTo);
-  }, [pastry, activeGroup, customizations, selectedPerson, toggleFavorite]);
+    
+    // Create pastry object with comprehensive allergens
+    const pastryWithComprehensiveAllergens = {
+      ...pastry,
+      allergens: allItemAllergens
+    };
+    
+    toggleFavorite('pastry', pastryWithComprehensiveAllergens, activeGroup.id, customizations, assignedTo);
+  }, [pastry, activeGroup, customizations, selectedPerson, toggleFavorite, allItemAllergens]);
+
+  const handleToggleFavorite = useCallback(() => {
+    if (!pastry || !activeGroup) return;
+
+    // Check for allergen conflicts
+    const affectedMembers = groupMembers.filter(member => {
+      if (!member.allergens) return false;
+      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
+    });
+
+    if (affectedMembers.length > 0) {
+      showAllergenWarning(
+        allItemAllergens,
+        affectedMembers,
+        pastry.name,
+        executeFavoriteToggle
+      );
+    } else {
+      executeFavoriteToggle();
+    }
+  }, [pastry, activeGroup, groupMembers, allItemAllergens, showAllergenWarning, executeFavoriteToggle]);
 
   const handleSave = useCallback(() => {
     if (onSave) {

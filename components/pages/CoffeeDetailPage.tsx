@@ -1,4 +1,4 @@
-// CoffeeDetailPage.tsx - Fixed version
+// CoffeeDetailPage.tsx - Updated with allergen warning for favorites
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ArrowLeft, Star, Plus } from 'lucide-react';
 import { Button } from '@/ui/button';
@@ -97,26 +97,47 @@ export const CoffeeDetailPage: React.FC<{
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
-  const favorites = useFavoritesStore(state => state.favorites); // Add this line
+  const favorites = useFavoritesStore(state => state.favorites);
   const { showAddToCartModal, showAllergenWarning } = useModalsStore();
   
-  // Fixed: Add favorites as dependency
   const isFavorited = useMemo(() => {
     return activeGroup ? isItemFavorited('coffee', coffee.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false;
   }, [activeGroup, isItemFavorited, coffee.id, customizations, selectedPerson, favorites]);
 
-  const handleToggleFavorite = useCallback(() => {
+  // Helper function to execute the favorite toggle
+  const executeFavoriteToggle = useCallback(() => {
     if (!coffee || !activeGroup) return;
     const assignedTo = (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined;
     
     // Create coffee object with comprehensive allergens
     const coffeeWithComprehensiveAllergens = {
       ...coffee,
-      allergens: allItemAllergens // This already includes comprehensive allergens
+      allergens: allItemAllergens
     };
     
     toggleFavorite('coffee', coffeeWithComprehensiveAllergens, activeGroup.id, customizations, assignedTo);
   }, [coffee, activeGroup, customizations, selectedPerson, toggleFavorite, allItemAllergens]);
+
+  const handleToggleFavorite = useCallback(() => {
+    if (!coffee || !activeGroup) return;
+
+    // Check for allergen conflicts
+    const affectedMembers = groupMembers.filter(member => {
+      if (!member.allergens) return false;
+      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
+    });
+
+    if (affectedMembers.length > 0) {
+      showAllergenWarning(
+        allItemAllergens,
+        affectedMembers,
+        coffee.name,
+        executeFavoriteToggle
+      );
+    } else {
+      executeFavoriteToggle();
+    }
+  }, [coffee, activeGroup, groupMembers, allItemAllergens, showAllergenWarning, executeFavoriteToggle]);
 
   const handleAddToCart = useCallback(() => {
     if (!coffee || !activeGroup) return;
@@ -290,13 +311,3 @@ export const CoffeeDetailPage: React.FC<{
     </div>
   );
 };
-
-// Similar fix needed for PastryDetailPage.tsx
-// Add this line near the other store hooks:
-// const favorites = useFavoritesStore(state => state.favorites);
-
-// And update the isFavorited useMemo to include favorites as dependency:
-// const isFavorited = useMemo(() => 
-//   pastry && activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id, customizations, (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined) : false,
-//   [isItemFavorited, pastry, activeGroup, customizations, selectedPerson, favorites] // Add favorites here
-// );
