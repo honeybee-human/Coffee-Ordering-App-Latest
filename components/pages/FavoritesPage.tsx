@@ -25,6 +25,7 @@ export const FavoritesPage: React.FC = () => {
   const { showAddToCartModal } = useModalsStore();
 
   // Fixed: Add allFavorites as dependency
+  // Updated: Use the new getGroupFavorites logic
   const favorites = useMemo(() => {
     return activeGroup ? getGroupFavorites(activeGroup.id) : [];
   }, [activeGroup, getGroupFavorites, allFavorites]);

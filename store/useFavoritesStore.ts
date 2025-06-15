@@ -10,6 +10,7 @@ import {
   PastryCustomization,
   GroupMember
 } from '@/types';
+import { useGroupsStore } from './useGroupsStore';
 
 export interface FavoritesStore {
   favorites: FavoriteItem[];
@@ -19,6 +20,9 @@ export interface FavoritesStore {
   removeFromFavorites: (favoriteId: string) => void;
   updateFavorite: (favoriteId: string, updates: Partial<FavoriteItem>) => void;
   getGroupFavorites: (groupId: string) => FavoriteItem[];
+  getMemberFavorites: (memberName: string, groupId: string) => FavoriteItem[]; // Add this
+  cleanupMemberFavorites: (memberName: string, groupId: string) => void; // Add this
+  transferMemberFavorites: (memberName: string, fromGroupId: string, toGroupId: string) => void; // Add this
   isItemFavorited: (
     type: 'coffee' | 'pastry', 
     itemId: string, 
@@ -72,7 +76,48 @@ const storeImplementation: StateCreator<
 
   getGroupFavorites: (groupId: string) => {
     const { favorites } = get();
-    return favorites.filter(fav => fav.groupId === groupId);
+    return favorites.filter(fav => {
+      // Include group-level favorites (no assignedTo) for this group
+      if (!fav.assignedTo && fav.groupId === groupId) {
+        return true;
+      }
+      // Include personal favorites assigned to members in this group
+      if (fav.assignedTo) {
+        // Check if the assigned person is in this group
+        const groupsStore = useGroupsStore.getState();
+        const group = groupsStore.groups.find(g => g.id === groupId);
+        return group?.members.some(member => member.name === fav.assignedTo);
+      }
+      return false;
+    });
+  },
+
+  getMemberFavorites: (memberName: string) => {
+    const { favorites } = get();
+    // Return all favorites assigned to this member, regardless of group
+    return favorites.filter(fav => fav.assignedTo === memberName);
+  },
+
+  cleanupMemberFavorites: (memberName: string, groupId: string) => {
+    // Only remove group-level favorites when member leaves group
+    // Personal favorites should stay with the member
+    set((state) => ({
+      favorites: state.favorites.filter(fav => {
+        // Keep personal favorites assigned to the member
+        if (fav.assignedTo === memberName) {
+          return true;
+        }
+        // Remove group-level favorites only if they're in the specific group
+        return !(fav.groupId === groupId && !fav.assignedTo);
+      })
+    }));
+  },
+
+  transferMemberFavorites: (memberName: string, fromGroupId: string, toGroupId: string) => {
+    // Personal favorites don't need to be transferred since they follow the member
+    // But we might want to update any group-specific data if needed
+    // For now, personal favorites will automatically appear in the new group
+    // because getGroupFavorites checks group membership
   },
 
   isItemFavorited: (

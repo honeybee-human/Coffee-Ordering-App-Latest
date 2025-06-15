@@ -5,6 +5,7 @@ import { Badge } from '@/ui/badge';
 import { Label } from '@/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { Group, GroupMember } from '@/types';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
 
 interface ChangeGroupsModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ interface ChangeGroupsModalProps {
   onToggleMemberGroup: (groupId: string, isMember: boolean) => void;
 }
 
+
 export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
   isOpen,
   onClose,
@@ -21,6 +23,31 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
   groups,
   onToggleMemberGroup
 }) => {
+
+  
+const handleToggleMemberGroup = (groupId: string, isMember: boolean) => {
+  if (!selectedMember) return;
+  
+  const { transferMemberFavorites, cleanupMemberFavorites } = useFavoritesStore();
+  
+  if (isMember) {
+    // Remove member from group and clean up their favorites
+    cleanupMemberFavorites(selectedMember.name, groupId);
+    onToggleMemberGroup(groupId, isMember);
+  } else {
+    // Add member to group - check if they have favorites in other groups
+    const currentGroups = groups.filter(g => 
+      g.members.some(m => m.name === selectedMember.name)
+    );
+    
+    // If member exists in another group, transfer their favorites
+    if (currentGroups.length > 0) {
+      transferMemberFavorites(selectedMember.name, currentGroups[0].id, groupId);
+    }
+    
+    onToggleMemberGroup(groupId, isMember);
+  }
+};
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -69,7 +96,7 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
                         <Button
                           size="sm"
                           variant={isMember ? "destructive" : "default"}
-                          onClick={() => onToggleMemberGroup(group.id, isMember)}
+                          onClick={() => handleToggleMemberGroup(group.id, isMember)}
                         >
                           {isMember ? (
                             <>

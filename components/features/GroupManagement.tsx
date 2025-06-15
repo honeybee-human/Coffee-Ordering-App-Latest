@@ -35,7 +35,7 @@ export const GroupManagement: React.FC = () => {
     addGroupMember,
     removeGroupMember,
     resetAllData,
-    toggleFavoriteGroup // Add this new action
+    toggleFavoriteGroup
   } = useGroupsStore();
 
   const { resetFavorites } = useFavoritesStore();
@@ -140,15 +140,18 @@ const sortedGroups = useMemo(() => {
     setIsChangeGroupsOpen(false);
   }, []);
 
-  const handleToggleMemberGroup = useCallback((groupId: string, isMember: boolean) => {
-    if (!selectedMember) return;
+  const handleToggleMemberGroup = useCallback((member: GroupMember, groupId: string, isAdding: boolean) => {
+    const favoritesStore = useFavoritesStore.getState();
     
-    if (isMember) {
-      removeGroupMember(groupId, selectedMember.name);
+    if (isAdding) {
+      addGroupMember(groupId, member);
+      // Personal favorites automatically follow the member
     } else {
-      addGroupMember(groupId, selectedMember);
+      removeGroupMember(member.name, groupId);
+      // Only clean up group-level favorites, personal favorites stay with member
+      favoritesStore.cleanupMemberFavorites(member.name, groupId);
     }
-  }, [selectedMember, removeGroupMember, addGroupMember]);
+  }, [addGroupMember, removeGroupMember]);
 
   // Add this new callback for handling existing member addition
   const handleAddExistingMember = useCallback((member: GroupMember) => {
@@ -216,6 +219,14 @@ const sortedGroups = useMemo(() => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Active Group</h3>
+                  {/* Add Create New Group button */}
+                  <Button
+                    onClick={() => setIsCreateGroupOpen(true)}
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create New Group
+                  </Button>
                 </div>
                 <div className="flex items-center gap-2">
                   <Select
@@ -269,7 +280,7 @@ const sortedGroups = useMemo(() => {
                     size="sm"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Create New
+                    Create New Group
                   </Button>
                 </div>
                               
@@ -433,7 +444,11 @@ const sortedGroups = useMemo(() => {
         onClose={handleCloseChangeGroups}
         selectedMember={selectedMember}
         groups={groups}
-        onToggleMemberGroup={handleToggleMemberGroup}
+        onToggleMemberGroup={(groupId: string, isMember: boolean) => {
+          if (selectedMember) {
+            handleToggleMemberGroup(selectedMember, groupId, isMember);
+          }
+        }}
       />
 
 <GroupSettingsModal

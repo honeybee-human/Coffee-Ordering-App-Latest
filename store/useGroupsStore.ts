@@ -3,6 +3,7 @@ import { persist, createJSONStorage, PersistOptions } from 'zustand/middleware';
 import type { StateCreator } from 'zustand';
 import { Group, CartItem, GroupMember } from '@/types';
 import { calculateCartTotal, calculateCartSubtotal, calculateTax } from '@/utils/cart-calculations';
+import { useFavoritesStore } from './useFavoritesStore';
 
 export interface GroupsStore {
   groups: Group[];
@@ -120,17 +121,22 @@ const storeImplementation: StateCreator<
 
   addGroupMember: (groupId: string, member: GroupMember) => {
     set((state) => ({
-      groups: state.groups.map(group =>
+      groups: state.groups.map(group => 
         group.id === groupId 
           ? { ...group, members: [...group.members, member] }
           : group
       )
     }));
+    // No need to transfer favorites when adding to a new group
   },
 
   removeGroupMember: (groupId: string, memberName: string) => {
+    // Clean up member's favorites when removed from group
+    const { cleanupMemberFavorites } = useFavoritesStore.getState();
+    cleanupMemberFavorites(memberName, groupId);
+    
     set((state) => ({
-      groups: state.groups.map(group =>
+      groups: state.groups.map(group => 
         group.id === groupId 
           ? { ...group, members: group.members.filter(m => m.name !== memberName) }
           : group

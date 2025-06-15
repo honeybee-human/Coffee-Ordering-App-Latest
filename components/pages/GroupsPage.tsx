@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { Crown, Star } from 'lucide-react';
@@ -10,9 +10,7 @@ import {
   useGroupsStore,
   useGroups
 } from '@/store/useGroupsStore';
-// Add this import
 import { GroupSearchBar } from '../shared/GroupSearchBar';
-import { useMemo } from 'react';
 import { Group } from '@/types';
 
 const GroupsPage: React.FC = () => {
@@ -28,6 +26,7 @@ const GroupsPage: React.FC = () => {
   const [newGroupName, setNewGroupName] = useState('');
   const [showEditGroup, setShowEditGroup] = useState(false);
   const [editingGroup, setEditingGroup] = useState<Group | null>(null);
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
 
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,10 +52,6 @@ const GroupsPage: React.FC = () => {
     setShowEditGroup(false);
   };
 
-  // Add this function to sort groups
-  // Add this state variable
-  const [groupSearchQuery, setGroupSearchQuery] = useState('');
-  
   // Modify the sortedGroups function to filter by search query
   const sortedGroups = useMemo(() => {
     // First filter by search query
@@ -96,53 +91,67 @@ const GroupsPage: React.FC = () => {
           <p className="text-sm text-muted-foreground">You need to create a group before you can add items to your cart.</p>
         </div>
       ) : (
-        <div className="grid gap-6">
-          {sortedGroups.map((group: Group) => (
-            <Card key={group.id} className="p-4">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
-                  {group.name === 'Just You' && (
-                    <Crown className="h-4 w-4 text-amber-500" />
-                  )}
-                  {group.isFavorite && group.name !== 'Just You' && (
-                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                  )}
-                  <div>
-                    <h3 className="text-lg font-semibold">{group.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {group.members.length} member{group.members.length !== 1 ? 's' : ''}
-                    </p>
+        <div className="space-y-4">
+          {/* Add search bar */}
+          <div className="flex items-center justify-between gap-2">
+            <GroupSearchBar 
+              searchQuery={groupSearchQuery} 
+              onSearchChange={setGroupSearchQuery} 
+              placeholder="Search groups..."
+            />
+            <p className="text-sm text-muted-foreground whitespace-nowrap">
+              {sortedGroups.length} of {allGroups.length} groups
+            </p>
+          </div>
+          
+          <div className="grid gap-6">
+            {sortedGroups.map((group: Group) => (
+              <Card key={group.id} className="p-4">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2">
+                    {group.name === 'Just You' && (
+                      <Crown className="h-4 w-4 text-amber-500" />
+                    )}
+                    {group.isFavorite && group.name !== 'Just You' && (
+                      <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                    )}
+                    <div>
+                      <h3 className="text-lg font-semibold">{group.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {group.members.length} member{group.members.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  {group.name !== 'Just You' && (
+                  <div className="flex gap-2">
+                    {group.name !== 'Just You' && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleFavoriteGroup(group.id)}
+                        className={group.isFavorite ? "text-amber-500" : ""}
+                      >
+                        <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                      </Button>
+                    )}
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => toggleFavoriteGroup(group.id)}
-                      className={group.isFavorite ? "text-amber-500" : ""}
+                      onClick={() => handleEditGroup(group)}
                     >
-                      <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                      Edit
                     </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleEditGroup(group)}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteGroup(group.id)}
-                  >
-                    Delete
-                  </Button>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleDeleteGroup(group.id)}
+                    >
+                      Delete
+                    </Button>
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))}
+          </div>
         </div>
       )}
 
