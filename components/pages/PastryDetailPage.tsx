@@ -17,6 +17,7 @@ import { useGroupsStore } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
+import { useCurrentItemStore } from '@/store/useCurrentItemStore';
 
 // Constants
 const DEFAULT_CUSTOMIZATIONS: PastryCustomizationType = {
@@ -138,7 +139,14 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   initialCustomizations,
   onSave
 }) => {
-  const pastry = useMemo(() => pastryMenu.find(p => p.id === pastryId), [pastryId]);
+  // Use currentItem if available, otherwise find from menu
+  const currentItem = useCurrentItemStore(state => state.currentItem);
+  const pastry = useMemo(() => {
+    if (currentItem.type === 'pastry' && currentItem.item && currentItem.item.id === pastryId) {
+      return currentItem.item as Pastry;
+    }
+    return pastryMenu.find(p => p.id === pastryId);
+  }, [pastryId, currentItem]);
   
   const [customizations, setCustomizations] = useState<PastryCustomizationType>(initialCustomizations || DEFAULT_CUSTOMIZATIONS);
   const [showNoGroupModal, setShowNoGroupModal] = useState(false);

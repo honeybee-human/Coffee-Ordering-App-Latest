@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/ui/alert-dialog';
 import { Plus, Trash2, Edit2, Users, AlertTriangle, UserPlus, Check, RotateCcw, X, Badge, Crown, Settings, ChevronDown, Sparkles, Star, Zap, Shield } from 'lucide-react';
 import { Group, GroupMember } from '@/types';
@@ -15,6 +15,15 @@ import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/ui/tabs';
 
+
+// Add to imports
+import { GroupSearchBar } from '../shared/GroupSearchBar';
+import { GroupSettingsModal } from '../modals/GroupSettingsModal';
+import { AddExistingMemberModal } from '@/components/modals/AddExistingMemberModal';
+
+
+
+
 export const GroupManagement: React.FC = () => {
   const {
     groups,
@@ -25,7 +34,8 @@ export const GroupManagement: React.FC = () => {
     renameGroup,
     addGroupMember,
     removeGroupMember,
-    resetAllData
+    resetAllData,
+    toggleFavoriteGroup // Add this new action
   } = useGroupsStore();
 
   const { resetFavorites } = useFavoritesStore();
@@ -37,13 +47,35 @@ export const GroupManagement: React.FC = () => {
 
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
+  const [isAddExistingMemberOpen, setIsAddExistingMemberOpen] = useState(false); // Add this state
   const [isChangeGroupsOpen, setIsChangeGroupsOpen] = useState(false);
+  const [isGroupSettingsOpen, setIsGroupSettingsOpen] = useState(false); // Add this state
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null); // Add this state
   const [selectedMember, setSelectedMember] = useState<GroupMember | null>(null);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editGroupName, setEditGroupName] = useState('');
+  const [editingMember, setEditingMember] = useState<GroupMember | null>(null);
+  const activeGroup = useMemo(() => groups.find(group => group.id === activeGroupId), [groups, activeGroupId]);
+const [groupSearchQuery, setGroupSearchQuery] = useState('');
 
-  const activeGroup = groups.find((g: Group) => g.id === activeGroupId);
-
+const sortedGroups = useMemo(() => {
+  const filtered = groups.filter(group => 
+    group.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
+  );
+  
+  return [...filtered].sort((a, b) => {
+    // Always put "Just You" first
+    if (a.name === 'Just You') return -1;
+    if (b.name === 'Just You') return 1;
+    
+    // Then sort by favorite status
+    if (a.isFavorite && !b.isFavorite) return -1;
+    if (!a.isFavorite && b.isFavorite) return 1;
+    
+    // Finally sort by name
+    return a.name.localeCompare(b.name);
+  });
+}, [groups, groupSearchQuery]);// Add to imports
   const handleCreateGroup = useCallback((groupName: string) => {
     createGroup(groupName);
     setIsCreateGroupOpen(false);
@@ -64,9 +96,15 @@ export const GroupManagement: React.FC = () => {
     }
   }, [activeGroupId, addGroupMember]);
 
+  // Update the handleEditMember function to properly set the state and open the modal
+  const handleEditMember = useCallback((member: GroupMember) => {
+    setEditingMember(member);
+    setIsAddMemberOpen(true);
+  }, []);
+
   const startEditingGroup = useCallback((group: Group) => {
-    setEditingGroupId(group.id);
-    setEditGroupName(group.name);
+    setSelectedGroup(group);
+    setIsGroupSettingsOpen(true);
   }, []);
 
   const cancelEditing = useCallback(() => {
@@ -112,6 +150,16 @@ export const GroupManagement: React.FC = () => {
     }
   }, [selectedMember, removeGroupMember, addGroupMember]);
 
+  // Add this new callback for handling existing member addition
+  const handleAddExistingMember = useCallback((member: GroupMember) => {
+    if (activeGroupId) {
+      addGroupMember(activeGroupId, member);
+      setIsAddExistingMemberOpen(false);
+    }
+  }, [activeGroupId, addGroupMember]);
+
+  
+
   return (
     <div className="space-y-6">
       <Card>
@@ -121,6 +169,7 @@ export const GroupManagement: React.FC = () => {
               <Users className="h-5 w-5" />
               <span className="text-lg font-bold">Group Management</span>
             </div>
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button
@@ -157,8 +206,9 @@ export const GroupManagement: React.FC = () => {
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="groups" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="groups">Groups</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="groups">Active Group</TabsTrigger>
+              <TabsTrigger value="all-groups">All Groups</TabsTrigger>
               <TabsTrigger value="members">All Members</TabsTrigger>
             </TabsList>
             
@@ -166,13 +216,6 @@ export const GroupManagement: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Active Group</h3>
-                  <Button
-                    onClick={() => setIsCreateGroupOpen(true)}
-                    size="sm"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create New
-                  </Button>
                 </div>
                 <div className="flex items-center gap-2">
                   <Select
@@ -196,73 +239,129 @@ export const GroupManagement: React.FC = () => {
                 </div>
               </div>
 
-             
-              {/* Group List */}
-              {groups.length > 0 && (
+                <AddExistingMemberModal
+                  isOpen={isAddExistingMemberOpen}
+                  onClose={() => setIsAddExistingMemberOpen(false)}
+                  onAddMember={handleAddMember}
+                  existingMembers={allMembers.map(({ member }) => member)}
+                  currentGroup={activeGroup!}
+                />
+
+              {/* Active Group Members */}
+              {activeGroup && (
+                <GroupMembersSection
+                  activeGroup={activeGroup}
+                  onAddNewMember={() => setIsAddMemberOpen(true)}
+                  onAddExistingMember={() => setIsAddExistingMemberOpen(true)} // Fix this line
+                  onRemoveMember={(groupId, memberName) => removeGroupMember(groupId, memberName)}
+                  onEditMember={handleEditMember}
+                  onChangeGroups={handleOpenChangeGroups}
+                />
+              )}
+            </TabsContent>
+            
+            <TabsContent value="all-groups" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">All Groups</h3>
+                  <Button
+                    onClick={() => setIsCreateGroupOpen(true)}
+                    size="sm"
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create New
+                  </Button>
+                </div>
+                              
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <GroupSearchBar 
+                    searchQuery={groupSearchQuery} 
+                    onSearchChange={setGroupSearchQuery} 
+                    placeholder="Search groups..."
+                  />
+                  <p className="text-sm text-muted-foreground whitespace-nowrap">
+                    {sortedGroups.length} of {groups.length} groups
+                  </p>
+                </div>
                 <div className="space-y-2">
-                  <h3>All Groups</h3>
-                  <div className="space-y-2">
-                    {groups.map((group: Group) => (
-                      <div 
-                        key={group.id} 
-                        className={`flex items-center justify-between p-3 rounded-lg border ${
-                          group.id === activeGroupId ? 'bg-primary/10 border-primary/20' : 'bg-card border-border'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2 flex-1">
-                          {editingGroupId === group.id ? (
-                            <div className="flex items-center gap-2 flex-1">
-                              <Input
-                                value={editGroupName}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditGroupName(e.target.value)}
-                                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-                                  if (e.key === 'Enter') handleRenameGroup(group.id);
-                                  if (e.key === 'Escape') cancelEditing();
-                                }}
-                                className="flex-1"
-                                disabled={group.name === 'Just You'}
-                              />
-                              <Button 
-                                size="sm" 
-                                onClick={() => handleRenameGroup(group.id)}
-                                disabled={group.name === 'Just You'}
-                              >
-                                <Check className="h-3 w-3" />
-                              </Button>
-                              <Button 
-                                size="sm" 
-                                variant="ghost" 
-                                onClick={cancelEditing}
-                              >
-                                <X className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <>
-                              <span className={group.id === activeGroupId ? 'text-primary' : ''}>
-                                {group.name}
-                              </span>
-                              <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
-                                {group.members.length} member{group.members.length !== 1 ? 's' : ''}
-                              </span>
-                              {group.cart && group.cart.length > 0 && (
-                                <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">
-                                  {group.cart.length} item{group.cart.length !== 1 ? 's' : ''} in cart
-                                </span>
-                              )}
-                            </>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          {group.name !== 'Just You' && (
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => startEditingGroup(group)}
+                  {sortedGroups.map((group: Group) => (
+                    <div 
+                      key={group.id} 
+                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                        group.id === activeGroupId ? 'bg-primary/10 border-primary/20' : 'bg-card border-border'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 flex-1">
+                        {editingGroupId === group.id ? (
+                          <div className="flex items-center gap-2 flex-1">
+                            <Input
+                              value={editGroupName}
+                              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEditGroupName(e.target.value)}
+                              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                                if (e.key === 'Enter') handleRenameGroup(group.id);
+                                if (e.key === 'Escape') cancelEditing();
+                              }}
+                              className="flex-1"
+                              disabled={group.name === 'Just You'}
+                            />
+                            <Button 
+                              size="sm" 
+                              onClick={() => handleRenameGroup(group.id)}
+                              disabled={group.name === 'Just You'}
                             >
-                              <Edit2 className="h-3 w-3" />
+                              <Check className="h-3 w-3" />
                             </Button>
-                          )}
+                            <Button 
+                              size="sm" 
+                              variant="ghost" 
+                              onClick={cancelEditing}
+                            >
+                              <X className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <>
+                            {group.name === 'Just You' && (
+                              <Crown className="h-4 w-4 text-amber-500" />
+                            )}
+                            {group.isFavorite && group.name !== 'Just You' && (
+                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                            )}
+                            <span className={group.id === activeGroupId ? 'text-primary' : ''}>
+                              {group.name}
+                            </span>
+                            <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                              {group.members.length} member{group.members.length !== 1 ? 's' : ''}
+                            </span>
+                            {group.cart && group.cart.length > 0 && (
+                              <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">
+                                {group.cart.length} item{group.cart.length !== 1 ? 's' : ''} in cart
+                              </span>
+                            )}
+                          </>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {group.name !== 'Just You' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => toggleFavoriteGroup(group.id)}
+                            className={group.isFavorite ? "text-amber-500" : ""}
+                          >
+                            <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                          </Button>
+                        )}
+                        {group.name !== 'Just You' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => startEditingGroup(group)}
+                          >
+                            <Settings className="h-3 w-3" />
+                          </Button>
+                        )}
+                        {group.name !== 'Just You' && (
                           <Button
                             size="sm"
                             variant="ghost"
@@ -271,27 +370,20 @@ export const GroupManagement: React.FC = () => {
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                        </div>
+                        )}
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
                 </div>
-              )}
-
-              {/* Active Group Members */}
-              {activeGroup && (
-                <GroupMembersSection
-                  activeGroup={activeGroup}
-                  onAddMember={() => setIsAddMemberOpen(true)}
-                  onRemoveMember={(memberName) => removeGroupMember(activeGroup.id, memberName)}
-                />
-              )}
+              </div>
             </TabsContent>
             
             <TabsContent value="members" className="space-y-4 mt-4">
               <AllMembersTab
                 allMembers={allMembers}
                 onOpenChangeGroups={handleOpenChangeGroups}
+                onEditMember={handleEditMember}
+                onAddNewMember={() => setIsAddMemberOpen(true)}
               />
             </TabsContent>
           </Tabs>
@@ -305,12 +397,34 @@ export const GroupManagement: React.FC = () => {
         onCreateGroup={handleCreateGroup}
       />
 
-      {/* Add Member Dialog */}
-      <AddMemberModal
+
+<AddMemberModal
         isOpen={isAddMemberOpen}
-        onClose={() => setIsAddMemberOpen(false)}
-        onAddMember={handleAddMember}
+        onClose={() => {
+          setIsAddMemberOpen(false);
+          setEditingMember(null); // Clear editing member when closing
+        }}
+        onAddMember={(member) => {
+          if (editingMember) {
+            // If editing, remove the old member first
+            removeGroupMember(activeGroup!.id, editingMember.name);
+          }
+          handleAddMember(member);
+          setEditingMember(null); // Clear editing member after saving
+        }}
         existingMembers={allMembers.map(({ member }) => member)}
+        editingMember={editingMember}
+        isEditing={!!editingMember}
+      />
+
+
+      {/* Add the missing AddExistingMemberModal */}
+      <AddExistingMemberModal
+        isOpen={isAddExistingMemberOpen}
+        onClose={() => setIsAddExistingMemberOpen(false)}
+        onAddMember={handleAddExistingMember}
+        existingMembers={allMembers.map(({ member }) => member)}
+        currentGroup={activeGroup!}
       />
 
       {/* Change Groups Modal */}
@@ -321,6 +435,21 @@ export const GroupManagement: React.FC = () => {
         groups={groups}
         onToggleMemberGroup={handleToggleMemberGroup}
       />
+
+<GroupSettingsModal
+        isOpen={isGroupSettingsOpen}
+        onClose={() => {
+          setIsGroupSettingsOpen(false);
+          setSelectedGroup(null);
+        }}
+        group={selectedGroup}
+        onRenameGroup={handleRenameGroup}
+        onAddMember={handleAddMember}
+        existingMembers={allMembers.map(({ member }) => member)}
+      />
+
+
     </div>
   );
 };
+

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
+import { Crown, Star } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { Input } from '@/ui/input';
 import { Label } from '@/ui/label';
@@ -9,12 +10,10 @@ import {
   useGroupsStore,
   useGroups
 } from '@/store/useGroupsStore';
-
-interface GroupWithMembers {
-  id: string;
-  name: string;
-  members: GroupMember[];
-}
+// Add this import
+import { GroupSearchBar } from '../shared/GroupSearchBar';
+import { useMemo } from 'react';
+import { Group } from '@/types';
 
 const GroupsPage: React.FC = () => {
   const allGroups = useGroups();
@@ -23,11 +22,12 @@ const GroupsPage: React.FC = () => {
   const createGroup = useGroupsStore(state => state.createGroup);
   const deleteGroup = useGroupsStore(state => state.deleteGroup);
   const renameGroup = useGroupsStore(state => state.renameGroup);
+  const toggleFavoriteGroup = useGroupsStore(state => state.toggleFavoriteGroup);
 
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [showEditGroup, setShowEditGroup] = useState(false);
-  const [editingGroup, setEditingGroup] = useState<GroupWithMembers | null>(null);
+  const [editingGroup, setEditingGroup] = useState<Group | null>(null);
 
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +36,7 @@ const GroupsPage: React.FC = () => {
     setShowCreateGroup(false);
   };
 
-  const handleEditGroup = (group: GroupWithMembers) => {
+  const handleEditGroup = (group: Group) => {
     setEditingGroup(group);
     setShowEditGroup(true);
   };
@@ -52,6 +52,34 @@ const GroupsPage: React.FC = () => {
     }
     setShowEditGroup(false);
   };
+
+  // Add this function to sort groups
+  // Add this state variable
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
+  
+  // Modify the sortedGroups function to filter by search query
+  const sortedGroups = useMemo(() => {
+    // First filter by search query
+    const filteredGroups = groupSearchQuery.trim()
+      ? allGroups.filter(group => 
+          group.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
+        )
+      : allGroups;
+    
+    // Then sort the filtered groups
+    return [...filteredGroups].sort((a, b) => {
+      // Always keep 'Just You' at the top
+      if (a.name === 'Just You') return -1;
+      if (b.name === 'Just You') return 1;
+      
+      // Then sort by favorite status
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      
+      // If both have the same favorite status, sort by name
+      return a.name.localeCompare(b.name);
+    });
+  }, [allGroups, groupSearchQuery]);
 
   return (
     <div className="container mx-auto p-4">
@@ -69,16 +97,34 @@ const GroupsPage: React.FC = () => {
         </div>
       ) : (
         <div className="grid gap-6">
-          {allGroups.map((group: GroupWithMembers) => (
+          {sortedGroups.map((group: Group) => (
             <Card key={group.id} className="p-4">
               <div className="flex justify-between items-start">
-                <div>
-                  <h3 className="text-lg font-semibold">{group.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {group.members.length} member{group.members.length !== 1 ? 's' : ''}
-                  </p>
+                <div className="flex items-center gap-2">
+                  {group.name === 'Just You' && (
+                    <Crown className="h-4 w-4 text-amber-500" />
+                  )}
+                  {group.isFavorite && group.name !== 'Just You' && (
+                    <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
+                  )}
+                  <div>
+                    <h3 className="text-lg font-semibold">{group.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {group.members.length} member{group.members.length !== 1 ? 's' : ''}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
+                  {group.name !== 'Just You' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleFavoriteGroup(group.id)}
+                      className={group.isFavorite ? "text-amber-500" : ""}
+                    >
+                      <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="sm"

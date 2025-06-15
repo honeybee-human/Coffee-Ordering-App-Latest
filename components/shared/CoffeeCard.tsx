@@ -9,6 +9,7 @@ import { Coffee } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
+import { useCurrentItemStore } from '@/store/useCurrentItemStore';
 
 interface CoffeeCardProps {
   coffee: Coffee;
@@ -44,11 +45,15 @@ export const CoffeeCard: React.FC<CoffeeCardProps> = ({
       toggleFavorite('coffee', coffeeWithComprehensiveAllergens, activeGroup.id);
     }
   };
-
+  const setCurrentItem = useCurrentItemStore(state => state.setCurrentItem);
+  
   return (
     <Card 
       className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group bg-white/80 backdrop-blur-sm border border-white/20"
-      onClick={() => onSelect(coffee.id)}
+      onClick={() => {
+        setCurrentItem('coffee', coffee);
+        onSelect(coffee.id);
+      }}
     >
       {/* Mobile Layout: Horizontal split */}
       <div className="flex sm:hidden h-40">

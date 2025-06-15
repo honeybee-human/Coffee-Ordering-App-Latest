@@ -1,23 +1,50 @@
-import React from 'react';
-import { AlertTriangle, UserPlus, Trash2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { AlertTriangle, UserPlus, Users } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Separator } from '@/ui/separator';
-import { Group } from '@/types';
+import { Group, GroupMember } from '@/types';
+import { MemberCard } from '../shared/MemberCard';
+import { MemberSearchBar } from '../shared/MemberSearchBar';
 
 interface GroupMembersSectionProps {
   activeGroup: Group;
-  onAddMember: () => void;
+  onAddNewMember: () => void;
+  onAddExistingMember: () => void;
   onRemoveMember: (groupId: string, memberName: string) => void;
+  onEditMember: (member: GroupMember) => void;
+  onChangeGroups: (member: GroupMember) => void;
 }
 
 export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
   activeGroup,
-  onAddMember,
-  onRemoveMember
+  onAddNewMember,
+  onAddExistingMember,
+  onRemoveMember,
+  onEditMember,
+  onChangeGroups
 }) => {
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const filteredMembers = useMemo(() => {
+    if (!searchQuery.trim()) return activeGroup.members;
+    
+    return activeGroup.members.filter(member => 
+      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [activeGroup.members, searchQuery]);
+
   return (
     <>
       <Separator />
+      {/* Warning for Just You group */}
+      {activeGroup.name === 'Just You' && (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-3 flex items-center gap-2 mb-3">
+          <AlertTriangle className="h-5 w-5" />
+          <span>
+            You cannot add another member to this group or delete yourself from this group. Please make another group and make it active to add or manage group members.
+          </span>
+        </div>
+      )}
       {/* Popup alert for allergic members */}
       {activeGroup.members.some(m => m.allergens && m.allergens.length > 0) && (
         <div className="bg-destructive/10 border border-destructive text-destructive rounded-md p-3 flex items-center gap-2 mb-3">
@@ -29,59 +56,61 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
       )}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold">Members in "{activeGroup.name}"</span>
-          <Button 
-            size="sm" 
-            onClick={onAddMember}
-            disabled={activeGroup.name === 'Just You'}
-          >
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add Member
-          </Button>
+          <span className="text-lg font-semibold">Members in {activeGroup.name}</span>
+          <div className="flex gap-2">
+            <Button 
+              size="sm" 
+              onClick={onAddNewMember}
+              disabled={activeGroup.name === 'Just You'}
+            >
+              <UserPlus className="h-4 w-4 mr-2" />
+              Create New Member
+            </Button>
+            <Button 
+              size="sm" 
+              variant="outline"
+              onClick={onAddExistingMember}
+              disabled={activeGroup.name === 'Just You'}
+            >
+              <Users className="h-4 w-4 mr-2" />
+              Add Existing Member
+            </Button>
+          </div>
         </div>
+        
+        {activeGroup.members.length > 0 && (
+          <div className="flex items-center justify-between gap-2">
+            <MemberSearchBar 
+              searchQuery={searchQuery} 
+              onSearchChange={setSearchQuery} 
+              placeholder="Search members in this group..."
+            />
+            <p className="text-sm text-muted-foreground whitespace-nowrap">
+              {filteredMembers.length} of {activeGroup.members.length} members
+            </p>
+          </div>
+        )}
 
         {activeGroup.members.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No members in this group yet. Add some members to start ordering!
           </p>
+        ) : filteredMembers.length === 0 ? (
+          <p className="text-sm text-muted-foreground py-4">
+            No members found matching "{searchQuery}"
+          </p>
         ) : (
           <div className="space-y-3">
-            {activeGroup.members.map((member, index) => (
-              <div key={`${member.name}-${index}`} className="flex items-center justify-between p-3">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{member.name}</span>
-                    {member.allergens && member.allergens.length > 0 && (
-                      <AlertTriangle className="h-4 w-4 text-destructive" />
-                    )}
-                  </div>
-                  
-                  {member.allergens && member.allergens.length > 0 ? (
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Allergies:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {member.allergens.map((allergen, allergenIndex) => (
-                          <span key={`${allergen}-${allergenIndex}`} className="flex items-center gap-1 text-sm text-destructive">
-                            <AlertTriangle className="h-3 w-3" />
-                            {allergen}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-muted-foreground">No known allergies</p>
-                  )}
-                </div>
-                
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => onRemoveMember(activeGroup.id, member.name)}
-                  disabled={activeGroup.name === 'Just You'}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </div>
+            {filteredMembers.map((member, index) => (
+              <MemberCard
+                key={`${member.name}-${index}`}
+                member={member}
+                onEditMember={onEditMember}
+                onRemoveMember={onRemoveMember}
+                onChangeGroups={onChangeGroups}
+                groupId={activeGroup.id}
+                isDisabled={activeGroup.name === 'Just You'}
+              />
             ))}
           </div>
         )}

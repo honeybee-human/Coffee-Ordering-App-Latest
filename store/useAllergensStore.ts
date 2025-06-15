@@ -14,6 +14,7 @@ interface AllergensStore {
   toggleAllergenFilter: (allergen: string) => void;
   clearAllergenFilters: () => void;
   addMemberAllergensToFilters: (memberName: string, groupId:string, allergens:string[]) => void;
+  updateFiltersFromGroupMembers: () => void; // Add this to the interface
   
   // Helper functions
   getItemAllergens: (item: Coffee | Pastry) => string[];
@@ -84,7 +85,7 @@ export const useAllergensStore = create<AllergensStore>()(
           // Then add the updated member back
           appStore.addGroupMember(groupId, updatedMember);
         } else {
-          // Add new member to the group
+          // Create New Member to the group
           const newMember: GroupMember = {
             name: memberName,
             allergens: allergens
@@ -134,6 +135,32 @@ export const useAllergensStore = create<AllergensStore>()(
         return members
           .filter(member => allergens.some(allergen => member.allergens.includes(allergen)))
           .map(member => member.name);
+      },
+      
+      // Move this function inside the store object
+      updateFiltersFromGroupMembers: () => {
+        const { groups } = useGroupsStore.getState();
+        const activeGroupId = useGroupsStore.getState().activeGroupId;
+        
+        if (!activeGroupId) return;
+        
+        const activeGroup = groups.find(g => g.id === activeGroupId);
+        if (!activeGroup) return;
+        
+        // Collect all allergens from group members
+        const groupAllergens = new Set<string>();
+        activeGroup.members.forEach(member => {
+          if (member.allergens && member.allergens.length > 0) {
+            member.allergens.forEach(allergen => groupAllergens.add(allergen));
+          }
+        });
+        
+        // Update excluded allergens to include all group member allergens
+        set(state => {
+          const currentAllergens = new Set(state.excludedAllergens);
+          groupAllergens.forEach(allergen => currentAllergens.add(allergen));
+          return { excludedAllergens: Array.from(currentAllergens) };
+        });
       }
     }),
     {

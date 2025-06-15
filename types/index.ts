@@ -48,6 +48,7 @@ export interface Group {
   members: GroupMember[];
   cart: CartItem[];
   dateCreated: Date;
+  isFavorite?: boolean; // New property for favoriting groups
 }
 
 export interface PaymentInfo {

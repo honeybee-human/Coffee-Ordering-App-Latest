@@ -7,12 +7,13 @@ import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustom
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { AllergenTag } from '@/components/shared/AllergenTag';
 import { coffeeMenu } from '@/data/menu';
-import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType } from '@/types';
+import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType, Coffee } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
+import { useCurrentItemStore } from '@/store/useCurrentItemStore';
 
 export const CoffeeDetailPage: React.FC<{ 
   coffeeId: string; 
@@ -20,7 +21,14 @@ export const CoffeeDetailPage: React.FC<{
   initialCustomizations?: CoffeeCustomizationType;
   onSave?: (customizations: CoffeeCustomizationType) => void;
 }> = ({ coffeeId, onBack, initialCustomizations, onSave }) => {
-  const coffee = coffeeMenu.find(c => c.id === coffeeId);
+  // Use currentItem if available, otherwise find from menu
+  const currentItem = useCurrentItemStore(state => state.currentItem);
+  const coffee = useMemo(() => {
+    if (currentItem.type === 'coffee' && currentItem.item && currentItem.item.id === coffeeId) {
+      return currentItem.item as Coffee;
+    }
+    return coffeeMenu.find(c => c.id === coffeeId);
+  }, [coffeeId, currentItem]);
   const [customizations, setCustomizations] = useState<CoffeeCustomizationType>(
     initialCustomizations || {
       syrups: [],

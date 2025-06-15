@@ -31,6 +31,9 @@ export interface GroupsStore {
   
   // Reset actions
   resetAllData: () => void;
+  
+  // Add this new action
+  toggleFavoriteGroup: (groupId: string) => void;
 }
 
 type GroupsPersist = {
@@ -196,7 +199,18 @@ const storeImplementation: StateCreator<
       groups: [defaultGroup],
       activeGroupId: defaultGroup.id
     });
-  }
+  },
+  
+  // Add this new method
+  toggleFavoriteGroup: (groupId: string) => {
+    set((state) => ({
+      groups: state.groups.map(group =>
+        group.id === groupId 
+          ? { ...group, isFavorite: !group.isFavorite } 
+          : group
+      )
+    }));
+  },
 });
 
 export const useGroupsStore = create<GroupsStore>()(  

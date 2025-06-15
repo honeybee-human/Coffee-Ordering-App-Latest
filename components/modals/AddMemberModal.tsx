@@ -9,52 +9,135 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { GroupMember } from '@/types';
 import { COMMON_ALLERGENS, normalizeAllergens } from '@/utils/allergens';
 
+// Update the props interface
 interface AddMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddMember: (member: GroupMember) => void;
   existingMembers?: GroupMember[];
+  editingMember?: GroupMember | null; // Add this line
+  isEditing?: boolean; // Add this line
 }
 
+// Update the component to handle editing
 export const AddMemberModal: React.FC<AddMemberModalProps> = ({
   isOpen,
   onClose,
   onAddMember,
-  existingMembers = []
+  existingMembers = [],
+  editingMember = null,
+  isEditing = false
 }) => {
-  const [newMember, setNewMember] = useState<{ name: string; allergens: string[] }>({
-    name: '',
-    allergens: []
-  });
+  // Add state for name error
+  const [nameError, setNameError] = useState('');
   const [newAllergen, setNewAllergen] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [suggestions, setSuggestions] = useState<string[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [nameError, setNameError] = useState('');
-
+  
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
-
-  // Filter suggestions based on prefix matching
-  const suggestions = useMemo(() => {
-    const searchTerm = newAllergen.toLowerCase().trim();
-    if (!searchTerm) return [];
-    
-    return COMMON_ALLERGENS
-      .filter(allergen => 
-        !newMember.allergens.includes(allergen) &&
-        allergen.toLowerCase().startsWith(searchTerm)
-      )
-      .slice(0, 8);
-  }, [newAllergen, newMember.allergens]);
-
+  
+  // Update the state initialization to use editingMember if provided
+  const [newMember, setNewMember] = useState<{ name: string; allergens: string[] }>(
+    editingMember ? {
+      name: editingMember.name,
+      allergens: editingMember.allergens || []
+    } : {
+      name: '',
+      allergens: []
+    }
+  );
+  
+  // Add resetForm function
   const resetForm = useCallback(() => {
     setNewMember({ name: '', allergens: [] });
+    setNameError('');
+    setNewAllergen('');
+  }, []);
+  
+  // Add these handler functions
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setNewAllergen(value);
+    
+    if (value.trim()) {
+      const filtered = COMMON_ALLERGENS.filter(allergen => 
+        allergen.toLowerCase().includes(value.toLowerCase())
+      );
+      setSuggestions(filtered);
+      setShowSuggestions(filtered.length > 0);
+      setSelectedIndex(-1);
+    } else {
+      setShowSuggestions(false);
+    }
+  };
+  
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && newAllergen.trim()) {
+      e.preventDefault();
+      if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
+        handleAddAllergen(suggestions[selectedIndex]);
+      } else {
+        handleAddAllergen(newAllergen.trim());
+      }
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => 
+        prev < suggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  };
+  
+  const handleInputFocus = () => {
+    if (newAllergen.trim() && suggestions.length > 0) {
+      setShowSuggestions(true);
+    }
+  };
+  
+  const handleInputBlur = () => {
+    // Delay hiding suggestions to allow clicking on them
+    setTimeout(() => setShowSuggestions(false), 200);
+  };
+  
+  const handleSuggestionClick = (suggestion: string) => {
+    handleAddAllergen(suggestion);
+  };
+  
+  const handleAddAllergen = (allergen: string) => {
+    const normalizedAllergen = allergen.trim();
+    if (!normalizedAllergen) return;
+    
+    if (!newMember.allergens.includes(normalizedAllergen)) {
+      setNewMember(prev => ({
+        ...prev,
+        allergens: [...prev.allergens, normalizedAllergen]
+      }));
+    }
+    
     setNewAllergen('');
     setShowSuggestions(false);
-    setSelectedIndex(-1);
-    setNameError('');
-  }, []);
-
+    inputRef.current?.focus();
+  };
+  
+  const handleRemoveAllergen = (allergen: string) => {
+    setNewMember(prev => ({
+      ...prev,
+      allergens: prev.allergens.filter(a => a !== allergen)
+    }));
+  };
+  
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+  
+  // Update the handleAddMember function to handle editing
   const handleAddMember = useCallback(() => {
     const trimmedName = newMember.name.trim();
     
@@ -63,9 +146,10 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
       return;
     }
     
-    // Check for duplicate names
+    // Check for duplicate names, but allow the same name if editing
     const existingMember = existingMembers.find(member => 
-      member.name.toLowerCase() === trimmedName.toLowerCase()
+      member.name.toLowerCase() === trimmedName.toLowerCase() && 
+      (!editingMember || member.name !== editingMember.name)
     );
     
     if (existingMember) {
@@ -82,124 +166,28 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
     onAddMember(memberToAdd);
     resetForm();
     onClose();
-  }, [newMember, onAddMember, resetForm, onClose, existingMembers]);
-
-  const handleAddAllergen = useCallback((allergen?: string) => {
-    const allergenToAdd = allergen || newAllergen.trim();
-    if (allergenToAdd) {
-      const normalizedAllergen = normalizeAllergens([allergenToAdd])[0];
-      if (normalizedAllergen && !newMember.allergens.includes(normalizedAllergen)) {
-        setNewMember(prev => ({
-          ...prev,
-          allergens: [...prev.allergens, normalizedAllergen]
-        }));
-        setNewAllergen('');
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-      }
-    }
-  }, [newAllergen, newMember.allergens]);
-
-  const handleRemoveAllergen = useCallback((allergen: string) => {
-    setNewMember(prev => ({
-      ...prev,
-      allergens: prev.allergens.filter(a => a !== allergen)
-    }));
-  }, []);
-
-  const handleClose = useCallback(() => {
+  }, [newMember, onAddMember, resetForm, onClose, existingMembers, editingMember]);
+  
+// Add this useEffect after the resetForm function (around line 55)
+// This will update the form when editingMember changes
+useEffect(() => {
+  if (editingMember) {
+    setNewMember({
+      name: editingMember.name,
+      allergens: editingMember.allergens || []
+    });
+  } else {
     resetForm();
-    onClose();
-  }, [resetForm, onClose]);
-
-  // Autocomplete handlers
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setNewAllergen(value);
-    setSelectedIndex(-1);
-    setShowSuggestions(value.trim().length > 0);
-  }, []);
-
-  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!showSuggestions || suggestions.length === 0) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        handleAddAllergen();
-      }
-      return;
-    }
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : 0
-        );
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setSelectedIndex(prev => 
-          prev > 0 ? prev - 1 : suggestions.length - 1
-        );
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < suggestions.length) {
-          handleAddAllergen(suggestions[selectedIndex]);
-        } else {
-          handleAddAllergen();
-        }
-        break;
-      case 'Escape':
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-        break;
-    }
-  }, [showSuggestions, suggestions, selectedIndex, handleAddAllergen]);
-
-  const handleSuggestionClick = useCallback((suggestion: string) => {
-    handleAddAllergen(suggestion);
-  }, [handleAddAllergen]);
-
-  const handleInputFocus = useCallback(() => {
-    if (newAllergen.trim().length > 0) {
-      setShowSuggestions(true);
-    }
-  }, [newAllergen]);
-
-  const handleInputBlur = useCallback(() => {
-    // Delay hiding suggestions to allow clicking
-    setTimeout(() => {
-      setShowSuggestions(false);
-      setSelectedIndex(-1);
-    }, 200);
-  }, []);
-
-  // Click outside to close suggestions
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        inputRef.current && 
-        suggestionsRef.current &&
-        !inputRef.current.contains(event.target as Node) &&
-        !suggestionsRef.current.contains(event.target as Node)
-      ) {
-        setShowSuggestions(false);
-        setSelectedIndex(-1);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
+  }
+}, [editingMember, resetForm]);
+  // Update the dialog title and button text based on isEditing
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add Group Member</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Group Member' : 'Add Group Member'}</DialogTitle>
           <DialogDescription>
-            Enter member details and any allergies
+            {isEditing ? 'Update member details and allergies' : 'Enter member details and any allergies'}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -284,7 +272,7 @@ export const AddMemberModal: React.FC<AddMemberModalProps> = ({
               Cancel
             </Button>
             <Button onClick={handleAddMember}>
-              Add Member
+              {isEditing ? 'Save Changes' : 'Add Member'}
             </Button>
           </div>
         </div>
