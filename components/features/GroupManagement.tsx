@@ -38,7 +38,7 @@ export const GroupManagement: React.FC = () => {
     toggleFavoriteGroup
   } = useGroupsStore();
 
-  const { resetFavorites } = useFavoritesStore();
+  const { resetFavorites, cleanupMemberFavorites } = useFavoritesStore();
 
   const handleResetAllData = useCallback(() => {
     resetAllData();
@@ -141,17 +141,13 @@ const sortedGroups = useMemo(() => {
   }, []);
 
   const handleToggleMemberGroup = useCallback((member: GroupMember, groupId: string, isAdding: boolean) => {
-    const favoritesStore = useFavoritesStore.getState();
-    
     if (isAdding) {
       addGroupMember(groupId, member);
-      // Personal favorites automatically follow the member
     } else {
-      removeGroupMember(member.name, groupId);
-      // Only clean up group-level favorites, personal favorites stay with member
-      favoritesStore.cleanupMemberFavorites(member.name, groupId);
+      removeGroupMember(groupId, member.name);
+      cleanupMemberFavorites(member.name, groupId);
     }
-  }, [addGroupMember, removeGroupMember]);
+  }, [addGroupMember, removeGroupMember, cleanupMemberFavorites]);
 
   // Add this new callback for handling existing member addition
   const handleAddExistingMember = useCallback((member: GroupMember) => {
@@ -219,7 +215,6 @@ const sortedGroups = useMemo(() => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Active Group</h3>
-                  {/* Add Create New Group button */}
                   <Button
                     onClick={() => setIsCreateGroupOpen(true)}
                     size="sm"
@@ -250,21 +245,15 @@ const sortedGroups = useMemo(() => {
                 </div>
               </div>
 
-                <AddExistingMemberModal
-                  isOpen={isAddExistingMemberOpen}
-                  onClose={() => setIsAddExistingMemberOpen(false)}
-                  onAddMember={handleAddMember}
-                  existingMembers={allMembers.map(({ member }) => member)}
-                  currentGroup={activeGroup!}
-                />
-
-              {/* Active Group Members */}
               {activeGroup && (
                 <GroupMembersSection
                   activeGroup={activeGroup}
                   onAddNewMember={() => setIsAddMemberOpen(true)}
-                  onAddExistingMember={() => setIsAddExistingMemberOpen(true)} // Fix this line
-                  onRemoveMember={(groupId, memberName) => removeGroupMember(groupId, memberName)}
+                  onAddExistingMember={() => activeGroup && setIsAddExistingMemberOpen(true)}
+                  onRemoveMember={(groupId, memberName) => {
+                    removeGroupMember(groupId, memberName);
+                    cleanupMemberFavorites(memberName, groupId);
+                  }}
                   onEditMember={handleEditMember}
                   onChangeGroups={handleOpenChangeGroups}
                 />

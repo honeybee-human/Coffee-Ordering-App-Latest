@@ -11,7 +11,7 @@ interface AddExistingMemberModalProps {
   onClose: () => void;
   onAddMember: (member: GroupMember) => void;
   existingMembers: GroupMember[];
-  currentGroup: Group;
+  currentGroup: Group | null | undefined;
 }
 
 export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
@@ -25,11 +25,15 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
 
   // Filter out members who are already in the current group
   const availableMembers = useMemo(() => {
+    if (!currentGroup || !currentGroup.members) {
+      return existingMembers;
+    }
+    
     const currentGroupMemberNames = currentGroup.members.map(m => m.name.toLowerCase());
     return existingMembers.filter(member => 
       !currentGroupMemberNames.includes(member.name.toLowerCase())
     );
-  }, [existingMembers, currentGroup.members]);
+  }, [existingMembers, currentGroup]);
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery.trim()) return availableMembers;
@@ -55,9 +59,6 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add Existing Member</DialogTitle>
-          <DialogDescription>
-            Add an existing member to {currentGroup.name}
-          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <MemberSearchBar

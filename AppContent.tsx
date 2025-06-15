@@ -10,9 +10,9 @@ import { useModalsStore } from '@/store/useModalsStore';
 import OnboardingModal from '@/components/modals/OnboardingModal';
 import { AllergenWarning } from '@/components/shared/AllergenWarning';
 // Store imports
-import { useActiveGroup, useCartCount, useGroups, useGroupsStore } from '@/store/useGroupsStore';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
+import { useGroupsStore, useActiveGroup, useCartCount, useGroups } from './store/useGroupsStore';
 
 export function AppContent() {
   // Navigation state from store
@@ -59,7 +59,7 @@ export function AppContent() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header 
-        activeGroup={activeGroup}
+        activeGroup={activeGroup || undefined}
         appState={{
           ...appState,
           groups: groups

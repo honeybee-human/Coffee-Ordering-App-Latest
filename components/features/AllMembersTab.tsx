@@ -2,11 +2,10 @@ import React, { useState, useMemo } from 'react';
 import { Card } from '@/ui/card';
 import { Button } from '@/ui/button';
 import { UserPlus } from 'lucide-react';
-import { GroupMember } from '@/types';
-import { businessLogic } from '@/store/useBusinessLogic';
-import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { GroupMember, Group, FavoriteItem } from '@/types';
 import { useGroupsStore } from '@/store/useGroupsStore';
-import { Group } from '@/types';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { FavoritesController } from '@/controllers/FavoritesController';
 import { MemberCard } from '../shared/MemberCard';
 import { MemberSearchBar } from '../shared/MemberSearchBar';
 
@@ -24,9 +23,8 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
   onAddNewMember
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const { removeGroupMember, addGroupMember } = businessLogic;
+  const { removeGroupMember } = useGroupsStore();
   const { favorites, removeFromFavorites, addToFavorites } = useFavoritesStore();
-  const { groups } = useGroupsStore();
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery.trim()) return allMembers;
@@ -37,24 +35,25 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
   }, [allMembers, searchQuery]);
 
   const handleDeleteMember = (member: GroupMember, memberGroups: Group[]) => {
-    // Remove member from all groups
+    // Remove member from all groups using store action
     memberGroups.forEach(group => {
       removeGroupMember(group.id, member.name);
     });
 
-    // Handle favorites assigned to this member
-    const memberFavorites = favorites.filter(fav => fav.assignedTo === member.name);
+    // Handle favorites cleanup using controller
+    const memberFavorites = FavoritesController.getMemberFavorites(favorites, member.name);
+    
     memberFavorites.forEach(favorite => {
-      // Move favorite to all groups the member was in
+      // Move personal favorites to group-level for each group the member was in
       memberGroups.forEach(group => {
         addToFavorites({
           ...favorite,
           id: `${favorite.id}-${group.id}`,
           groupId: group.id,
-          assignedTo: undefined // Unassign the favorite
+          assignedTo: undefined // Convert to group-level favorite
         });
       });
-      // Remove original favorite
+      // Remove original personal favorite
       removeFromFavorites(favorite.id);
     });
   };
@@ -95,15 +94,15 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
       ) : (
         <div className="space-y-3">
           {filteredMembers.map(({ member, groups: memberGroups }, index) => (
-              <MemberCard
+            <MemberCard
               key={`${member.name}-${index}`} 
-                member={member}
-                groups={memberGroups}
-                showGroups={true}
-                onEditMember={onEditMember}
-                onChangeGroups={onOpenChangeGroups}
-                onDeleteMember={handleDeleteMember}
-              />
+              member={member}
+              groups={memberGroups}
+              showGroups={true}
+              onEditMember={onEditMember}
+              onChangeGroups={onOpenChangeGroups}
+              onDeleteMember={handleDeleteMember}
+            />
           ))}
         </div>
       )}
