@@ -1,4 +1,4 @@
-import { CartItem, FavoriteItem } from '@/types';
+import { CartItem, FavoriteItem, GroupMember } from '@/types';
 
 /**
  * Formats customizations for display in cart items, checkout, and group orders

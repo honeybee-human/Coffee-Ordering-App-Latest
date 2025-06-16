@@ -1,4 +1,5 @@
 import { CartItem, CoffeeCustomization, PastryCustomization, GroupMember } from '@/types';
+import { calculateItemPrice } from './cart-calculations';
 
 /**
  * Checks if two cart items have identical customizations
@@ -119,4 +120,88 @@ export const combineIdenticalItems = (cartItems: CartItem[]): CartItem[] => {
   });
   
   return combinedItems;
+};
+
+/**
+ * Gets the assigned person for a cart item, defaulting to the only member if there's only one
+ */
+export const getAssignedPerson = (item: CartItem, groupMembers: GroupMember[]): string | undefined => {
+  if (item.assignedTo) return item.assignedTo;
+  if (groupMembers.length === 1) return groupMembers[0].name;
+  return undefined;
+};
+
+/**
+ * Checks for allergen conflicts for a specific person's items
+ */
+export const getPersonAllergenConflicts = (items: CartItem[], person: string, groupMembers: GroupMember[]): string[] => {
+  const member = groupMembers.find(m => m.name === person);
+  if (!member) return [];
+  
+  const conflicts = new Set<string>();
+  items.forEach(item => {
+    const itemAllergens = item.item.allergens || [];
+    itemAllergens.forEach(allergen => {
+      if (member.allergens.includes(allergen)) {
+        conflicts.add(allergen);
+      }
+    });
+  });
+  
+  return Array.from(conflicts);
+};
+
+/**
+ * Calculates totals for each person in a group order
+ */
+export const calculatePersonTotals = (groupedItems: { [key: string]: CartItem[] }): { [key: string]: number } => {
+  const totals: { [key: string]: number } = {};
+  
+  Object.entries(groupedItems).forEach(([person, items]) => {
+    totals[person] = items.reduce((total, item) => {
+      const itemPrice = calculateItemPrice(item);
+      return total + (itemPrice * item.quantity);
+    }, 0);
+  });
+  
+  return totals;
+};
+
+/**
+ * Checks allergen conflicts for a cart item against group members
+ */
+export const getAllergenConflicts = (item: CartItem, groupMembers: GroupMember[]): { conflicts: string[]; affectedMembers: string[] } => {
+  const itemAllergens = item.item.allergens || [];
+  const affectedMembers: string[] = [];
+  const conflicts: string[] = [];
+  
+  groupMembers.forEach(member => {
+    const memberConflicts = itemAllergens.filter(allergen => 
+      member.allergens.includes(allergen)
+    );
+    if (memberConflicts.length > 0) {
+      affectedMembers.push(member.name);
+      memberConflicts.forEach(conflict => {
+        if (!conflicts.includes(conflict)) {
+          conflicts.push(conflict);
+        }
+      });
+    }
+  });
+  
+  if (item.assignedTo) {
+    const person = groupMembers.find(member => member.name === item.assignedTo);
+    if (person) {
+      const personalConflicts = itemAllergens.filter(allergen => 
+        person.allergens.includes(allergen)
+      );
+      personalConflicts.forEach(conflict => {
+        if (!conflicts.includes(conflict)) {
+          conflicts.push(conflict);
+        }
+      });
+    }
+  }
+  
+  return { conflicts, affectedMembers };
 };

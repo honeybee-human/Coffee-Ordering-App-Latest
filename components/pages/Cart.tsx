@@ -6,11 +6,12 @@ import { Separator } from '@/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { GroupMember, CartItem } from '@/types';
-import { combineIdenticalItems } from '@/utils/cart-helpers';
+import { combineIdenticalItems, getAllergenConflicts } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import { GroupOrderContent } from '@/components/features/GroupOrderContent';
 import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
+import { formatCustomizations } from '@/utils/formatting-utils';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -22,66 +23,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   const cartItems = activeGroup?.cart || [];
   const cartTotal = useCartTotal();
   const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
-  const groupName = 'Group';
-  // Helper function to check allergen conflicts for a cart item
-  const getAllergenConflicts = (item: CartItem): { conflicts: string[]; affectedMembers: string[] } => {
-    const itemAllergens = item.item.allergens || [];
-    const affectedMembers: string[] = [];
-    const conflicts: string[] = [];
-    groupMembers.forEach(member => {
-      const memberConflicts = itemAllergens.filter(allergen => 
-        member.allergens.includes(allergen)
-      );
-      if (memberConflicts.length > 0) {
-        affectedMembers.push(member.name);
-        memberConflicts.forEach(conflict => {
-          if (!conflicts.includes(conflict)) {
-            conflicts.push(conflict);
-          }
-        });
-      }
-    });
-    if (item.assignedTo) {
-      const person = groupMembers.find(member => member.name === item.assignedTo);
-      if (person) {
-        const personalConflicts = itemAllergens.filter(allergen => 
-          person.allergens.includes(allergen)
-        );
-        personalConflicts.forEach(conflict => {
-          if (!conflicts.includes(conflict)) {
-            conflicts.push(conflict);
-          }
-        });
-      }
-    }
-    return { conflicts, affectedMembers };
-  };
-  const formatCustomizations = (item: CartItem): string => {
-    if (item.type === 'coffee') {
-      const customizations = item.customizations as any;
-      const parts = [];
-      
-      if (customizations.milk && customizations.milk !== 'Whole Milk') {
-        parts.push(`• ${customizations.milk} milk`);
-      }
-      
-      if (customizations.syrups && customizations.syrups.length > 0) {
-        customizations.syrups.forEach((syrup: any) => {
-          const syrupCost = syrup.pumps * 0.10;
-          parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
-        });
-      }
-      
-      return parts.length > 0 ? parts.join('\n') : 'No customizations';
-    } else {
-      const customizations = item.customizations as any;
-      if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-        const parts = customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
-        return parts.join('\n');
-      }
-      return 'No customizations';
-    }
-  };
+
 
   if (cartItems.length === 0) {
     return (
@@ -121,7 +63,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
         <TabsContent value="items" className="space-y-4">
           {/* Combine identical items with the same customizations */}
           {combineIdenticalItems(cartItems).map((item) => {
-            const { conflicts, affectedMembers } = getAllergenConflicts(item);
+            const { conflicts, affectedMembers } = getAllergenConflicts(item, groupMembers);
             const hasAllergenConflict = conflicts.length > 0;
             
             return (
@@ -229,7 +171,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
             <Separator />
             <div className="flex items-center justify-between text-lg">
               <span>Total:</span>
-              <span>${cartTotal.subtotal.toFixed(2)}</span>
+              <span>${cartTotal.toFixed(2)}</span>
             </div>
             <Button 
               onClick={onNavigateToCheckout} 

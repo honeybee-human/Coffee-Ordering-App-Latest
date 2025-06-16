@@ -87,7 +87,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
       const order: Order = {
         id: uuidv4(),
         items: cartItems,
-        totalAmount: finalTotal.total,
+        totalAmount: finalTotal,
         orderDate: new Date(),
         status: 'pending',
         groupMembers: groupMembers,
@@ -151,6 +151,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
           />
           
 
+          {/* Display payment error if it exists */}
           {/* Display payment error if it exists */}
           {errors.payment && (
             <Alert variant="destructive">
@@ -218,7 +219,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 </div>
                 <div className="flex justify-between font-medium">
                   <span>Total:</span>
-                  <span>${finalTotal.total.toFixed(2)}</span>
+                  <span>${finalTotal.toFixed(2)}</span>
                 </div>
               </div>
 
@@ -239,8 +240,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                   <>Processing Payment...</>
                 ) : (
                   <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Place Order - ${finalTotal.total.toFixed(2)}
+                    <CheckCircle className="h-4 .totalw-4 mr-2" />
+                    Place Order - ${finalTotal.toFixed(2)}
                   </>
                 )}
               </Button>

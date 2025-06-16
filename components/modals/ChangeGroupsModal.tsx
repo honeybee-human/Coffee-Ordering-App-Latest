@@ -15,7 +15,6 @@ interface ChangeGroupsModalProps {
   onToggleMemberGroup: (groupId: string, isMember: boolean) => void;
 }
 
-
 export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
   isOpen,
   onClose,
@@ -23,31 +22,38 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
   groups,
   onToggleMemberGroup
 }) => {
-
-  
-const handleToggleMemberGroup = (groupId: string, isMember: boolean) => {
-  if (!selectedMember) return;
-  
+  // Move the hook call to the top level of the component
   const { transferMemberFavorites, cleanupMemberFavorites } = useFavoritesStore();
   
-  if (isMember) {
-    // Remove member from group and clean up their favorites
-    cleanupMemberFavorites(selectedMember.name, groupId);
-    onToggleMemberGroup(groupId, isMember);
-  } else {
-    // Add member to group - check if they have favorites in other groups
-    const currentGroups = groups.filter(g => 
-      g.members.some(m => m.name === selectedMember.name)
-    );
+  const handleToggleMemberGroup = (groupId: string, isMember: boolean) => {
+    if (!selectedMember) return;
     
-    // If member exists in another group, transfer their favorites
-    if (currentGroups.length > 0) {
-      transferMemberFavorites(selectedMember.name, currentGroups[0].id, groupId);
+    if (isMember) {
+      // Member is currently IN this group, so REMOVE them
+      cleanupMemberFavorites(selectedMember.name, groupId);
+      onToggleMemberGroup(groupId, false); // false = removing
+    } else {
+      // Member is NOT in this group, so ADD them
+      // First, find which groups they're currently in
+      const currentGroups = groups.filter(g => 
+        g.members.some(m => m.name === selectedMember.name)
+      );
+      
+      // Remove from all current groups and transfer favorites
+      currentGroups.forEach(currentGroup => {
+        if (currentGroup.id !== groupId) {
+          // Remove from current group
+          onToggleMemberGroup(currentGroup.id, false);
+          // Transfer favorites
+          transferMemberFavorites(selectedMember.name, currentGroup.id, groupId);
+        }
+      });
+      
+      // Add to new group
+      onToggleMemberGroup(groupId, true); // true = adding
     }
-    
-    onToggleMemberGroup(groupId, isMember);
-  }
-};
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>

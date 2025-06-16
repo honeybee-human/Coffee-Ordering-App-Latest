@@ -2,17 +2,8 @@ import React from 'react';
 import { Star, Users, Clock } from 'lucide-react';
 import { Menu } from '@/components/pages/Menu';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { useActiveGroup } from '@/store/useGroupsStore';
-import { useNavigationStore } from '@/store/useNavigationStore';
-import { useFavoritesStore } from '@/store/useFavoritesStore';
-import { useAllergensStore } from '@/store/useAllergensStore';
 
 export const MenuPage: React.FC = () => {
-  const activeGroup = useActiveGroup();
-  const { navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
-  const { toggleFavorite, isItemFavorited } = useFavoritesStore();
-  const { excludedAllergens, toggleAllergenFilter, clearAllergenFilters } = useAllergensStore();
-
   return (
     <div className="space-y-6">
       {/* Hero Section */}
@@ -48,16 +39,7 @@ export const MenuPage: React.FC = () => {
       </div>
 
       {/* Menu Component */}
-      <Menu
-        groupMembers={activeGroup?.members || []}
-        onSelectCoffee={navigateToCoffeeDetail}
-        onSelectPastry={navigateToPastryDetail}
-        onToggleFavorite={toggleFavorite}
-        isItemFavorited={isItemFavorited}
-        excludedAllergens={excludedAllergens}
-        onToggleAllergenFilter={toggleAllergenFilter}
-        onClearAllergenFilters={clearAllergenFilters}
-      />
+      <Menu/>
     </div>
   );
 };

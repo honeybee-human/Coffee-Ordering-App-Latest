@@ -1,11 +1,18 @@
 import React from 'react';
-import { User, Users, AlertTriangle } from 'lucide-react';
+import { CartItem } from '@/types';
 import { Badge } from '@/ui/badge';
 import { Separator } from '@/ui/separator';
-import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { CartItem, GroupMember } from '@/types';
-import { groupAndCombineItems } from '@/utils/cart-helpers';
+import { AlertTriangle, User } from 'lucide-react';
+import { calculateItemPrice } from '@/utils/cart-calculations';
+import { 
+  groupAndCombineItems, 
+  getAssignedPerson, 
+  getPersonAllergenConflicts, 
+  calculatePersonTotals 
+} from '@/utils/cart-helpers';
+import { formatCustomizations } from '@/utils/formatting-utils';
 import { useGroupsStore } from '@/store/useGroupsStore';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 
 export const GroupOrderContent: React.FC = () => {
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
@@ -18,30 +25,6 @@ export const GroupOrderContent: React.FC = () => {
     groupName: activeGroup.name
   };
 
-  // Helper to get assigned person, defaulting to the only member if groupMembers.length === 1
-  const getAssignedPerson = (item: CartItem): string | undefined => {
-    if (item.assignedTo) return item.assignedTo;
-    if (groupMembers.length === 1) return groupMembers[0].name;
-    return undefined;
-  };
-
-  // Helper function to calculate item price including customizations
-  const calculateItemPrice = (item: CartItem): number => {
-    let itemPrice = item.item.price;
-    
-    if (item.type === 'coffee') {
-      const customizations = item.customizations as any;
-      if (customizations.syrups && customizations.syrups.length > 0) {
-        const syrupCost = customizations.syrups.reduce((cost: number, syrup: any) => 
-          cost + (syrup.pumps * 0.10), 0
-        );
-        itemPrice += syrupCost;
-      }
-    }
-    
-    return itemPrice;
-  };
-
   // Group items by person and combine identical items
   const groupedItems = React.useMemo(() => {
     return groupAndCombineItems(cartItems, groupMembers);
@@ -49,84 +32,35 @@ export const GroupOrderContent: React.FC = () => {
 
   // Calculate totals for each person
   const personTotals = React.useMemo(() => {
-    const totals: { [key: string]: number } = {};
-    
-    Object.entries(groupedItems).forEach(([person, items]) => {
-      totals[person] = items.reduce((total, item) => {
-        const itemPrice = calculateItemPrice(item);
-        return total + (itemPrice * item.quantity);
-      }, 0);
-    });
-    
-    return totals;
+    return calculatePersonTotals(groupedItems);
   }, [groupedItems]);
 
-  // Helper function to check allergen conflicts for a person
-  const getPersonAllergenConflicts = (items: CartItem[], person: string): string[] => {
-    const member = groupMembers.find(m => m.name === person);
-    if (!member) return [];
-    
-    const conflicts = new Set<string>();
-    items.forEach(item => {
-      const itemAllergens = item.item.allergens || [];
-      itemAllergens.forEach(allergen => {
-        if (member.allergens.includes(allergen)) {
-          conflicts.add(allergen);
-        }
-      });
+  // Filter members who have assigned items
+  const membersWithItems = React.useMemo(() => {
+    return groupMembers.filter(member => {
+      const memberItems = groupedItems[member.name] || [];
+      return memberItems.length > 0;
     });
-    
-    return Array.from(conflicts);
-  };
-
-  // Helper function to format customizations
-  const formatCustomizations = (item: CartItem): string => {
-    if (item.type === 'coffee') {
-      const customizations = item.customizations as any;
-      const parts = [];
-      
-      if (customizations.milk && customizations.milk !== 'Whole Milk') {
-        parts.push(`• ${customizations.milk} milk`);
-      }
-      
-      if (customizations.syrups && customizations.syrups.length > 0) {
-        customizations.syrups.forEach((syrup: any) => {
-          const syrupCost = syrup.pumps * 0.10;
-          parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
-        });
-      }
-      
-      return parts.length > 0 ? parts.join('\n') : '';
-    } else {
-      const customizations = item.customizations as any;
-      if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-        const parts = customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
-        return parts.join('\n');
-      }
-      return '';
-    }
-  };
-
-  const totalOrder = Object.values(personTotals).reduce((sum, total) => sum + total, 0);
+  }, [groupMembers, groupedItems]);
 
   if (cartItems.length === 0) {
     return null;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-large">
       <h2 className='mb-5'>{groupName} Order Summary</h2>
       <Separator/>
-      {/* Group Members */}
-      {groupMembers.map(member => {
+      {/* Group Members - Only show members with assigned items */}
+      {membersWithItems.map(member => {
         const memberItems = groupedItems[member.name] || [];
         const memberTotal = personTotals[member.name] || 0;
-        const conflicts = getPersonAllergenConflicts(memberItems, member.name);
+        const conflicts = getPersonAllergenConflicts(memberItems, member.name, groupMembers);
         
         return (
           <div key={member.name} className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+            <div className="flex-between">
+              <div className="flex-center-gap">
                 <User className="h-4 w-4" />
                 <span className="font-medium">{member.name}</span>
                 {conflicts.length > 0 && (
@@ -139,55 +73,49 @@ export const GroupOrderContent: React.FC = () => {
               <span className="font-medium">${memberTotal.toFixed(2)}</span>
             </div>
             
-            {memberItems.length > 0 ? (
-              <div className="ml-6 space-y-2">
-                {memberItems.map(item => {
-                  const itemPrice = calculateItemPrice(item);
-                  const customizations = formatCustomizations(item);
-                  const assignedPerson = getAssignedPerson(item);
-                  
-                  return (
-                    <div key={item.id} className="flex justify-between items-start text-sm">
-                      <div className="flex-1 flex gap-2">
-                        <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
-                          <ImageWithFallback
-                            src={item.item.image || '/coffee-icon.svg'}
-                            alt={item.item.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span>{item.quantity}x {item.item.name}</span>
-                            {assignedPerson && (
-                              <span className="ml-2 text-xs text-muted-foreground">For: {assignedPerson}</span>
-                            )}
-                          </div>
-                          {customizations && (
-                            <div className="text-xs text-muted-foreground mt-1 whitespace-pre-line">
-                              {customizations}
-                            </div>
+            <div className="ml-6 space-y-small">
+              {memberItems.map(item => {
+                const itemPrice = calculateItemPrice(item);
+                const customizations = formatCustomizations(item);
+                const assignedPerson = getAssignedPerson(item, groupMembers);
+                
+                return (
+                  <div key={item.id} className="flex justify-between items-start text-sm">
+                    <div className="flex-1 flex gap-2">
+                      <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                        <ImageWithFallback
+                          src={item.item.image || '/coffee-icon.svg'}
+                          alt={item.item.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <div className="flex-center-gap">
+                          <span>{item.quantity}x {item.item.name}</span>
+                          {assignedPerson && (
+                            <span className="ml-2 text-xs text-muted-foreground">For: {assignedPerson}</span>
                           )}
                         </div>
+                        {customizations && (
+                          <div className="text-xs text-muted-foreground mt-1 whitespace-pre-line">
+                            {customizations}
+                          </div>
+                        )}
                       </div>
-                      <span className="text-sm font-medium ml-4">
-                        ${(itemPrice * item.quantity).toFixed(2)}
-                      </span>
                     </div>
-                  );
-                })}
-                
-                {conflicts.length > 0 && (
-                  <div className="text-xs text-destructive mt-2">
-                    ⚠️ Allergen conflicts: {conflicts.join(', ')}
+                    <span className="text-sm font-medium ml-4">
+                      ${(itemPrice * item.quantity).toFixed(2)}
+                    </span>
                   </div>
-                )}
-              </div>
-            ) : (
-              <div className="ml-6 text-sm text-muted-foreground">
-                No items ordered
-              </div>
-            )}
+                );
+              })}
+              
+              {conflicts.length > 0 && (
+                <div className="text-xs text-destructive mt-2">
+                  ⚠️ Allergen conflicts: {conflicts.join(', ')}
+                </div>
+              )}
+            </div>
           </div>
         );
       })}
@@ -196,14 +124,14 @@ export const GroupOrderContent: React.FC = () => {
       {groupedItems.unassigned.length > 0 && (
         <div className="space-y-3">
           <Separator />
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex-between">
+            <div className="flex-center-gap">
               <span className="font-medium text-muted-foreground">Unassigned Items</span>
             </div>
             <span className="font-medium">${personTotals.unassigned.toFixed(2)}</span>
           </div>
           
-          <div className="ml-6 space-y-2">
+          <div className="ml-6 space-y-small">
             {groupedItems.unassigned.map(item => {
               const itemPrice = calculateItemPrice(item);
               const customizations = formatCustomizations(item);
@@ -219,7 +147,7 @@ export const GroupOrderContent: React.FC = () => {
                       />
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex-center-gap">
                         <span>{item.quantity}x {item.item.name}</span>
                       </div>
                       {customizations && (

@@ -147,7 +147,7 @@ export const OrderHistoryPage: React.FC = () => {
                 </Badge>
               </div>
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent>
               <div className="space-y-4">
                 {/* Order Items by Person */}
                 <div className="space-y-4">
@@ -198,7 +198,6 @@ export const OrderHistoryPage: React.FC = () => {
                     </div>
                   )}
                 </div>
-<GroupOrderContent />
                 {/* Group Members */}
                 <div className="pt-4 border-t">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
