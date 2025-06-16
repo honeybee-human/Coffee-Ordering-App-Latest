@@ -1,30 +1,9 @@
 import React from 'react';
 import { Star, Users, Clock } from 'lucide-react';
-import { Menu } from '../Menu';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
-import { Group } from '../../types';
+import { Menu } from '@/components/pages/Menu';
+import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 
-interface MenuPageProps {
-  activeGroup: Group | undefined;
-  onSelectCoffee: (coffeeId: string) => void;
-  onSelectPastry: (pastryId: string) => void;
-  onToggleFavorite: (type: 'coffee' | 'pastry', item: any, customizations?: any) => void;
-  isItemFavorited: (type: 'coffee' | 'pastry', itemId: string, customizations?: any) => boolean;
-  excludedAllergens: string[];
-  onToggleAllergenFilter: (allergen: string) => void;
-  onClearAllergenFilters: () => void;
-}
-
-export const MenuPage: React.FC<MenuPageProps> = ({
-  activeGroup,
-  onSelectCoffee,
-  onSelectPastry,
-  onToggleFavorite,
-  isItemFavorited,
-  excludedAllergens,
-  onToggleAllergenFilter,
-  onClearAllergenFilters
-}) => {
+export const MenuPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
@@ -36,7 +15,7 @@ export const MenuPage: React.FC<MenuPageProps> = ({
           className="w-full h-48 sm:h-64 md:h-80 object-cover"
         />
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="text-center text-white space-y-2 sm:space-y-4 px-4 sm:px-6">
+          <div className="text-center text-white">
             <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold">Bean & Bite</h1>
             <p className="text-lg sm:text-xl md:text-2xl font-medium opacity-90">
               Group Coffee & Pastry Ordering Made Simple
@@ -60,16 +39,7 @@ export const MenuPage: React.FC<MenuPageProps> = ({
       </div>
 
       {/* Menu Component */}
-      <Menu
-        groupMembers={activeGroup?.members || []}
-        onSelectCoffee={onSelectCoffee}
-        onSelectPastry={onSelectPastry}
-        onToggleFavorite={onToggleFavorite}
-        isItemFavorited={isItemFavorited}
-        excludedAllergens={excludedAllergens}
-        onToggleAllergenFilter={onToggleAllergenFilter}
-        onClearAllergenFilters={onClearAllergenFilters}
-      />
+      <Menu/>
     </div>
   );
 };

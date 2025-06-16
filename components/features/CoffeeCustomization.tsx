@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import { Plus, Minus } from 'lucide-react';
+import { Button } from '@/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Badge } from '@/ui/badge';
+import { syrupOptions, milkOptions } from '@/data/menu';
+import { CoffeeCustomization } from '@/types';
+
+interface CoffeeCustomizationComponentProps {
+  customizations: CoffeeCustomization;
+  setCustomizations: (customizations: CoffeeCustomization) => void;
+}
+
+export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponentProps> = ({ customizations, setCustomizations }) => {
+  const [selectedSyrup, setSelectedSyrup] = useState<string>('');
+
+  const setMilk = (milk: string) => {
+    setCustomizations({ ...customizations, milk });
+  };
+
+  const addSyrup = (flavor: string) => {
+    const existingSyrup = customizations.syrups.find(s => s.flavor === flavor);
+    if (existingSyrup) {
+      updateSyrupPumps(flavor, existingSyrup.pumps + 1);
+    } else {
+      setCustomizations({
+        ...customizations,
+        syrups: [...customizations.syrups, { flavor, pumps: 1 }]
+      });
+    }
+  };
+
+  const updateSyrupPumps = (flavor: string, pumps: number) => {
+    if (pumps <= 0) {
+      setCustomizations({
+        ...customizations,
+        syrups: customizations.syrups.filter(s => s.flavor !== flavor)
+      });
+    } else {
+      setCustomizations({
+        ...customizations,
+        syrups: customizations.syrups.map(s => 
+          s.flavor === flavor ? { ...s, pumps } : s
+        )
+      });
+    }
+  };
+
+  const handleAddSyrup = () => {
+    if (!selectedSyrup) return;
+    addSyrup(selectedSyrup);
+    setSelectedSyrup('');
+  };
+
+  return (
+    <div className="">
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
+        <div>
+          <Select value={customizations.milk} onValueChange={setMilk}>
+            <SelectTrigger className="bg-muted">
+              <SelectValue placeholder="Select milk type" />
+            </SelectTrigger>
+            <SelectContent>
+              {milkOptions.map(milk => (
+                <SelectItem key={milk} value={milk}>{milk}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="mt-4 pt-4"></div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Flavor Syrups</h2>
+        <div className="space-y-4">
+          <div className="flex gap-2">
+            <Select value={selectedSyrup} onValueChange={setSelectedSyrup}>
+              <SelectTrigger className="flex-1 bg-muted">
+                <SelectValue placeholder="Add syrup flavor" />
+              </SelectTrigger>
+              <SelectContent>
+                {syrupOptions.map(syrup => (
+                  <SelectItem key={syrup} value={syrup}>{syrup}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button onClick={handleAddSyrup} disabled={!selectedSyrup}>
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+
+          {customizations.syrups.length > 0 && (
+            <div className="space-y-2">
+              {customizations.syrups.map(syrup => (
+                <div key={syrup.flavor} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <span className="text-sm">{syrup.flavor}</span>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps - 1)}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <Badge variant="secondary">{syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''}</Badge>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps + 1)}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="mt-4 pt-4"></div>
+      </div>
+    </div>
+  );
+};

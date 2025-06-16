@@ -1,4 +1,4 @@
-import { Coffee, Pastry } from '../types';
+import { Coffee, Pastry } from '@/types';
 
 export const coffeeMenu: Coffee[] = [
   {
@@ -6,63 +6,72 @@ export const coffeeMenu: Coffee[] = [
     name: 'Espresso',
     price: 2.50,
     allergens: [],
-    description: 'Rich, bold shot of pure coffee perfection'
+    description: 'Rich, bold shot of pure coffee perfection',
+    image: '/Espresso.png'
   },
   {
     id: 'americano',
     name: 'Americano',
     price: 3.00,
     allergens: [],
-    description: 'Espresso with hot water for a clean, strong flavor'
+    description: 'Espresso with hot water for a clean, strong flavor',
+    image: '/Americano.png'
   },
   {
     id: 'latte',
     name: 'Latte',
     price: 4.50,
     allergens: ['Milk'],
-    description: 'Smooth espresso with steamed milk and a light foam layer'
+    description: 'Smooth espresso with steamed milk and a light foam layer',
+    image: '/Latte.png'
   },
   {
     id: 'cappuccino',
     name: 'Cappuccino',
     price: 4.25,
     allergens: ['Milk'],
-    description: 'Equal parts espresso, steamed milk, and rich foam'
+    description: 'Equal parts espresso, steamed milk, and rich foam',
+    image: '/Capuccino.png'
   },
   {
     id: 'macchiato',
     name: 'Macchiato',
     price: 4.75,
     allergens: ['Milk'],
-    description: 'Espresso "marked" with a dollop of foamed milk'
+    description: 'Espresso "marked" with a dollop of foamed milk',
+    image: '/Macchiato.png'
   },
   {
     id: 'mocha',
     name: 'Mocha',
     price: 5.00,
     allergens: ['Milk', 'Soy'],
-    description: 'Rich chocolate and espresso blend with steamed milk'
+    description: 'Rich chocolate and espresso blend with steamed milk',
+    image: '/Mocha.png'
   },
   {
     id: 'flat-white',
     name: 'Flat White',
     price: 4.75,
     allergens: ['Milk'],
-    description: 'Strong espresso with microfoam steamed milk'
+    description: 'Strong espresso with microfoam steamed milk',
+    image: '/Flat White.png'
   },
   {
     id: 'cold-brew',
     name: 'Cold Brew',
     price: 3.75,
     allergens: [],
-    description: 'Smooth, less acidic coffee steeped in cold water'
+    description: 'Smooth, less acidic coffee steeped in cold water',
+    image: '/Cold Brew.png'
   },
   {
     id: 'frappuccino',
     name: 'Frappuccino',
     price: 5.50,
     allergens: ['Milk', 'Soy'],
-    description: 'Blended coffee drink with ice, milk, and flavored syrups'
+    description: 'Blended coffee drink with ice, milk, and flavored syrups',
+    image: '/Frappucino.png'
   }
 ];
 
@@ -73,7 +82,8 @@ export const pastryMenu: Pastry[] = [
     price: 3.25,
     allergens: ['Gluten', 'Milk', 'Eggs'],
     removableIngredients: ['Butter glaze'],
-    description: 'Flaky, buttery French pastry perfect with coffee'
+    description: 'Flaky, buttery French pastry perfect with coffee',
+    image: '/Butter Croissant.png'
   },
   {
     id: 'chocolate-croissant',
@@ -81,7 +91,8 @@ export const pastryMenu: Pastry[] = [
     price: 3.75,
     allergens: ['Gluten', 'Milk', 'Eggs', 'Soy'],
     removableIngredients: ['Chocolate filling'],
-    description: 'Buttery croissant filled with rich dark chocolate'
+    description: 'Buttery croissant filled with rich dark chocolate',
+    image: '/Chocolate Croissant.png'
   },
   {
     id: 'blueberry-muffin',
@@ -89,7 +100,8 @@ export const pastryMenu: Pastry[] = [
     price: 2.95,
     allergens: ['Gluten', 'Milk', 'Eggs'],
     removableIngredients: ['Blueberries', 'Sugar topping', 'Lemon zest'],
-    description: 'Moist muffin bursting with fresh blueberries'
+    description: 'Moist muffin bursting with fresh blueberries',
+    image: '/Blueberry Muffin.png'
   },
   {
     id: 'banana-bread',
@@ -97,7 +109,8 @@ export const pastryMenu: Pastry[] = [
     price: 3.50,
     allergens: ['Gluten', 'Milk', 'Eggs', 'Nuts'],
     removableIngredients: ['Walnuts', 'Chocolate chips'],
-    description: 'Sweet, moist bread made with ripe bananas and walnuts'
+    description: 'Sweet, moist bread made with ripe bananas and walnuts',
+    image: '/Banana Bread.png'
   },
   {
     id: 'scone',
@@ -105,7 +118,8 @@ export const pastryMenu: Pastry[] = [
     price: 3.25,
     allergens: ['Gluten', 'Milk'],
     removableIngredients: ['Cranberries', 'Orange zest', 'Sugar glaze'],
-    description: 'Traditional British scone with tart cranberries'
+    description: 'Traditional British scone with tart cranberries',
+    image: '/Cranberry Scone.png'
   },
   {
     id: 'danish',
@@ -113,7 +127,8 @@ export const pastryMenu: Pastry[] = [
     price: 3.95,
     allergens: ['Gluten', 'Milk', 'Eggs'],
     removableIngredients: ['Cream cheese filling', 'Fruit topping'],
-    description: 'Flaky pastry filled with sweet cream cheese'
+    description: 'Flaky pastry filled with sweet cream cheese',
+    image: '/Cheese Danish.png'
   },
   {
     id: 'bagel',
@@ -121,7 +136,8 @@ export const pastryMenu: Pastry[] = [
     price: 2.50,
     allergens: ['Gluten', 'Sesame'],
     removableIngredients: ['Everything seasoning', 'Sesame seeds', 'Poppy seeds'],
-    description: 'Classic bagel topped with savory everything seasoning'
+    description: 'Classic bagel topped with savory everything seasoning',
+    image: '/Everything Bagel.png'
   },
   {
     id: 'cinnamon-roll',
@@ -129,7 +145,8 @@ export const pastryMenu: Pastry[] = [
     price: 4.25,
     allergens: ['Gluten', 'Milk', 'Eggs'],
     removableIngredients: ['Cinnamon filling', 'Icing', 'Pecans'],
-    description: 'Warm, gooey roll with cinnamon and sweet icing'
+    description: 'Warm, gooey roll with cinnamon and sweet icing',
+    image: '/Cinnamon Roll.png'
   }
 ];
 

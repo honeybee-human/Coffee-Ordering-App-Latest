@@ -4,6 +4,7 @@ export interface Coffee {
   price: number;
   allergens: string[];
   description?: string;
+  image?: string;
 }
 
 export interface Pastry {
@@ -13,15 +14,18 @@ export interface Pastry {
   allergens: string[];
   removableIngredients: string[];
   description?: string;
+  image?: string;
 }
 
 export interface CoffeeCustomization {
   syrups: { flavor: string; pumps: number }[];
   milk: string;
+  assignedTo?: string;
 }
 
 export interface PastryCustomization {
   removedIngredients: string[];
+  assignedTo?: string;
 }
 
 export interface CartItem {
@@ -30,7 +34,7 @@ export interface CartItem {
   item: Coffee | Pastry;
   customizations: CoffeeCustomization | PastryCustomization;
   quantity: number;
-  forPerson?: string;
+  assignedTo?: string;
 }
 
 export interface GroupMember {
@@ -44,6 +48,7 @@ export interface Group {
   members: GroupMember[];
   cart: CartItem[];
   dateCreated: Date;
+  isFavorite?: boolean; // New property for favoriting groups
 }
 
 export interface PaymentInfo {
@@ -62,13 +67,15 @@ export interface PaymentInfo {
 export interface Order {
   id: string;
   items: CartItem[];
-  total: number;
+  orderNumber: string;
+  groupId: string;
+  totalAmount: number;
   orderDate: Date;
   status: 'pending' | 'preparing' | 'ready' | 'completed';
   groupMembers: GroupMember[];
-  paymentMethod: string;
   estimatedTime?: number; // in minutes
   groupName?: string;
+  paymentInfo?:PaymentInfo;
 }
 
 export interface FavoriteItem {
@@ -77,6 +84,8 @@ export interface FavoriteItem {
   item: Coffee | Pastry;
   customizations: CoffeeCustomization | PastryCustomization;
   dateAdded: Date;
+  assignedTo?: string;
+  groupId: string;
 }
 
 export interface AppData {
@@ -89,12 +98,21 @@ export interface AppData {
 export type PageType = 'menu' | 'coffee-detail' | 'pastry-detail' | 'cart' | 'checkout' | 'order-history' | 'favorites' | 'groups';
 
 export interface AppState {
-  currentPage: PageType;
+  currentPage: 'menu' | 'cart' | 'groups' | 'coffee-detail' | 'pastry-detail' | 'checkout' | 'order-history' | 'favorites';
   selectedItemId?: string;
-  initialCustomizations?: CoffeeCustomization | PastryCustomization;
+  initialCoffeeCustomizations?: CoffeeCustomization;
+  initialPastryCustomizations?: PastryCustomization;
+  onSaveCoffeeCustomizations?: (customizations: CoffeeCustomization) => void;
+  onSavePastryCustomizations?: (customizations: PastryCustomization) => void;
 }
 
 export interface ModalState {
+  allergenWarning: {
+    isOpen: boolean;
+    itemId: string;
+    itemType: 'coffee' | 'pastry';
+    allergens: string[];
+  };
   addToCart: {
     isOpen: boolean;
     itemName: string;

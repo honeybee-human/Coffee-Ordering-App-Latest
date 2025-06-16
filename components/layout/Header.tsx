@@ -1,26 +1,22 @@
 import React from 'react';
-import { Coffee, ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '../ui/sheet';
-import { Group, AppState } from '../../types';
+import { Coffee, ShoppingCart, History, Heart, Menu as MenuIcon, Users, ChevronDown } from 'lucide-react';
+import { Button } from '@/ui/button';
+import { Badge } from '@/ui/badge';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/ui/sheet';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
+import { Group, AppState } from '@/types';
+import { useGroupsStore } from '@/store/useGroupsStore';
 
-interface HeaderProps {
-  activeGroup: Group | undefined;
-  appState: AppState;
+export interface HeaderProps {
+  activeGroup?: Group;
+  appState: AppState & { groups?: Group[] };
   isMobileMenuOpen: boolean;
-  setIsMobileMenuOpen: (open: boolean) => void;
-  navigationItems: Array<{
-    icon: React.ComponentType<{ className?: string }>;
-    label: string;
-    page: string;
-    count: number | null;
-    action: () => void;
-    isCart?: boolean;
-  }>;
+  setIsMobileMenuOpen: (isOpen: boolean) => void;
   onNavigateToMenu: () => void;
-  onNavigateToCheckout: () => void;
-  cartItemCount: number;
+  onNavigateToCart: () => void;
+  onNavigateToGroups: () => void;
+  onNavigateToFavorites: () => void;
+  onNavigateToOrderHistory: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -28,30 +24,104 @@ export const Header: React.FC<HeaderProps> = ({
   appState,
   isMobileMenuOpen,
   setIsMobileMenuOpen,
-  navigationItems,
   onNavigateToMenu,
-  onNavigateToCheckout,
-  cartItemCount
+  onNavigateToCart,
+  onNavigateToGroups,
+  onNavigateToFavorites,
+  onNavigateToOrderHistory
 }) => {
+  const navigationItems = [
+    {
+      icon: Coffee,
+      label: 'Menu',
+      page: 'menu',
+      count: null,
+      action: onNavigateToMenu
+    },
+    {
+      icon: ShoppingCart,
+      label: 'Cart',
+      page: 'cart',
+      count: activeGroup?.cart.length || 0,
+      action: onNavigateToCart,
+      isCart: true
+    },
+    {
+      icon: Users,
+      label: 'Groups',
+      page: 'groups',
+      count: null,
+      action: onNavigateToGroups
+    },
+    {
+      icon: Heart,
+      label: 'Favorites',
+      page: 'favorites',
+      count: null,
+      action: onNavigateToFavorites
+    },
+    {
+      icon: History,
+      label: 'Orders',
+      page: 'order-history',
+      count: null,
+      action: onNavigateToOrderHistory
+    }
+  ];
+
   return (
     <header className="coffee-header sticky top-0 z-50 backdrop-blur-md">
-      <div className="container mx-auto px-4 py-4 sm:py-6">
+      <div className="container mx-auto">
         <div className="flex items-center justify-between min-h-[60px]">
           {/* Logo */}
           <div 
             className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
             onClick={onNavigateToMenu}
           >
-            <div className="bg-white/20 p-2 sm:p-3 rounded-xl">
+            <div className="p-2 sm:p-3 rounded-xl">
               <Coffee className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
           </div>
 
-          {/* Active Group Display - Hidden on small screens to save space */}
-          {activeGroup && appState.currentPage !== 'groups' && (
-            <div className="hidden sm:block text-xs sm:text-sm text-white/80 text-center px-2 sm:px-4 max-w-xs lg:max-w-none truncate">
-              <span className="text-white font-medium">{activeGroup.name}</span>
-              <span className="hidden md:inline"> • {activeGroup.members.length} member{activeGroup.members.length !== 1 ? 's' : ''}</span>
+          {/* Active Group Display with Dropdown - Hidden on small screens to save space */}
+          {activeGroup && (
+            <div className="hidden sm:flex items-center text-xs sm:text-sm text-white/80 text-center px-2 sm:px-4 max-w-xs lg:max-w-none truncate">
+              <div className="flex items-center gap-2">
+                {appState.groups && appState.groups.length > 1 ? (
+                  <Select
+                    value={activeGroup.id}
+                    onValueChange={(value) => {
+                      useGroupsStore.getState().selectGroup(value);
+                    }}
+                  >
+                    <SelectTrigger className="w-[180px] bg-white/10 border-white/20 text-white">
+                      <SelectValue placeholder="Select a group">
+                        <span className="text-white font-medium">{activeGroup.name}</span>
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent className="bg-white/90 backdrop-blur-sm border-white/20 z-50">
+                      {appState.groups.map(group => (
+                        <SelectItem 
+                          key={group.id} 
+                          value={group.id}
+                          className="hover:bg-accent/10"
+                        >
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                ) : (
+                  <div 
+                    className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={onNavigateToGroups}
+                  >
+                    <span className="text-white font-medium">{activeGroup.name}</span>
+                    <ChevronDown className="h-4 w-4 text-white/70" />
+                  </div>
+                )}
+                <span className="hidden md:inline text-white/70"> • {activeGroup.members.length} member{activeGroup.members.length !== 1 ? 's' : ''}</span>
+              </div>
             </div>
           )}
           
@@ -180,20 +250,6 @@ export const Header: React.FC<HeaderProps> = ({
                       </Button>
                     ))}
                   </div>
-
-                  {/* Quick Actions in Mobile Menu */}
-                  {activeGroup && activeGroup.cart.length > 0 && appState.currentPage !== 'cart' && (
-                    <div className="mt-6 pt-6 border-t">
-                      <Button 
-                        onClick={onNavigateToCheckout}
-                        className="w-full"
-                        size="lg"
-                      >
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        Quick Checkout ({cartItemCount} items)
-                      </Button>
-                    </div>
-                  )}
                 </SheetContent>
               </Sheet>
             </div>
