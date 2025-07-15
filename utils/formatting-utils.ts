@@ -1,61 +1,46 @@
-import { CartItem, FavoriteItem, GroupMember } from '@/types';
+import { CartItem, FavoriteItem } from '@/types';
 
 /**
- * Formats customizations for display in cart items, checkout, and group orders
+ * Extracts customization strings from item or favorite
  */
-export const formatCustomizations = (item: CartItem): string => {
-  if (item.type === 'coffee') {
-    const customizations = item.customizations as any;
-    const parts = [];
-    
-    if (customizations.milk && customizations.milk !== 'Whole Milk') {
-      parts.push(`• ${customizations.milk} milk`);
-    }
-    
-    if (customizations.syrups && customizations.syrups.length > 0) {
-      customizations.syrups.forEach((syrup: any) => {
-        const syrupCost = syrup.pumps * 0.10;
-        parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
-      });
-    }
-    
-    return parts.length > 0 ? parts.join('\n') : '';
-  } else {
-    const customizations = item.customizations as any;
-    if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-      const parts = customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
-      return parts.join('\n');
-    }
-    return '';
+const extractCustomizations = (customizations: any): string[] => {
+  const parts: string[] = [];
+
+  if (customizations.milk && customizations.milk !== 'Whole Milk') {
+    parts.push(`• ${customizations.milk} milk`);
   }
+
+  if (customizations.syrups && Array.isArray(customizations.syrups)) {
+    customizations.syrups.forEach((syrup: any) => {
+      const syrupCost = syrup.pumps * 0.10;
+      parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
+    });
+  }
+
+  if (customizations.removedIngredients && Array.isArray(customizations.removedIngredients)) {
+    customizations.removedIngredients.forEach((ingredient: string) => {
+      parts.push(`• No ${ingredient}`);
+    });
+  }
+
+  return parts;
+};
+
+export const formatCustomizations = (item: CartItem): string[] => {
+  return extractCustomizations(item.customizations);
+};
+
+export const formatFavoriteCustomizations = (favorite: FavoriteItem): string[] => {
+  return extractCustomizations(favorite.customizations);
 };
 
 /**
- * Formats customizations for favorite items
+ * Utility to chunk an array into pieces of a given size
  */
-export const formatFavoriteCustomizations = (favorite: FavoriteItem): string => {
-  if (favorite.type === 'coffee') {
-    const customizations = favorite.customizations as any;
-    const parts = [];
-    
-    if (customizations.milk && customizations.milk !== 'Whole Milk') {
-      parts.push(`• ${customizations.milk} milk`);
-    }
-    
-    if (customizations.syrups && customizations.syrups.length > 0) {
-      customizations.syrups.forEach((syrup: any) => {
-        const syrupCost = syrup.pumps * 0.10;
-        parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
-      });
-    }
-    
-    return parts.length > 0 ? parts.join('\n') : '';
-  } else {
-    const customizations = favorite.customizations as any;
-    if (customizations.removedIngredients && customizations.removedIngredients.length > 0) {
-      const parts = customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
-      return parts.join('\n');
-    }
-    return '';
+export const chunkArray = <T>(arr: T[], size: number): T[][] => {
+  const chunks: T[][] = [];
+  for (let i = 0; i < arr.length; i += size) {
+    chunks.push(arr.slice(i, i + size));
   }
+  return chunks;
 };

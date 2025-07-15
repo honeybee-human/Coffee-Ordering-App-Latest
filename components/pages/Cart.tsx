@@ -12,6 +12,7 @@ import { GroupOrderContent } from '@/components/features/GroupOrderContent';
 import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { formatCustomizations } from '@/utils/formatting-utils';
+import CustomizationsList from '../shared/ListCustoms';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -73,7 +74,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                 {/* Person header */}
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  <h3 className="font-medium">{personName === 'unassigned' ? 'Unassigned Items' : personName}</h3>
+                  <h4 className="font-medium">{personName === 'unassigned' ? 'Unassigned Items' : personName}</h4>
                 </div>
                 
                 {/* Person's items */}
@@ -82,33 +83,25 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                   const hasAllergenConflict = conflicts.length > 0;
                   
                   return (
-                    <div key={item.id} className="py-4">
-                      <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1 space-y-2">
+                    <div key={item.id} className="p-4">
+                      <div className="grid grid-cols-3 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2 ">
                           <div className="flex items-start gap-4">
-                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
                               <ImageWithFallback
                                 src={item.item.image || '/coffee-icon.svg'}
                                 alt={item.item.name}
-                                className="w-full h-full object-cover"
+                                className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 w-full h-full object-cover"
                               />
-                            </div>
+                              
                             <div className="flex-1">
-                              <h4 className="flex items-center gap-2">
+                              <h4 className="flex items-center justify-between gap-2">
                                 {item.item.name}
                                 {hasAllergenConflict && (
                                   <AlertTriangle className="h-4 w-4 text-destructive" />
                                 )}
                               </h4>
-                              <div className="text-sm text-muted-foreground whitespace-pre-line">
-                                {formatCustomizations(item)}
-                              </div>
+                              
 
-                              {hasAllergenConflict && (
-                                <p className="text-sm text-destructive mt-2">
-                                  ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
-                                </p>
-                              )}
 
                               <div className="flex items-center gap-2 mt-2">
                                 <span className="text-lg">
@@ -116,18 +109,23 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                                 </span>
                                 {/* <span className="text-sm text-muted-foreground">each</span> */}
                               </div>
+                              
                             </div>
+                                                          <div className="text-muted-foreground whitespace-pre-line">
+                                <CustomizationsList item={item}/>
+                              </div>
+
+                              {hasAllergenConflict && (
+                                <p className="text-sm text-destructive mt-2">
+                                  ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
+                                </p>
+                              )}
                           </div>
                         </div>
 
+
                         <div className="flex flex-col items-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => activeGroup && removeFromCart(activeGroup.id, item.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+
 
                           <div className="flex items-center gap-2">
                             <Button
@@ -138,7 +136,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                             >
                               <Minus className="h-3 w-3" />
                             </Button>
-                            <span className="w-8 text-center">{item.quantity}</span>
+                            <span className="w-8 text-center text-lg">{item.quantity}</span>
                             <Button
                               variant="outline"
                               size="sm"
@@ -146,7 +144,16 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                             >
                               <Plus className="h-3 w-3" />
                             </Button>
+
+                                                      <Button
+                            variant="ghost"
+                            size="lg"
+                            onClick={() => activeGroup && removeFromCart(activeGroup.id, item.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                           </div>
+                          
                         </div>
                       </div>
                       <Separator className="mt-4" />
@@ -164,14 +171,16 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
       </Tabs> */}
 
           <div className="space-y-4">
-            <Separator />
-            <div className="flex items-center justify-between text-lg">
-              <span>Total:</span>
-              <span>${cartTotal.toFixed(2)}</span>
+            <div className="flex items-center justify-between">
+              <h3>Total:</h3>
+              <h3>${cartTotal.toFixed(2)}</h3>
             </div>
+
+            <Separator />
+            <br/>
             <Button 
               onClick={onNavigateToCheckout} 
-              className="w-full" 
+              className="w-full text-lg" 
               size="lg"
               disabled={cartItems.length === 0}
             >

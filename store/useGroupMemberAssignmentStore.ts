@@ -21,11 +21,11 @@ export const useGroupMemberAssignmentStore = create<GroupMemberAssignmentStore>(
   resetForNewItem: (groupMembers) => {
     // If there's only one person in the group, assign to them
     // Otherwise, reset to unassigned
-    if (groupMembers.length === 1) {
-      set({ selectedPerson: groupMembers[0].name });
-    } else {
+    // if (groupMembers.length === 1) {
+    //   set({ selectedPerson: groupMembers[0].name });
+    // } else {
       set({ selectedPerson: '' });
-    }
+    //}
   },
 
   hasAllergenConflict: (member, itemAllergens) => {

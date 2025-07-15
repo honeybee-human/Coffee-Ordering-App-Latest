@@ -15,6 +15,7 @@ import { useOrdersStore } from '@/store/useOrdersStore';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import { v4 as uuidv4 } from 'uuid';
 import { useAllergensStore } from '@/store/useAllergensStore';
+import CustomizationsList from '../shared/ListCustoms';
 
 interface CheckoutPageProps {
   cartItems: CartItem[];
@@ -111,33 +112,6 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
     }
   };
 
-  const formatCustomizations = (item: CartItem): string => {
-    if (item.type === 'coffee') {
-      const custom = item.customizations as any;
-      const parts: string[] = [];
-      
-      if (custom.milk && custom.milk !== 'Whole Milk') {
-        parts.push(`• ${custom.milk} milk`);
-      }
-      
-      if (custom.syrups && custom.syrups.length > 0) {
-        custom.syrups.forEach((syrup: any) => {
-          const syrupCost = syrup.pumps * 0.10;
-          parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor} (+$${syrupCost.toFixed(2)})`);
-        });
-      }
-      
-      return parts.join('\n');
-    } else {
-      const custom = item.customizations as any;
-      if (custom.removedIngredients && custom.removedIngredients.length > 0) {
-        const parts = custom.removedIngredients.map((ingredient: string) => `• No ${ingredient}`);
-        return parts.join('\n');
-      }
-      return '';
-    }
-  };
-
   return (
     <div className="space-y-6">
       <Button onClick={onBack} variant="outline">
@@ -189,11 +163,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                         <p className="text-sm text-muted-foreground">
                           ${calculateItemPrice(item).toFixed(2)} × {item.quantity}
                         </p>
-                        {formatCustomizations(item) && (
-                          <div className="text-sm text-muted-foreground whitespace-pre-line">
-                            {formatCustomizations(item)}
-                          </div>
-                        )}
+                        <CustomizationsList item={item} />
                       </div>
                     </div>
                     <span>${(calculateItemPrice(item) * item.quantity).toFixed(2)}</span>
