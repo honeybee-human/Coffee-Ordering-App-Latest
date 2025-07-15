@@ -13,6 +13,7 @@ interface GroupSettingsModalProps {
   group: Group | null;
   onRenameGroup: (groupId: string, newName: string) => void;
   onAddMember: (member: GroupMember) => void;
+  removeGroupMember: (groupId: string, memberName: string) => void;
   existingMembers: GroupMember[];
 }
 
@@ -22,6 +23,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
   group,
   onRenameGroup,
   onAddMember,
+    removeGroupMember,
   existingMembers
 }) => {
   const [groupName, setGroupName] = useState('');
@@ -90,6 +92,21 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
               disabled={group?.name === 'Just You'}
             />
           </div>
+          
+          <Label>Current Members</Label>
+          {existingMembers.map((member) => (
+            <div key={member.name} className='flex justify-between'>
+              <span>{member.name}</span>
+                          <Button
+              variant="destructive"
+              size="sm"
+              className="ml-2"
+              onClick={() => removeGroupMember(group?.id || '', member.name)}
+            >
+              -
+            </Button>
+            </div>
+          ))}
           
           <div className="space-y-2">
             <Label>Add Members</Label>

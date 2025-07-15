@@ -450,6 +450,7 @@ const sortedGroups = useMemo(() => {
         onRenameGroup={handleRenameGroup}
         onAddMember={handleAddMember}
         existingMembers={allMembers.map(({ member }) => member)}
+      removeGroupMember={removeGroupMember}
       />
 
 

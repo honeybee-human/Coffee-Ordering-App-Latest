@@ -75,7 +75,6 @@ export const MemberCard: React.FC<MemberCardProps> = ({
           size="sm"
           variant="outline"
           onClick={() => onEditMember(member)}
-          disabled={isDisabled}
         >
           <Edit2 className="h-3 w-3 mr-1" />
           Edit
@@ -98,7 +97,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             size="sm"
             variant="destructive"
             onClick={() => onDeleteMember(member, groups)}
-            disabled={isDisabled}
+            disabled={isDisabled || member.name== 'You'}
           >
             <Trash2 className="h-3 w-3 mr-1" />
             Delete

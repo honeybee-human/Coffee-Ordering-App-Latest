@@ -62,7 +62,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
                   <span className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> <span>Create or join a group</span></span>
                   <span className="flex items-center gap-2"><MenuIcon className="h-5 w-5 text-primary" /> <span>Add members and set allergens for each member</span></span>
                   <span className="flex items-center gap-2"><ShoppingCart className="h-5 w-5 text-primary" /> <span>Add items to the general cart/favorites or assign to specific members</span></span>
-                  <span className="flex items-center gap-2"><History className="h-5 w-5 text-destructive" /> <span>Get notified of allergen conflicts with pop up warnings and automatic filters</span></span>
+                  <span className="flex items-center gap-2"><History className="h-5 w-5 text-destructive" /> <span>See allergen conflicts with pop up warnings and automatic filters</span></span>
                   <span className="flex items-center gap-2"><Heart className="h-5 w-5 text-success" /> <span>Checkout and enjoy your order!</span></span>
                 </div>
               </div>
