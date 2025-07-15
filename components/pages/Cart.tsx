@@ -6,7 +6,7 @@ import { Separator } from '@/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { GroupMember, CartItem } from '@/types';
-import { combineIdenticalItems, getAllergenConflicts } from '@/utils/cart-helpers';
+import { combineIdenticalItems, getAllergenConflicts, groupAndCombineItems } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import { GroupOrderContent } from '@/components/features/GroupOrderContent';
 import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
@@ -44,6 +44,9 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
     );
   }
 
+  // Group items by person
+  const groupedItems = groupAndCombineItems(cartItems, groupMembers);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -54,118 +57,111 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
         </Button>
       </div>
 
-      <Tabs defaultValue="items" className="space-y-6">
+      {/* <Tabs defaultValue="items" className="space-y-6">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="items">All Items</TabsTrigger>
           <TabsTrigger value="by-person">By Person</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="items" className="space-y-4">
-          {/* Combine identical items with the same customizations */}
-          {combineIdenticalItems(cartItems).map((item) => {
-            const { conflicts, affectedMembers } = getAllergenConflicts(item, groupMembers);
-            const hasAllergenConflict = conflicts.length > 0;
+        <TabsContent value="items" className="space-y-6"> */}
+          {/* Display items organized by person */}
+          {Object.entries(groupedItems).map(([personName, items]) => {
+            if (items.length === 0) return null;
             
             return (
-              <Card key={item.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-start gap-3">
-                        <div className="w-16 h-16 rounded-md overflow-hidden flex-shrink-0">
-                          <ImageWithFallback
-                            src={item.item.image || '/coffee-icon.svg'}
-                            alt={item.item.name}
-                            className="w-full h-full object-cover"
-                          />
+              <div key={personName} className="space-y-4">
+                {/* Person header */}
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  <h3 className="font-medium">{personName === 'unassigned' ? 'Unassigned Items' : personName}</h3>
+                </div>
+                
+                {/* Person's items */}
+                {items.map((item) => {
+                  const { conflicts, affectedMembers } = getAllergenConflicts(item, groupMembers);
+                  const hasAllergenConflict = conflicts.length > 0;
+                  
+                  return (
+                    <div key={item.id} className="py-4">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-start gap-4">
+                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
+                              <ImageWithFallback
+                                src={item.item.image || '/coffee-icon.svg'}
+                                alt={item.item.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="flex items-center gap-2">
+                                {item.item.name}
+                                {hasAllergenConflict && (
+                                  <AlertTriangle className="h-4 w-4 text-destructive" />
+                                )}
+                              </h4>
+                              <div className="text-sm text-muted-foreground whitespace-pre-line">
+                                {formatCustomizations(item)}
+                              </div>
+
+                              {hasAllergenConflict && (
+                                <p className="text-sm text-destructive mt-2">
+                                  ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
+                                </p>
+                              )}
+
+                              <div className="flex items-center gap-2 mt-2">
+                                <span className="text-lg">
+                              ${(calculateItemPrice(item) * item.quantity).toFixed(2)}
+                                </span>
+                                {/* <span className="text-sm text-muted-foreground">each</span> */}
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <h4 className="flex items-center gap-2">
-                            {item.item.name}
-                            {hasAllergenConflict && (
-                              <AlertTriangle className="h-4 w-4 text-destructive" />
-                            )}
-                          </h4>
-                          <div className="text-sm text-muted-foreground whitespace-pre-line">
-                            {formatCustomizations(item)}
+
+                        <div className="flex flex-col items-end gap-2">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => activeGroup && removeFromCart(activeGroup.id, item.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+
+                          <div className="flex items-center gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity - 1)}
+                              disabled={item.quantity <= 1}
+                            >
+                              <Minus className="h-3 w-3" />
+                            </Button>
+                            <span className="w-8 text-center">{item.quantity}</span>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity + 1)}
+                            >
+                              <Plus className="h-3 w-3" />
+                            </Button>
                           </div>
                         </div>
                       </div>
-
-                      {(() => {
-                        const getAssignedPerson = (item: CartItem) => {
-                          if (item.assignedTo) return item.assignedTo;
-                          if (groupMembers.length === 1) return groupMembers[0].name;
-                          return undefined;
-                        };
-                        const assignedPerson = getAssignedPerson(item);
-                        return assignedPerson ? (
-                          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <User className="h-3 w-3" />
-                            For: {assignedPerson}
-                          </div>
-                        ) : null;
-                      })()}
-
-                      {hasAllergenConflict && (
-                        <p className="text-sm text-destructive">
-                          ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
-                        </p>
-                      )}
-
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">
-                          ${calculateItemPrice(item).toFixed(2)}
-                        </span>
-                        <span className="text-sm text-muted-foreground">each</span>
-                      </div>
+                      <Separator className="mt-4" />
                     </div>
-
-                    <div className="flex flex-col items-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => activeGroup && removeFromCart(activeGroup.id, item.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-
-                      <div className="flex items-center gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity - 1)}
-                          disabled={item.quantity <= 1}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <span className="w-8 text-center">{item.quantity}</span>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity + 1)}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
-                      </div>
-
-                      <div className="text-right">
-                        <span>
-                          ${(calculateItemPrice(item) * item.quantity).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+                  );
+                })}
+              </div>
             );
           })}
-        </TabsContent>
+        {/* </TabsContent>
 
         <TabsContent value="by-person">
           <GroupOrderContent />
         </TabsContent>
-      </Tabs>
+      </Tabs> */}
 
           <div className="space-y-4">
             <Separator />

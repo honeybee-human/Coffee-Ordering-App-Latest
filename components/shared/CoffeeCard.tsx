@@ -80,15 +80,15 @@ export const CoffeeCard: React.FC<CoffeeCardProps> = ({
               />
             </Button>
           </div>
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
+          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
             ${coffee.price.toFixed(2)}
           </div>
         </div>
         {/* Content Container - Right Side (60%) */}
         <div className="w-3/5 p-3 flex flex-col justify-between">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-primary line-clamp-1">{coffee.name}</h3>
-            <p className="text-xs text-muted-foreground line-clamp-2">{coffee.description}</p>
+            <h3 className="font-bold text-primary line-clamp-1">{coffee.name}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">{coffee.description}</p>
           </div>
           {comprehensiveAllergens.length > 0 && (
             <div className="mt-2">
@@ -121,13 +121,13 @@ export const CoffeeCard: React.FC<CoffeeCardProps> = ({
               />
             </Button>
           </div>
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
+          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
             ${coffee.price.toFixed(2)}
           </div>
         </div>
         <div className="p-3 flex flex-col gap-2">
           <h3 className="text-lg font-bold text-primary line-clamp-1">{coffee.name}</h3>
-          <p className="text-xs text-muted-foreground line-clamp-2">{coffee.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{coffee.description}</p>
           {comprehensiveAllergens.length > 0 && (
             <div className="mt-2">
               <AllergenTag item={coffee} groupAllergens={groupAllergens} />

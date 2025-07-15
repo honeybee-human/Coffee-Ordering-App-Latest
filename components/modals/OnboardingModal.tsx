@@ -51,22 +51,18 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
             </DialogTitle>
             <DialogDescription asChild>
               <div>
-                <p className="mb-4 text-muted-foreground text-sm lg:text-base">
-                  An active group is the group of people you are currently ordering for. 
-                  Your first active group is set to only be for you! 
-                  Each group has its own cart and favorites, and you can filter your order history by group.
-                </p>
-                <hr/>
                 <p className="my-4 text-muted-foreground text-sm lg:text-base">
+                  An active group is the group of people you are currently ordering for. 
+                  Your first active group is set to only be for you!
                   Create new groups and new members as needed, and label each of their allergens.
                   so that we can auto filter and warn you of potential conflicts. To test functionality,
                   add a member who's allergic to blueberries. When a filter is off, you will see a warning chip on a product.
                 </p><hr/><br/>
                 <div className="flex flex-col gap-2 text-base">
                   <span className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> <span>Create or join a group</span></span>
-                  <span className="flex items-center gap-2"><MenuIcon className="h-5 w-5 text-primary" /> <span>Add members and set allergens</span></span>
-                  <span className="flex items-center gap-2"><ShoppingCart className="h-5 w-5 text-primary" /> <span>Add items to the group cart or assign to members</span></span>
-                  <span className="flex items-center gap-2"><History className="h-5 w-5 text-destructive" /> <span>Get notified of allergen conflicts immediately</span></span>
+                  <span className="flex items-center gap-2"><MenuIcon className="h-5 w-5 text-primary" /> <span>Add members and set allergens for each member</span></span>
+                  <span className="flex items-center gap-2"><ShoppingCart className="h-5 w-5 text-primary" /> <span>Add items to the general cart/favorites or assign to specific members</span></span>
+                  <span className="flex items-center gap-2"><History className="h-5 w-5 text-destructive" /> <span>Get notified of allergen conflicts with pop up warnings and automatic filters</span></span>
                   <span className="flex items-center gap-2"><Heart className="h-5 w-5 text-success" /> <span>Checkout and enjoy your order!</span></span>
                 </div>
               </div>

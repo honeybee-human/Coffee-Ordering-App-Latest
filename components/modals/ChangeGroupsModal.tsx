@@ -34,22 +34,7 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
       onToggleMemberGroup(groupId, false); // false = removing
     } else {
       // Member is NOT in this group, so ADD them
-      // First, find which groups they're currently in
-      const currentGroups = groups.filter(g => 
-        g.members.some(m => m.name === selectedMember.name)
-      );
-      
-      // Remove from all current groups and transfer favorites
-      currentGroups.forEach(currentGroup => {
-        if (currentGroup.id !== groupId) {
-          // Remove from current group
-          onToggleMemberGroup(currentGroup.id, false);
-          // Transfer favorites
-          transferMemberFavorites(selectedMember.name, currentGroup.id, groupId);
-        }
-      });
-      
-      // Add to new group
+      // Simply add to the new group without removing from others
       onToggleMemberGroup(groupId, true); // true = adding
     }
   };

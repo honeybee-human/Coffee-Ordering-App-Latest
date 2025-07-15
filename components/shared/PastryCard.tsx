@@ -75,29 +75,29 @@ export const PastryCard: React.FC<PastryCardProps> = ({
               />
             </Button>
           </div>
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
+          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
             ${pastry.price.toFixed(2)}
           </div>
         </div>
         {/* Content Container - Right Side (60%) */}
         <div className="w-3/5 p-3 flex flex-col justify-between">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-primary line-clamp-1">{pastry.name}</h3>
-            <p className="text-xs text-muted-foreground line-clamp-2">{pastry.description}</p>
+            <h3 className="font-bold text-primary line-clamp-1">{pastry.name}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
           </div>
           <div className="space-y-2">
             {comprehensiveAllergens.length > 0 && <AllergenTag item={pastry} groupAllergens={groupAllergens} />}
             {pastry.removableIngredients.length > 0 && (
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Customizable:</p>
+                <p className="text-sm text-muted-foreground">Customizable:</p>
                 <div className="flex flex-wrap gap-1">
                   {pastry.removableIngredients.slice(0, 2).map((ingredient: string) => (
-                    <Badge key={ingredient} variant="secondary" className="text-xs px-1 py-0">
+                    <Badge key={ingredient} variant="secondary" className="text-sm px-1 py-0">
                       {ingredient}
                     </Badge>
                   ))}
                   {pastry.removableIngredients.length > 2 && (
-                    <span className="text-xs text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
+                    <span className="text-sm text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
                   )}
                 </div>
               </div>
@@ -129,13 +129,13 @@ export const PastryCard: React.FC<PastryCardProps> = ({
               />
             </Button>
           </div>
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs font-semibold shadow-md">
+          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
             ${pastry.price.toFixed(2)}
           </div>
         </div>
         <div className="p-3 flex flex-col gap-2">
           <h3 className="text-lg font-bold text-primary line-clamp-1">{pastry.name}</h3>
-          <p className="text-xs text-muted-foreground line-clamp-2">{pastry.description}</p>
+          <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
           {comprehensiveAllergens.length > 0 && (
             <div className="mt-2">
               <AllergenTag item={pastry} groupAllergens={groupAllergens} />
@@ -143,15 +143,15 @@ export const PastryCard: React.FC<PastryCardProps> = ({
           )}
           {pastry.removableIngredients.length > 0 && (
             <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">Customizable:</p>
+              <p className="text-sm text-muted-foreground">Customizable:</p>
               <div className="flex flex-wrap gap-1">
                 {pastry.removableIngredients.slice(0, 2).map((ingredient: string) => (
-                  <Badge key={ingredient} variant="secondary" className="text-xs px-1 py-0">
+                  <Badge key={ingredient} variant="secondary" className="text-sm px-1 py-0">
                     {ingredient}
                   </Badge>
                 ))}
                 {pastry.removableIngredients.length > 2 && (
-                  <span className="text-xs text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
+                  <span className="text-sm text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
                 )}
               </div>
             </div>
