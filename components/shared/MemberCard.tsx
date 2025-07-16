@@ -39,7 +39,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({
         
         {member.allergens && member.allergens.length > 0 ? (
           <div className="space-y-1">
-            <p className="text-xs text-muted-foreground">Allergies:</p>
+            <p className="text-sm text-muted-foreground">Allergies:</p>
             <div className="flex flex-wrap gap-2">
               {member.allergens.map((allergen, allergenIndex) => (
                 <span key={`${allergen}-${allergenIndex}`} className="flex items-center gap-1 text-sm text-destructive">
@@ -50,19 +50,19 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             </div>
           </div>
         ) : (
-          <p className="text-xs text-muted-foreground">No known allergies</p>
+          <p className="text-sm text-muted-foreground">No known allergies</p>
         )}
 
         {showGroups && groups && groups.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2">
             {groups.length > 0 ? (
               groups.map((group, groupIndex) => (
-                <Badge key={`${group.id}-${groupIndex}`} variant="secondary" className="text-xs">
+                <Badge key={`${group.id}-${groupIndex}`} variant="secondary" className="text-sm">
                   {group.name}
                 </Badge>
               ))
             ) : (
-              <Badge variant="outline" className="text-xs text-muted-foreground">
+              <Badge variant="outline" className="text-sm text-muted-foreground">
                 No groups
               </Badge>
             )}

@@ -194,7 +194,7 @@ export const useGroupsStore = create<GroupsStore>()(persist(
     },
 
     resetAllData: () => {
-      const defaultMember = { name: 'You', allergens: ["Blueberries"] };
+      const defaultMember = { name: 'You', allergens: ["Blueberries", "Hazelnuts"] };
       const defaultGroup = {
         id: Date.now().toString(),
         name: 'My First Group',

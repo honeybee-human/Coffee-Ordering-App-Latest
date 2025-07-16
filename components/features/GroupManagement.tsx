@@ -253,7 +253,7 @@ export const GroupManagement: React.FC = () => {
                     <Filter className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <Label className="text-sm font-medium">Auto-Filter Allergens</Label>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-sm text-muted-foreground">
                         Automatically filter menu items based on active group member allergens
                       </p>
                     </div>
@@ -384,11 +384,11 @@ export const GroupManagement: React.FC = () => {
                             <span className={group.id === activeGroupId ? 'text-primary' : ''}>
                               {group.name}
                             </span>
-                            <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-xs font-medium text-secondary-foreground">
+                            <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-sm font-medium text-secondary-foreground">
                               {group.members.length} member{group.members.length !== 1 ? 's' : ''}
                             </span>
                             {group.cart && group.cart.length > 0 && (
-                              <span className="inline-flex items-center rounded-md border px-2 py-1 text-xs font-medium">
+                              <span className="inline-flex items-center rounded-md border px-2 py-1 text-sm font-medium">
                                 {group.cart.length} item{group.cart.length !== 1 ? 's' : ''} in cart
                               </span>
                             )}
