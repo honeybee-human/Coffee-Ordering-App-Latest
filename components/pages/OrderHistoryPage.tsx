@@ -10,16 +10,15 @@ import { useOrdersStore } from '@/store/useOrdersStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useModalsStore } from '@/store/useModalsStore';
 
-import { GroupOrderContent } from '../features/GroupOrderContent';
-
 export const OrderHistoryPage: React.FC = () => {
   const { navigateToMenu } = useNavigationStore();
   const orderHistory = useOrdersStore(state => state.orders);
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const { showAllergenWarning } = useModalsStore();
+  const { selectGroup } = useGroupsStore();
+  const { reorderItems } = useOrdersStore();
 
-
-  const handleReorder = (orderId: string) => {
+  const handleReorderToActiveGroup = (orderId: string) => {
     if (!activeGroup) return;
 
     const order = orderHistory.find((o: Order) => o.id === orderId);
@@ -40,20 +39,32 @@ export const OrderHistoryPage: React.FC = () => {
 
     if (conflicts.length > 0) {
       showAllergenWarning(conflicts[0].allergens, conflicts[0].affectedMembers, conflicts[0].itemName, () => {
-        // Add items to cart if user confirms
-        order.items.forEach((item: CartItem) => {
-          useGroupsStore.getState().addToCart(activeGroup.id, item);
-        });
+        reorderItems(activeGroup.id, orderId);
       });
     } else {
-      // Add items to cart directly if no conflicts
-      order.items.forEach((item: CartItem) => {
-        useGroupsStore.getState().addToCart(activeGroup.id, item);
-      });
+      reorderItems(activeGroup.id, orderId);
     }
   };
 
+  const handleReorderToOriginalGroup = (orderId: string) => {
+    const order = orderHistory.find((o: Order) => o.id === orderId);
+    if (!order) return;
+    
+    // Check if the original group still exists
+    const originalGroup = useGroupsStore.getState().groups.find(g => g.id === order.groupId);
+    if (!originalGroup) {
+      return;
+    }
+    
+    // Switch to the original group
+    selectGroup(order.groupId);
+    
+    // Then reorder items to that group
+    reorderItems(order.groupId, orderId);
+  };
+
   const [selectedGroup, setSelectedGroup] = React.useState<string>('all');
+  
   // Get unique group names from orders
   const groupNames = Array.from(new Set(orderHistory.map((order: Order) => order.groupName).filter(Boolean)));
 
@@ -115,7 +126,6 @@ export const OrderHistoryPage: React.FC = () => {
         <p className="text-muted-foreground">
           {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
         </p>
-        {/* Group Filter Dropdown */}
         <GroupFilter
           groupNames={groupNames.filter((name): name is string => name !== undefined)}
           selectedGroup={selectedGroup}
@@ -178,8 +188,7 @@ export const OrderHistoryPage: React.FC = () => {
                         </div>
                       </div>
                     ));
-                  })()
-                  }
+                  })()}
                 </div>
 
                 {/* Order Details */}
@@ -198,6 +207,7 @@ export const OrderHistoryPage: React.FC = () => {
                     </div>
                   )}
                 </div>
+                
                 {/* Group Members */}
                 <div className="pt-4 border-t">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
@@ -215,16 +225,40 @@ export const OrderHistoryPage: React.FC = () => {
                 </div>
               </div>
             </CardContent>
-            <CardFooter className="bg-muted/30">
+            
+            <CardFooter className="bg-muted/30 flex justify-between">
               <Button
-                onClick={() => handleReorder(order.id)}
+                onClick={() => handleReorderToActiveGroup(order.id)}
                 variant="default"
                 size="sm"
-                className="w-full"
+                className="flex-1 mr-2"
+                disabled={!activeGroup}
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
-                Reorder
+                Reorder to Active Group
               </Button>
+              
+              {order.groupId && useGroupsStore.getState().groups.some(g => g.id === order.groupId) ? (
+                <Button
+                  onClick={() => handleReorderToOriginalGroup(order.id)}
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Reorder to Original Group
+                </Button>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1"
+                  disabled
+                >
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Original Group Unavailable
+                </Button>
+              )}
             </CardFooter>
           </Card>
         ))}

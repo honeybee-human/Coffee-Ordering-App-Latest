@@ -8,7 +8,8 @@ interface GroupsStore {
   groups: Group[];
   activeGroupId: string | null;
   allMembers: GroupMember[]; // Add this new state
-  
+    setCart: (groupId: string, items: CartItem[]) => void;
+
   // Add this
   initialize: () => void;
   
@@ -67,7 +68,15 @@ export const useGroupsStore = create<GroupsStore>()(persist(
         });
       }
     },
-
+  setCart: (groupId: string, items: CartItem[]) => {
+    set(state => ({
+      groups: state.groups.map(group =>
+        group.id === groupId
+          ? { ...group, cart: items }
+          : group
+      )
+    }));
+  },
     getActiveGroup: () => {
       const { groups, activeGroupId } = get();
       return groups.find(group => group.id === activeGroupId) || null;

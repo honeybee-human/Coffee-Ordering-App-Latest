@@ -1,18 +1,15 @@
 import React from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, AlertTriangle, User } from 'lucide-react';
 import { Button } from '@/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
+import { Card, CardContent } from '@/ui/card';
 import { Separator } from '@/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/ui/tabs';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { GroupMember, CartItem } from '@/types';
 import { combineIdenticalItems, getAllergenConflicts, groupAndCombineItems } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';
-import { GroupOrderContent } from '@/components/features/GroupOrderContent';
+import CustomizationsList from '../shared/ListCustoms';
 import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
-import { formatCustomizations } from '@/utils/formatting-utils';
-import CustomizationsList from '../shared/ListCustoms';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -20,11 +17,36 @@ interface CartProps {
 
 export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   const activeGroup = useActiveGroup();
-  const groupMembers = activeGroup?.members || [];
-  const cartItems = activeGroup?.cart || [];
   const cartTotal = useCartTotal();
   const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
 
+  const groupMembers = activeGroup?.members || [];
+  const cartItems = activeGroup?.cart || [];
+
+  const groupedItems = React.useMemo(() => {
+    if (cartItems.length === 0) return {};
+    return groupAndCombineItems(cartItems, groupMembers);
+  }, [cartItems, groupMembers]);
+
+  const handleQuantityUpdate = React.useCallback((itemId: string, newQuantity: number) => {
+    if (!activeGroup) return;
+
+    if (newQuantity <= 0) {
+      removeFromCart(activeGroup.id, itemId);
+    } else {
+      updateCartQuantity(activeGroup.id, itemId, newQuantity);
+    }
+  }, [activeGroup, removeFromCart, updateCartQuantity]);
+
+  const handleRemoveItem = React.useCallback((itemId: string) => {
+    if (!activeGroup) return;
+    removeFromCart(activeGroup.id, itemId);
+  }, [activeGroup, removeFromCart]);
+
+  const handleClearCart = React.useCallback(() => {
+    if (!activeGroup) return;
+    clearCart(activeGroup.id);
+  }, [activeGroup, clearCart]);
 
   if (cartItems.length === 0) {
     return (
@@ -45,54 +67,42 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
     );
   }
 
-  // Group items by person
-  const groupedItems = groupAndCombineItems(cartItems, groupMembers);
-
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2>Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
-        <Button variant="outline" onClick={() => activeGroup && clearCart(activeGroup.id)} size="sm">
+        <Button variant="outline" onClick={handleClearCart} size="sm">
           <Trash2 className="h-4 w-4 mr-2" />
           Clear Cart
         </Button>
       </div>
 
-      {/* <Tabs defaultValue="items" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="items">All Items</TabsTrigger>
-          <TabsTrigger value="by-person">By Person</TabsTrigger>
-        </TabsList>
+      {Object.entries(groupedItems).map(([personName, items]) => {
+        if (items.length === 0) return null;
 
-        <TabsContent value="items" className="space-y-6"> */}
-          {/* Display items organized by person */}
-          {Object.entries(groupedItems).map(([personName, items]) => {
-            if (items.length === 0) return null;
-            
-            return (
-              <div key={personName} className="space-y-4">
-                {/* Person header */}
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  <h4 className="font-medium">{personName === 'unassigned' ? 'Unassigned Items' : personName}</h4>
-                </div>
-                
-                {/* Person's items */}
-                {items.map((item) => {
-                  const { conflicts, affectedMembers } = getAllergenConflicts(item, groupMembers);
-                  const hasAllergenConflict = conflicts.length > 0;
-                  
-                  return (
-                    <div key={item.id} className="p-4">
+        return (
+          <React.Fragment key={personName}>
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4" />
+                <h4 className="font-medium">{personName === 'unassigned' ? 'Unassigned Items' : personName}</h4>
+              </div>
+
+              {items.map((item) => {
+                const { conflicts, affectedMembers } = getAllergenConflicts(item, groupMembers);
+                const hasAllergenConflict = conflicts.length > 0;
+
+                return (
+                  <React.Fragment key={item.id}>
+                    <div className="p-4">
                       <div className="flex flex-wrap justify-between gap-4">
-                        <div className="space-y-2 ">
+                        <div className="space-y-2">
                           <div className="flex items-start gap-4">
                             <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
                               <ImageWithFallback
                                 src={item.item.image || '/coffee-icon.svg'}
                                 alt={item.item.name}
-                                className="w-full h-full object-cover"
-                              />
+                                className="w-full h-full object-cover" />
                             </div>
                             <div className="flex-1">
                               <h4 className="flex items-center justify-between gap-2">
@@ -101,94 +111,79 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                                   <AlertTriangle className="h-4 w-4 text-destructive" />
                                 )}
                               </h4>
-                              
-
 
                               <div className="flex items-center gap-2 mt-2">
                                 <span className="text-lg">
-                              ${(calculateItemPrice(item) * item.quantity).toFixed(2)}
+                                  ${(calculateItemPrice(item) * item.quantity).toFixed(2)}
                                 </span>
-                                {/* <span className="text-sm text-muted-foreground">each</span> */}
                               </div>
-                              
                             </div>
-
-
-                              {hasAllergenConflict && (
-                                <p className="text-sm text-destructive mt-2">
-                                  ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
-                                </p>
-                              )}
-                              
                           </div>
-                          
+                          {hasAllergenConflict && (
+                            <p className="text-sm text-destructive mt-2">
+                              ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
+                            </p>
+                          )}
                         </div>
+                      </div>
 
-<CustomizationsList item={item} />
+                      <CustomizationsList item={item} />
 
-                        <div className="flex flex-col items-end gap-2">
+                      <div className="flex flex-col items-end gap-2">
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="w-8 text-center text-lg">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
 
-
-                          <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity - 1)}
-                              disabled={item.quantity <= 1}
-                            >
-                              <Minus className="h-3 w-3" />
-                            </Button>
-                            <span className="w-8 text-center text-lg">{item.quantity}</span>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => activeGroup && updateCartQuantity(activeGroup.id, item.id, item.quantity + 1)}
-                            >
-                              <Plus className="h-3 w-3" />
-                            </Button>
-
-                                                      <Button
+                          <Button
                             variant="ghost"
                             size="lg"
-                            onClick={() => activeGroup && removeFromCart(activeGroup.id, item.id)}
+                            onClick={() => handleRemoveItem(item.id)}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
-                          </div>
-                          
                         </div>
                       </div>
-                      <Separator className="mt-4" />
                     </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        {/* </TabsContent>
-
-        <TabsContent value="by-person">
-          <GroupOrderContent />
-        </TabsContent>
-      </Tabs> */}
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3>Total:</h3>
-              <h3>${cartTotal.toFixed(2)}</h3>
+                    <Separator className="mt-4" />
+                  </React.Fragment>
+                );
+              })}
             </div>
+          </React.Fragment>
+        );
+      })}
 
-            <Separator />
-            <br/>
-            <Button 
-              onClick={onNavigateToCheckout} 
-              className="w-full text-lg" 
-              size="lg"
-              disabled={cartItems.length === 0}
-            >
-              Proceed to Checkout
-            </Button>
-          </div>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3>Total:</h3>
+          <h3>${cartTotal.toFixed(2)}</h3>
+        </div>
+
+        <Separator />
+        
+        <Button 
+          onClick={onNavigateToCheckout} 
+          className="w-full text-lg" 
+          size="lg"
+          disabled={cartItems.length === 0}
+        >
+          Proceed to Checkout
+        </Button>
+      </div>
     </div>
   );
 };
