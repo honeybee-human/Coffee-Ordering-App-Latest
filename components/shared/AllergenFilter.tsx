@@ -219,7 +219,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
         )}
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-4 gap-6'}`}>
         {/* Group Member Allergens */}
-        {groupBasedAllergens.length > 0 && (
+
           <div>
             <div className="flex items-center gap-2 mb-3">
               <Checkbox
@@ -257,7 +257,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
               })}
             </div>
           </div>
-        )}
+        
 
 
 
