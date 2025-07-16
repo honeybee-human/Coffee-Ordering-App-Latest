@@ -73,7 +73,7 @@ export const getAllUniqueAllergens = <T extends { allergens?: string[] }>({
   return Array.from(allergenSet).sort();
 };
 
-// Get group-based allergens (allergens that group members have but aren't in the common allergens list)
+// Get group-based allergens (allergens that group members have)
 export const getGroupBasedAllergens = ({
   groupAllergens,
   allAllergens
@@ -81,5 +81,6 @@ export const getGroupBasedAllergens = ({
   groupAllergens: string[];
   allAllergens: string[];
 }): string[] => {
-  return groupAllergens.filter(allergen => !allAllergens.includes(allergen)).sort();
+  // Return all unique group member allergens, regardless of menu allergens
+  return [...new Set(groupAllergens)].sort();
 };

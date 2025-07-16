@@ -21,16 +21,16 @@ export const AllergenTag: React.FC<AllergenTagProps> = ({ item, groupAllergens =
   return (
     <div className="flex flex-wrap gap-2">
       {/* Original allergens */}
-      {originalAllergens.map((allergen: string) => (
-        <span key={`original-${allergen}`} className="flex items-center gap-1  text-destructive">
+      {originalAllergens.map((allergen: string, index: number) => (
+        <span key={`original-${allergen}-${index}`} className="flex items-center gap-1  text-destructive">
           <AlertTriangle className="h-3 w-3" />
           {allergen}
         </span>
       ))}
       {/* Detected allergens with different styling - only if group member has that allergen */}
-      {relevantDetectedAllergens.map((allergen: string) => (
+      {relevantDetectedAllergens.map((allergen: string, index: number) => (
         <Badge 
-          key={`detected-${allergen}`} 
+          key={`detected-${allergen}-${index}`} 
           variant="secondary" 
           className="text-xs bg-amber-100 text-amber-800 border-amber-200"
         >

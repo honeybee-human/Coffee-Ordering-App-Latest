@@ -18,6 +18,7 @@ export const PageRouter: React.FC = () => {
   const appState = useNavigationStore(state => state.appState);
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const navigateToMenu = useNavigationStore(state => state.navigateToMenu);
+  const navigateBack = useNavigationStore(state => state.navigateBack);
   const navigateToCheckout = useNavigationStore(state => state.navigateToCheckout);
   const { showAllergenWarning } = useModalsStore();
   const { completeOrder } = useOrdersStore();
@@ -43,7 +44,7 @@ export const PageRouter: React.FC = () => {
         return (
           <CoffeeDetailPage
             coffeeId={coffee.id}
-            onBack={navigateToMenu}
+            onBack={navigateBack}
             initialCustomizations={appState.initialCoffeeCustomizations}
             onSave={appState.onSaveCoffeeCustomizations}
           />
@@ -54,7 +55,7 @@ export const PageRouter: React.FC = () => {
         return (
           <PastryDetailPage
             pastryId={pastry.id}
-            onBack={navigateToMenu}
+            onBack={navigateBack}
             initialCustomizations={appState.initialPastryCustomizations}
             onSave={appState.onSavePastryCustomizations}
           />

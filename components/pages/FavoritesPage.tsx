@@ -124,7 +124,8 @@ export const FavoritesPage: React.FC = () => {
               assignedTo: newCustomizations.assignedTo
             });
           }
-        }
+        },
+        'favorites' // Add returnTo parameter
       );
     } else if (favorite.type === 'pastry' && 'removedIngredients' in favorite.customizations) {
       navigateToPastryDetail(
@@ -143,7 +144,8 @@ export const FavoritesPage: React.FC = () => {
               assignedTo: newCustomizations.assignedTo
             });
           }
-        }
+        },
+        'favorites' // Add returnTo parameter
       );
     }
   };
@@ -182,9 +184,9 @@ export const FavoritesPage: React.FC = () => {
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <User className="h-5 w-5 text-primary" />
                   {isUnassigned ? (
-                    <h3  className="text-muted-foreground">Unassigned Items</h3>
+                    <span className="text-muted-foreground">Unassigned Items</span>
                   ) : (
-                    <h3>{personName}</h3>
+                    <span>{personName}</span>
                   )}
                   <span className="text-sm text-muted-foreground font-normal">
                     ({favorites.length} item{favorites.length !== 1 ? 's' : ''})

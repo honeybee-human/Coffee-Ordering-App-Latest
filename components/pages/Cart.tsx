@@ -74,7 +74,8 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           // Remove old item and add updated one
           removeFromCart(activeGroup.id, item.id);
           useGroupsStore.getState().addToCart(activeGroup.id, updatedItem);
-        }
+        },
+        'cart' // Return to cart after saving
       );
     } else if (item.type === 'pastry' && 'removedIngredients' in item.customizations) {
       navigateToPastryDetail(
@@ -98,7 +99,8 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           // Remove old item and add updated one
           removeFromCart(activeGroup.id, item.id);
           useGroupsStore.getState().addToCart(activeGroup.id, updatedItem);
-        }
+        },
+        'cart' // Return to cart after saving
       );
     }
   }, [activeGroup, navigateToCoffeeDetail, navigateToPastryDetail, removeFromCart]);
@@ -149,8 +151,10 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
 
                 return (
                   <React.Fragment key={item.id}>
-                    <div className="flex flex-wrap justify-between p-4 cursor-pointer hover:bg-muted/50 rounded-lg transition-colors" onClick={() => handleEditCartItem(item)}>
-                      {/* image, title, price */}
+                    <div 
+                      className="flex flex-wrap justify-between p-4 cursor-pointer hover:bg-muted/50 rounded-lg transition-colors" 
+                      onClick={() => handleEditCartItem(item)}
+                    >
                       <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2">
                           <div className="flex items-start gap-4">
