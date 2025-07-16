@@ -32,7 +32,7 @@ export const AllergenTag: React.FC<AllergenTagProps> = ({ item, groupAllergens =
         <Badge 
           key={`detected-${allergen}-${index}`} 
           variant="secondary" 
-          className="text-xs bg-amber-100 text-amber-800 border-amber-200"
+          className="bg-amber-100 text-amber-800 border-amber-200"
         >
           <AlertTriangle className="h-3 w-3 mr-1" />
           {allergen}

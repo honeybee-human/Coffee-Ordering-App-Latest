@@ -22,7 +22,7 @@ export const coffeeMenu: Coffee[] = [
     id: 'latte',
     name: 'Latte',
     price: 4.50,
-    allergens: [''],
+    allergens: [],
     description: 'Smooth espresso with steamed  and a light foam layer',
     image: '/Latte.png'
   },
@@ -30,7 +30,7 @@ export const coffeeMenu: Coffee[] = [
     id: 'cappuccino',
     name: 'Cappuccino',
     price: 4.25,
-    allergens: [''],
+    allergens: [],
     description: 'Equal parts espresso, steamed , and rich foam',
     image: '/Capuccino.png'
   },
@@ -38,7 +38,7 @@ export const coffeeMenu: Coffee[] = [
     id: 'macchiato',
     name: 'Macchiato',
     price: 4.75,
-    allergens: [''],
+    allergens: [],
     description: 'Espresso "marked" with a dollop of foamed ',
     image: '/Macchiato.png'
   },
@@ -54,7 +54,7 @@ export const coffeeMenu: Coffee[] = [
     id: 'flat-white',
     name: 'Flat White',
     price: 4.75,
-    allergens: [''],
+    allergens: [],
     description: 'Strong espresso with microfoam steamed ',
     image: '/Flat White.png'
   },
@@ -102,8 +102,8 @@ export const pastryMenu: Pastry[] = [
     name: 'Blueberry Muffin',
     price: 2.95,
     allergens: ['Gluten',  'Eggs'],
-    ingredients: ['Wheat flour', 'Fresh blueberries', 'Eggs', 'Butter', 'Sugar', 'Baking powder', 'Vanilla', 'Lemon zest'],
-    removableIngredients: ['Blueberries', 'Sugar topping', 'Lemon zest'],
+    ingredients: ['Wheat flour', 'Blueberries', 'Eggs', 'Butter', 'Sugar', 'Baking powder', 'Vanilla', 'Lemon zest'],
+    removableIngredients: ['Sugar topping', 'Lemon zest'],
     description: 'Moist muffin bursting with fresh blueberries',
     image: '/Blueberry Muffin.png'
   },
@@ -121,7 +121,7 @@ export const pastryMenu: Pastry[] = [
     id: 'scone',
     name: 'Cranberry Scone',
     price: 3.25,
-    allergens: ['Gluten', ''],
+    allergens: ['Gluten', ],
     ingredients: ['Wheat flour', 'Dried cranberries', 'Butter', 'Sugar', 'Baking powder', 'Orange zest', 'Salt'],
     removableIngredients: ['Cranberries', 'Orange zest', 'Sugar glaze'],
     description: 'Traditional British scone with tart cranberries',
