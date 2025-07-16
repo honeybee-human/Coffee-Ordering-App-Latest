@@ -3,6 +3,7 @@ import React from 'react';
 import { ShoppingCart, History, Heart, Menu as MenuIcon, Users } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { PageRouter } from '@/components/layout/PageRouter';
+import { Footer } from '@/components/shared/Footer';
 import { AddToCartModal } from '@/components/modals/AddToCartModal';
 import { OrderCompleteModal } from '@/components/modals/OrderCompleteModal';
 import { PaymentCompleteModal } from '@/components/modals/PaymentCompleteModal';
@@ -73,9 +74,11 @@ export function AppContent() {
         onNavigateToOrderHistory={navigateToOrderHistory}
       />
       
-      <div className="py-16 px-20">
+      <div className="py-16 px-20 flex-1">
         <PageRouter />
       </div>
+      
+      <Footer />
       
       <div className="fixed inset-0 pointer-events-none">
         <AddToCartModal/>
