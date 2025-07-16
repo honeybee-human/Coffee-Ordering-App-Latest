@@ -76,17 +76,31 @@ export interface Order {
   groupMembers: GroupMember[];
   estimatedTime?: number; // in minutes
   groupName?: string;
-  paymentInfo?:PaymentInfo;
+  paymentInfo?: PaymentInfo;
+  isBookmarked?: boolean; // New field for bookmarking orders
 }
 
 export interface FavoriteItem {
   id: string;
-  type: 'coffee' | 'pastry';
+  type: 'coffee' | 'pastry' | 'cart-set'; // Added 'cart-set' type
   item: Coffee | Pastry;
   customizations: CoffeeCustomization | PastryCustomization;
   dateAdded: Date;
   assignedTo?: string;
   groupId: string;
+  // New fields for cart set favorites
+  cartItems?: CartItem[]; // For cart-set type favorites
+  customName?: string; // For personalized names like "My Workday Latte Set"
+}
+
+// New interface for cart set favorites
+export interface CartSetFavorite {
+  id: string;
+  name: string; // Personalized name
+  items: CartItem[];
+  dateAdded: Date;
+  groupId: string;
+  totalAmount: number;
 }
 
 export interface AppData {

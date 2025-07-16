@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft, User, Save, ShoppingCart, Trash2 } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { FavoriteCard } from '../shared/FavoriteCard';
@@ -9,8 +9,9 @@ import { useGroupsStore } from '@/store/useGroupsStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { AllergenFilter } from '../shared/AllergenFilter';
-import { FavoriteItem, CoffeeCustomization, PastryCustomization } from '@/types';
+import { FavoriteItem, CoffeeCustomization, PastryCustomization, CartSetFavorite } from '@/types';
 import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
+import { calculateCartSubtotal } from '@/utils/cart-calculations';
 
 interface PersonFavoritesGroup {
   personName: string;
@@ -23,6 +24,7 @@ export const FavoritesPage: React.FC = () => {
   const getGroupFavorites = useFavoritesStore(state => state.getGroupFavorites);
   const updateFavorite = useFavoritesStore(state => state.updateFavorite);
   const allFavorites = useFavoritesStore(state => state.favorites);
+  const { getGroupCartSetFavorites, removeCartSetFromFavorites, updateCartSetName } = useFavoritesStore();
   const excludedAllergens = useAllergensStore(state => state.excludedAllergens);
   const toggleAllergenFilter = useAllergensStore(state => state.toggleAllergenFilter);
   const clearAllergenFilters = useAllergensStore(state => state.clearAllergenFilters);
@@ -33,6 +35,10 @@ export const FavoritesPage: React.FC = () => {
   const favorites = useMemo(() => {
     return activeGroup ? getGroupFavorites(activeGroup.id) : [];
   }, [activeGroup, getGroupFavorites, allFavorites]);
+
+  const cartSetFavorites = useMemo(() => {
+    return activeGroup ? getGroupCartSetFavorites(activeGroup.id) : [];
+  }, [activeGroup, getGroupCartSetFavorites]);
 
   const groupAllergens = useMemo(() => {
     const allergenSet = new Set<string>();
@@ -100,8 +106,24 @@ export const FavoritesPage: React.FC = () => {
         quantity: 1,
         assignedTo: favorite.assignedTo
       };
-      useGroupsStore.getState().addToCart(activeGroup.id, cartItem);
+      useGroupsStore.getState().addToCart(activeGroup.id, {
+        ...cartItem,
+        type: cartItem.type as 'coffee' | 'pastry' // Explicitly type cast to allowed cart item types
+      });
       showAddToCartModal(favorite.item.name);
+    }
+  };
+
+  const handleAddCartSetToCart = (cartSet: CartSetFavorite) => {
+    if (activeGroup) {
+      cartSet.items.forEach(item => {
+        const cartItem = {
+          ...item,
+          id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        };
+        useGroupsStore.getState().addToCart(activeGroup.id, cartItem);
+      });
+      showAddToCartModal(`${cartSet.name} (${cartSet.items.length} items)`);
     }
   };
 
@@ -159,83 +181,147 @@ export const FavoritesPage: React.FC = () => {
         <h1 className="text-xl font-semibold">Favorites</h1>
       </div>
 
-<div className='flex w-full justify-end'>
-      <AllergenFilter 
-        filtersOpen={filtersOpen}
-        setFiltersOpen={setFiltersOpen}
-        excludedAllergens={excludedAllergens}
-        onToggleAllergenFilter={toggleAllergenFilter}
-        onClearAllergenFilters={clearAllergenFilters}
-        allAllergens={allAllergens}
-        groupBasedAllergens={groupBasedAllergens}
-        filteredOutCount={filteredOutCount}
-      />
+      <div className='flex w-full justify-end'>
+        <AllergenFilter 
+          filtersOpen={filtersOpen}
+          setFiltersOpen={setFiltersOpen}
+          excludedAllergens={excludedAllergens}
+          onToggleAllergenFilter={toggleAllergenFilter}
+          onClearAllergenFilters={clearAllergenFilters}
+          allAllergens={allAllergens}
+          groupBasedAllergens={groupBasedAllergens}
+          filteredOutCount={filteredOutCount}
+        />
       </div>
 
-      {favoritesByPerson.length === 0 ? (
-        <div className="text-center py-10 text-muted-foreground">
-          No favorites match the selected filters.
-        </div>
-      ) : (
-        <div className="space-y-6 pt-4">
-          {favoritesByPerson.map(({ personName, favorites, isUnassigned }) => (
-            <Card key={personName} className="bg-gray-50/50 border-gray-200">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <User className="h-5 w-5 text-primary" />
-                  {isUnassigned ? (
-                    <span className="text-muted-foreground">Unassigned Items</span>
-                  ) : (
-                    <span>{personName}</span>
-                  )}
-                  <span className="text-sm text-muted-foreground font-normal">
-                    ({favorites.length} item{favorites.length !== 1 ? 's' : ''})
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-start">
-                  {favorites.map(fav => (
-                    <FavoriteCard
-                      key={fav.id}
-                      favorite={fav}
-                      groupAllergens={groupAllergens}
-                      groupMembers={activeGroup?.members || []}
-                      onAddToCart={() => handleAddToCart(fav)}
-                      onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
-                      onEdit={() => handleEditFavorite(fav)}
-                      formatCustomizations={(favorite) => {
-                        if (favorite.type === 'coffee') {
-                          const customizations = favorite.customizations as any;
-                          const parts = [];
-                          
-                          if (customizations.milk && customizations.milk !== 'Whole Milk') {
-                            parts.push(`• ${customizations.milk}`);
+      <div className="space-y-6 pt-4">
+        {/* Cart Set Favorites Section */}
+        {cartSetFavorites.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Save className="h-5 w-5" />
+                <span>Saved Cart Sets</span>
+                <span className="text-sm text-muted-foreground font-normal">
+                  ({cartSetFavorites.length} set{cartSetFavorites.length !== 1 ? 's' : ''})
+                </span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {cartSetFavorites.map(cartSet => (
+                  <Card key={cartSet.id} className="border">
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">{cartSet.name}</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {cartSet.items.length} items • ${cartSet.totalAmount.toFixed(2)}
+                      </p>
+                    </CardHeader>
+                    <CardContent className="pt-2">
+                      <div className="space-y-1 mb-3">
+                        {cartSet.items.slice(0, 3).map((item, index) => (
+                          <p key={index} className="text-xs text-muted-foreground">
+                            {item.quantity}x {item.item.name}
+                            {item.assignedTo && ` (${item.assignedTo})`}
+                          </p>
+                        ))}
+                        {cartSet.items.length > 3 && (
+                          <p className="text-xs text-muted-foreground">
+                            +{cartSet.items.length - 3} more items
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          size="sm" 
+                          className="flex-1"
+                          onClick={() => handleAddCartSetToCart(cartSet)}
+                        >
+                          <ShoppingCart className="h-3 w-3 mr-1" />
+                          Add to Cart
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline"
+                          onClick={() => removeCartSetFromFavorites(cartSet.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Individual Favorites Section */}
+        {favoritesByPerson.length === 0 ? (
+          <div className="text-center py-10 text-muted-foreground">
+            No favorites match the selected filters.
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {favoritesByPerson.map(({ personName, favorites, isUnassigned }) => (
+              <Card key={personName} className="bg-gray-50/50 border-gray-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <User className="h-5 w-5 text-primary" />
+                    {isUnassigned ? (
+                      <span className="text-muted-foreground">Unassigned Items</span>
+                    ) : (
+                      <span>{personName}</span>
+                    )}
+                    <span className="text-sm text-muted-foreground font-normal">
+                      ({favorites.length} item{favorites.length !== 1 ? 's' : ''})
+                    </span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-start">
+                    {favorites.map(fav => (
+                      <FavoriteCard
+                        key={fav.id}
+                        favorite={fav}
+                        groupAllergens={groupAllergens}
+                        groupMembers={activeGroup?.members || []}
+                        onAddToCart={() => handleAddToCart(fav)}
+                        onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
+                        onEdit={() => handleEditFavorite(fav)}
+                        formatCustomizations={(favorite) => {
+                          if (favorite.type === 'coffee') {
+                            const customizations = favorite.customizations as any;
+                            const parts = [];
+                            
+                            if (customizations.milk && customizations.milk !== 'Whole Milk') {
+                              parts.push(`• ${customizations.milk}`);
+                            }
+                            
+                            if (customizations.syrups?.length > 0) {
+                              customizations.syrups.forEach((syrup: any) => {
+                                parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`);
+                              });
+                            }
+                            
+                            return parts.join('\n');
+                          } else {
+                            const customizations = favorite.customizations as any;
+                            if (customizations.removedIngredients?.length > 0) {
+                              return customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`).join('\n');
+                            }
+                            return '';
                           }
-                          
-                          if (customizations.syrups?.length > 0) {
-                            customizations.syrups.forEach((syrup: any) => {
-                              parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`);
-                            });
-                          }
-                          
-                          return parts.join('\n');
-                        } else {
-                          const customizations = favorite.customizations as any;
-                          if (customizations.removedIngredients?.length > 0) {
-                            return customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`).join('\n');
-                          }
-                          return '';
-                        }
-                      }}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+                        }}
+                      />
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

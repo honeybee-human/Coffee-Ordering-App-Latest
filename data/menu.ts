@@ -59,22 +59,14 @@ export const coffeeMenu: Coffee[] = [
     image: '/Flat White.png'
   },
   {
-    id: 'frappuccino',
-    name: 'Frappuccino',
-    price: 5.50,
-    allergens: ['Milk', 'Soy'],
-    description: 'Blended coffee drink with ice, milk, and flavored syrups',
-    image: '/Frappucino.png'
-  },
-  {
     id: 'cold-brew',
     name: 'Cold Brew',
     price: 3.75,
     allergens: [],
     description: 'Smooth, less acidic coffee steeped in cold water',
     image: '/Cold Brew.png'
-  },
-  {
+  }
+,  {
     id: 'frappuccino',
     name: 'Frappuccino',
     price: 5.50,

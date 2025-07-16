@@ -8,12 +8,16 @@ import {
   Pastry, 
   CoffeeCustomization, 
   PastryCustomization,
-  GroupMember
+  GroupMember,
+  CartItem,
+  CartSetFavorite
 } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
+import { calculateItemPrice } from '@/utils/cart-calculations';
 
 export interface FavoritesStore {
   favorites: FavoriteItem[];
+  cartSetFavorites: CartSetFavorite[]; // New field for cart sets
   
   // Actions
   addToFavorites: (favorite: FavoriteItem) => void;
@@ -38,10 +42,17 @@ export interface FavoritesStore {
     assignedTo?: string
   ) => void;
   resetFavorites: () => void;
+  
+  // New cart set actions
+  addCartSetToFavorites: (name: string, cartItems: CartItem[], groupId: string) => void;
+  removeCartSetFromFavorites: (cartSetId: string) => void;
+  getGroupCartSetFavorites: (groupId: string) => CartSetFavorite[];
+  updateCartSetName: (cartSetId: string, newName: string) => void;
 }
 
 type FavoritesPersist = {
   favorites: FavoriteItem[];
+  cartSetFavorites: CartSetFavorite[];
 };
 
 const storeImplementation: StateCreator<
@@ -51,6 +62,7 @@ const storeImplementation: StateCreator<
   FavoritesStore
 > = (set, get) => ({
   favorites: [],
+  cartSetFavorites: [],
 
   addToFavorites: (favorite: FavoriteItem) => {
     set((state) => ({
@@ -185,7 +197,43 @@ const storeImplementation: StateCreator<
 
   resetFavorites: () => {
     set({ favorites: [] });
-  }
+  },
+
+  addCartSetToFavorites: (name: string, cartItems: CartItem[], groupId: string) => {
+    const newCartSet: CartSetFavorite = {
+      id: uuidv4(),
+      name,
+      items: cartItems.map(item => ({ ...item })), // Deep copy
+      dateAdded: new Date(),
+      groupId,
+      totalAmount: cartItems.reduce((total, item) => 
+        total + (calculateItemPrice(item) * item.quantity), 0
+      )
+    };
+    
+    set((state) => ({
+      cartSetFavorites: [...state.cartSetFavorites, newCartSet]
+    }));
+  },
+
+  removeCartSetFromFavorites: (cartSetId: string) => {
+    set((state) => ({
+      cartSetFavorites: state.cartSetFavorites.filter(set => set.id !== cartSetId)
+    }));
+  },
+
+  getGroupCartSetFavorites: (groupId: string) => {
+    const { cartSetFavorites } = get();
+    return cartSetFavorites.filter(set => set.groupId === groupId);
+  },
+
+  updateCartSetName: (cartSetId: string, newName: string) => {
+    set((state) => ({
+      cartSetFavorites: state.cartSetFavorites.map(set =>
+        set.id === cartSetId ? { ...set, name: newName } : set
+      )
+    }));
+  },
 });
 
 export const useFavoritesStore = create<FavoritesStore>()(
@@ -195,7 +243,8 @@ export const useFavoritesStore = create<FavoritesStore>()(
       name: 'bean-bite-favorites',
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        favorites: state.favorites
+        favorites: state.favorites,
+        cartSetFavorites: state.cartSetFavorites
       }),
       serialize: (state) => JSON.stringify(state, (key, value) => {
         if (value instanceof Date) {

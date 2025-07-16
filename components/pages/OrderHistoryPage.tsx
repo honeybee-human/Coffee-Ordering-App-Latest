@@ -1,8 +1,10 @@
 import React from 'react';
-import { ArrowLeft, Clock, CheckCircle, Package, RefreshCw, User, Calendar, CreditCard, Users } from 'lucide-react';
+import { ArrowLeft, Clock, CheckCircle, Package, RefreshCw, User, Calendar, CreditCard, Users, Bookmark, BookmarkCheck } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/ui/card';
 import { Badge } from '@/ui/badge';
+import { Switch } from '@/ui/switch';
+import { Label } from '@/ui/label';
 import { Order, CartItem, GroupMember } from '@/types';
 import { GroupFilter } from '@/components/shared/GroupFilter';
 import { useNavigationStore } from '@/store/useNavigationStore';
@@ -13,6 +15,7 @@ import { useModalsStore } from '@/store/useModalsStore';
 export const OrderHistoryPage: React.FC = () => {
   const { navigateToMenu } = useNavigationStore();
   const orderHistory = useOrdersStore(state => state.orders);
+  const { toggleOrderBookmark } = useOrdersStore();
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const { showAllergenWarning } = useModalsStore();
   const { selectGroup } = useGroupsStore();
@@ -64,15 +67,32 @@ export const OrderHistoryPage: React.FC = () => {
   };
 
   const [selectedGroup, setSelectedGroup] = React.useState<string>('all');
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = React.useState(false);
   
   // Get unique group names from orders
   const groupNames = Array.from(new Set(orderHistory.map((order: Order) => order.groupName).filter(Boolean)));
 
-  // Filter orders based on selected group
+  // Filter orders based on selected group and bookmark status
   const filteredOrders = React.useMemo(() => {
-    if (selectedGroup === 'all') return orderHistory;
-    return orderHistory.filter((order: Order) => order.groupName === selectedGroup);
-  }, [orderHistory, selectedGroup]);
+    let filtered = orderHistory;
+    
+    // Filter by group
+    if (selectedGroup !== 'all') {
+      filtered = filtered.filter((order: Order) => order.groupName === selectedGroup);
+    }
+    
+    // Filter by bookmark status
+    if (showBookmarkedOnly) {
+      filtered = filtered.filter((order: Order) => order.isBookmarked);
+    }
+    
+    return filtered;
+  }, [orderHistory, selectedGroup, showBookmarkedOnly]);
+
+  const handleToggleBookmark = (orderId: string, event: React.MouseEvent) => {
+    event.stopPropagation();
+    toggleOrderBookmark(orderId);
+  };
 
   // Helper function to get status badge variant
   const getStatusBadgeVariant = (status: Order['status']) => {
@@ -115,7 +135,7 @@ export const OrderHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-4xl">
       <Button onClick={navigateToMenu} variant="outline">
         <ArrowLeft className="h-4 w-4 mr-2" />
         Back to Menu
@@ -123,9 +143,21 @@ export const OrderHistoryPage: React.FC = () => {
 
       <div>
         <h2 className="text-xl mb-2">Order History</h2>
-        <p className="text-muted-foreground">
+        <p className="text-muted-foreground mb-4">
           {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
+          {showBookmarkedOnly && ' (bookmarked only)'}
         </p>
+        
+        {/* Bookmark filter toggle */}
+        <div className="flex items-center space-x-2 mb-4">
+          <Switch
+            id="bookmark-filter"
+            checked={showBookmarkedOnly}
+            onCheckedChange={setShowBookmarkedOnly}
+          />
+          <Label htmlFor="bookmark-filter">Show bookmarked orders only</Label>
+        </div>
+        
         <GroupFilter
           groupNames={groupNames.filter((name): name is string => name !== undefined)}
           selectedGroup={selectedGroup}
@@ -152,9 +184,23 @@ export const OrderHistoryPage: React.FC = () => {
                     </div>
                   </div>
                 </div>
-                <Badge variant={getStatusBadgeVariant(order.status)}>
-                  {order.status}
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => handleToggleBookmark(order.id, e)}
+                    className="p-2"
+                  >
+                    {order.isBookmarked ? (
+                      <BookmarkCheck className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Bookmark className="h-4 w-4" />
+                    )}
+                  </Button>
+                  <Badge variant={getStatusBadgeVariant(order.status)}>
+                    {order.status}
+                  </Badge>
+                </div>
               </div>
             </CardHeader>
             <CardContent>

@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShoppingCart, Plus, Minus, Trash2, AlertTriangle, User } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingCart, Plus, Minus, Trash2, AlertTriangle, User, Save } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
 import { Separator } from '@/ui/separator';
@@ -11,6 +11,10 @@ import CustomizationsList from '../shared/ListCustoms';
 import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
+import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/ui/dialog';
+import { Input } from '@/ui/input';
+import { Label } from '@/ui/label';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -21,6 +25,9 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   const cartTotal = useCartTotal();
   const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
   const { navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
+  const { addCartSetToFavorites } = useFavoritesStore();
+  const [saveSetDialogOpen, setSaveSetDialogOpen] = useState(false);
+  const [cartSetName, setCartSetName] = useState('');
 
   const groupMembers = activeGroup?.members || [];
   const cartItems = activeGroup?.cart || [];
@@ -48,6 +55,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   const handleClearCart = React.useCallback(() => {
     if (!activeGroup) return;
     clearCart(activeGroup.id);
+
   }, [activeGroup, clearCart]);
 
   const handleEditCartItem = React.useCallback((item: CartItem) => {
@@ -105,6 +113,15 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
     }
   }, [activeGroup, navigateToCoffeeDetail, navigateToPastryDetail, removeFromCart]);
 
+  const handleSaveCartSet = () => {
+    if (!activeGroup || !cartSetName.trim() || cartItems.length === 0) return;
+    
+    addCartSetToFavorites(cartSetName.trim(), cartItems, activeGroup.id);
+    setCartSetName('');
+    setSaveSetDialogOpen(false);
+    // Show success message
+  };
+
   if (cartItems.length === 0) {
     return (
       <div className="space-y-6">
@@ -128,10 +145,52 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2>Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
-        <Button variant="outline" onClick={handleClearCart} size="sm">
-          <Trash2 className="h-4 w-4 mr-2" />
-          Clear Cart
-        </Button>
+        <div className="flex gap-2">
+          {cartItems.length > 0 && (
+            <Dialog open={saveSetDialogOpen} onOpenChange={setSaveSetDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <Save className="h-4 w-4 mr-2" />
+                  Save as Set
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Save Cart as Favorite Set</DialogTitle>
+                  <DialogDescription>
+                    Give your cart set a personalized name (e.g., "My Workday Latte Set")
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="set-name" className="text-right">
+                      Name
+                    </Label>
+                    <Input
+                      id="set-name"
+                      value={cartSetName}
+                      onChange={(e) => setCartSetName(e.target.value)}
+                      className="col-span-3"
+                      placeholder="e.g., My Workday Latte Set"
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button 
+                    onClick={handleSaveCartSet}
+                    disabled={!cartSetName.trim()}
+                  >
+                    Save Set
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          )}
+          <Button variant="outline" onClick={handleClearCart} size="sm">
+            <Trash2 className="h-4 w-4 mr-2" />
+            Clear Cart
+          </Button>
+        </div>
       </div>
 
       {Object.entries(groupedItems).map(([personName, items]) => {

@@ -14,6 +14,9 @@ export interface OrdersStore {
   clearOrderHistory: () => void;
   removeOrder: (orderId: string) => void;
   getGroupOrders: (groupId: string) => Order[];
+  // New bookmark actions
+  toggleOrderBookmark: (orderId: string) => void;
+  getBookmarkedOrders: () => Order[];
 }
 
 type OrdersPersist = {
@@ -172,7 +175,22 @@ const storeImplementation: StateCreator<
   getGroupOrders: (groupId: string) => {
     const { orders } = get();
     return orders.filter(order => order.groupId === groupId);
-  }
+  },
+
+  toggleOrderBookmark: (orderId: string) => {
+    set((state) => ({
+      orders: state.orders.map(order =>
+        order.id === orderId 
+          ? { ...order, isBookmarked: !order.isBookmarked }
+          : order
+      )
+    }));
+  },
+
+  getBookmarkedOrders: () => {
+    const { orders } = get();
+    return orders.filter(order => order.isBookmarked);
+  },
 });
 
 export const useOrdersStore = create<OrdersStore>()(

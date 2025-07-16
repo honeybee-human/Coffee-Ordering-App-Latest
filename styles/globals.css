@@ -77,6 +77,8 @@
   --destructive-foreground: #ffffff;
   --border: rgba(245, 241, 235, 0.15);
   --input: #1a0f08;
+  --input-background: #1a0f08;
+  --switch-background: #3a2f28;
   --ring: #d4af37;
   --font-weight-medium: 500;
   --font-weight-normal: 400;
