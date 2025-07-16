@@ -128,7 +128,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
                         )}
                       </div>
                       {member.allergens && member.allergens.length > 0 && (
-                        <div className="text-xs text-muted-foreground mt-1">
+                        <div className="text-sm text-muted-foreground mt-1">
                           Allergic to: {member.allergens.join(', ')}
                         </div>
                       )}
@@ -139,30 +139,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
             </Select>
           </div>
 
-          {/* Show warning if selected person has allergen conflicts */}
-          {selectedPerson && selectedPerson !== "unassigned" && (() => {
-            const selectedMember = activeGroup.members.find(m => m.name === selectedPerson);
-            const hasConflict = selectedMember && hasAllergenConflict(selectedMember, comprehensiveAllergens);
-            
-            if (hasConflict && selectedMember) {
-              const conflictingAllergens = getConflictingAllergens(selectedMember, comprehensiveAllergens);
-
-              return (
-                <div className="flex items-start gap-2 p-3 bg-destructive/10 rounded-lg">
-                  <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-destructive">
-                      Allergen Warning for {selectedPerson}
-                    </p>
-                    <p className="text-xs text-destructive/80">
-                      This item may contain: {conflictingAllergens.join(', ')}
-                    </p>
-                  </div>
-                </div>
-              );
-            }
-            return null;
-          })()}
+ 
 
           {/* Show blocking message for members with conflicts */}
           {(() => {
@@ -178,7 +155,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
                     <p className="text-sm font-medium text-yellow-800">
                       Assignment Blocked
                     </p>
-                    <p className="text-xs text-yellow-700">
+                    <p className="text-sm text-yellow-700">
                       Cannot assign to {membersWithConflicts.map(m => m.name).join(', ')} due to allergen conflicts with selected milk or syrups.
                     </p>
                   </div>
