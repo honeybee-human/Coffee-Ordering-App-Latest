@@ -5,12 +5,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { GroupMember, Group } from '@/types';
 import { MemberSearchBar } from '../shared/MemberSearchBar';
 import { Badge } from '@/ui/badge';
+import { useAllMembers } from '@/store/useGroupsStore';
 
 interface AddExistingMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
   onAddMember: (member: GroupMember) => void;
-  existingMembers: GroupMember[];
   currentGroup: Group | null | undefined;
 }
 
@@ -18,27 +18,29 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
   isOpen,
   onClose,
   onAddMember,
-  existingMembers,
   currentGroup
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  
+  // Get all members from the store directly
+  const allMembers = useAllMembers();
 
   // Filter out members who are already in the current group
   const availableMembers = useMemo(() => {
     if (!currentGroup || !currentGroup.members) {
-      return existingMembers;
+      return allMembers;
     }
     
     const currentGroupMemberNames = currentGroup.members.map(m => m.name.toLowerCase());
-    return existingMembers.filter(member => 
+    return allMembers.filter((member: { name: string; }) => 
       !currentGroupMemberNames.includes(member.name.toLowerCase())
     );
-  }, [existingMembers, currentGroup]);
+  }, [allMembers, currentGroup]);
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery.trim()) return availableMembers;
     
-    return availableMembers.filter(member => 
+    return availableMembers.filter((member: { name: string; }) => 
       member.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [availableMembers, searchQuery]);
@@ -59,6 +61,9 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add Existing Member</DialogTitle>
+          <DialogDescription>
+            Choose from existing members to add to this group
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <MemberSearchBar
@@ -66,6 +71,10 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
             onSearchChange={setSearchQuery}
             placeholder="Search existing members..."
           />
+          
+          <div className="text-sm text-muted-foreground">
+            {availableMembers.length} members available • {allMembers.length} total members
+          </div>
           
           <div className="max-h-60 overflow-y-auto space-y-2">
             {filteredMembers.length === 0 ? (
@@ -78,18 +87,20 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
                 }
               </p>
             ) : (
-              filteredMembers.map((member, index) => (
+              filteredMembers.map((member: GroupMember, index: any) => (
                 <div key={`${member.name}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex-1">
                     <p className="font-medium">{member.name}</p>
-                    {member.allergens && member.allergens.length > 0 && (
+                    {member.allergens && member.allergens.length > 0 ? (
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {member.allergens.map((allergen, idx) => (
+                        {member.allergens.map((allergen: string | number | boolean | React.ReactElement<any, string | React.JSXElementConstructor<any>> | Iterable<React.ReactNode> | React.ReactPortal | null | undefined, idx: React.Key | null | undefined) => (
                           <Badge key={idx} variant="secondary" className="text-xs">
                             {allergen}
                           </Badge>
                         ))}
                       </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">No allergies</p>
                     )}
                   </div>
                   <Button

@@ -30,6 +30,7 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
     
     if (isMember) {
       // Member is currently IN this group, so REMOVE them
+      // Only clean up favorites for this specific group
       cleanupMemberFavorites(selectedMember.name, groupId);
       onToggleMemberGroup(groupId, false); // false = removing
     } else {

@@ -7,6 +7,7 @@ import { GroupController } from '@/controllers/GroupController';
 interface GroupsStore {
   groups: Group[];
   activeGroupId: string | null;
+  allMembers: GroupMember[]; // Add this new state
   
   // Add this
   initialize: () => void;
@@ -17,7 +18,7 @@ interface GroupsStore {
   // Actions - no longer call other stores directly
   createGroup: (name: string) => void;
   addGroupMember: (groupId: string, member: GroupMember) => void;
-  removeGroupMember: (groupId: string, memberName: string, onMemberRemoved?: (memberName: string, groupId: string) => void) => void;
+  removeGroupMember: (groupId: string, memberName: string) => void; // Remove callback parameter
   selectGroup: (groupId: string) => void;
   deleteGroup: (groupId: string) => void;
   renameGroup: (groupId: string, newName: string) => void;
@@ -33,27 +34,36 @@ interface GroupsStore {
   
   // Add this new action
   toggleFavoriteGroup: (groupId: string) => void;
+  
+  // Add these new methods for managing allMembers
+  addMember: (member: GroupMember) => void;
+  removeMember: (memberName: string) => void;
+  updateMember: (oldName: string, updatedMember: GroupMember) => void;
+  getMemberByName: (name: string) => GroupMember | undefined;
 }
 
 export const useGroupsStore = create<GroupsStore>()(persist(
   (set, get) => ({
     groups: [],
     activeGroupId: null,
+    allMembers: [], // Initialize empty array
 
     // Add initialization logic
     initialize: () => {
-      const { groups } = get();
+      const { groups, allMembers } = get();
       if (groups.length === 0) {
+        const defaultMember = { name: 'You', allergens: ["Blueberries"] };
         const defaultGroup = {
           id: Date.now().toString(),
           name: 'My First Group',
-          members: [{ name: 'You', allergens: ["Blueberries"] }],
+          members: [defaultMember],
           cart: [],
           dateCreated: new Date()
         };
         set({
           groups: [defaultGroup],
-          activeGroupId: defaultGroup.id
+          activeGroupId: defaultGroup.id,
+          allMembers: [defaultMember] // Initialize with default member
         });
       }
     },
@@ -72,26 +82,31 @@ export const useGroupsStore = create<GroupsStore>()(persist(
     },
 
     addGroupMember: (groupId: string, member: GroupMember) => {
-      set(state => ({
-        groups: state.groups.map(group => 
-          group.id === groupId 
-            ? GroupController.addMemberToGroup(group, member)
-            : group
-        )
-      }));
+      set(state => {
+        // Add to allMembers if not already there
+        const memberExists = state.allMembers.some(m => m.name === member.name);
+        const newAllMembers = memberExists ? state.allMembers : [...state.allMembers, member];
+        
+        return {
+          groups: state.groups.map(group => 
+            group.id === groupId 
+              ? GroupController.addMemberToGroup(group, member)
+              : group
+          ),
+          allMembers: newAllMembers
+        };
+      });
     },
 
-    removeGroupMember: (groupId: string, memberName: string, onMemberRemoved?: (memberName: string, groupId: string) => void) => {
+    removeGroupMember: (groupId: string, memberName: string) => {
       set(state => ({
         groups: state.groups.map(group => 
           group.id === groupId 
             ? GroupController.removeMemberFromGroup(group, memberName)
             : group
         )
+        // Note: NOT removing from allMembers - member stays in the global list
       }));
-      
-      // Call the callback to handle cleanup in other stores
-      onMemberRemoved?.(memberName, groupId);
     },
 
     selectGroup: (groupId: string) => {
@@ -119,8 +134,6 @@ export const useGroupsStore = create<GroupsStore>()(persist(
         )
       }));
     },
-
-
 
     // Cart actions
     addToCart: (groupId: string, item: CartItem) => {
@@ -172,16 +185,18 @@ export const useGroupsStore = create<GroupsStore>()(persist(
     },
 
     resetAllData: () => {
+      const defaultMember = { name: 'You', allergens: ["Blueberries"] };
       const defaultGroup = {
         id: Date.now().toString(),
         name: 'My First Group',
-        members: [{ name: 'You', allergens: ["Blueberries"] }],
+        members: [defaultMember],
         cart: [],
         dateCreated: new Date()
       };
       set({
         groups: [defaultGroup],
-        activeGroupId: defaultGroup.id
+        activeGroupId: defaultGroup.id,
+        allMembers: [defaultMember] // Reset all members too
       });
     },
     
@@ -195,10 +210,52 @@ export const useGroupsStore = create<GroupsStore>()(persist(
         )
       }));
     },
+
+    // Implement the allMembers management methods
+    addMember: (member: GroupMember) => {
+      set(state => {
+        const memberExists = state.allMembers.some(m => m.name === member.name);
+        if (memberExists) return state;
+        
+        return {
+          allMembers: [...state.allMembers, member]
+        };
+      });
+    },
+
+    removeMember: (memberName: string) => {
+      set(state => ({
+        allMembers: state.allMembers.filter(member => member.name !== memberName),
+        // Also remove from all groups
+        groups: state.groups.map(group => ({
+          ...group,
+          members: group.members.filter(member => member.name !== memberName)
+        }))
+      }));
+    },
+
+    updateMember: (oldName: string, updatedMember: GroupMember) => {
+      set(state => ({
+        allMembers: state.allMembers.map(member => 
+          member.name === oldName ? updatedMember : member
+        ),
+        // Also update in all groups
+        groups: state.groups.map(group => ({
+          ...group,
+          members: group.members.map(member =>
+            member.name === oldName ? updatedMember : member
+          )
+        }))
+      }));
+    },
+
+    getMemberByName: (name: string) => {
+      const { allMembers } = get();
+      return allMembers.find(member => member.name === name);
+    },
   }),
   { name: 'groups-store' }
 ));
-
 
 // Custom hooks for convenience
 export const useActiveGroup = () => {
@@ -207,6 +264,10 @@ export const useActiveGroup = () => {
 
 export const useGroups = () => {
   return useGroupsStore(state => state.groups);
+};
+
+export const useAllMembers = () => {
+  return useGroupsStore(state => state.allMembers);
 };
 
 export const useCartCount = () => {
