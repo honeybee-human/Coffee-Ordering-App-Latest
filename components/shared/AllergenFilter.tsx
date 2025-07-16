@@ -62,7 +62,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
     const animalProducts = {
       id: 'animal-products',
       name: 'Animal Products',
-      allergens: ['Milk', 'Butter', 'Cream', 'Eggs']
+      allergens: ['Milk', 'Butter', 'Cream', 'Cheese', 'Eggs']
     };
 
     const grains = {
@@ -297,6 +297,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                     <AlertTriangle className="h-5 w-5 text-destructive" />
                     Exclude:
                   </DialogTitle>
+                  
                   {excludedAllergens.length > 0 && (
                     <Button 
                       variant="ghost" 
@@ -310,6 +311,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                   )}
                 </div>
               </DialogHeader>
+              
               {FilterContent}
             </DialogContent>
           </Dialog>
@@ -343,8 +345,11 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                     </Button>
                   )}
                 </div>
+                      <span>Common allergens in our current menu items are listed here. Add uncommon ones via group member or custom filter.</span>
+
               </CardHeader>
               <CardContent>
+                
                 {FilterContent}
               </CardContent>
             </Card>

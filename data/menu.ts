@@ -131,8 +131,8 @@ export const pastryMenu: Pastry[] = [
     id: 'danish',
     name: 'Cheese Danish',
     price: 3.95,
-    allergens: ['Gluten',  'Eggs'],
-    ingredients: ['Wheat flour', 'Cream cheese', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Fruit preserves'],
+    allergens: ['Gluten',  'Eggs', 'Cheese'],
+    ingredients: ['Wheat flour', 'Cheese', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Fruit preserves'],
     removableIngredients: ['Cream cheese filling', 'Fruit topping'],
     description: 'Flaky pastry filled with sweet cream cheese',
     image: '/Cheese Danish.png'
