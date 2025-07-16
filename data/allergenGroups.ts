@@ -4,7 +4,7 @@ import { AllergenGroup, AllergenCollection } from '@/types';
 export const allergenGroups: AllergenGroup[] = [
   {
     id: 'tree-nuts',
-    name: 'Nuts',
+    name: 'Tree Nuts',
     description: 'All tree nuts including almonds, walnuts, pecans, etc.',
     allergens: [
       'Almonds',

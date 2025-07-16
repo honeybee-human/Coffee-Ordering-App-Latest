@@ -1,4 +1,6 @@
 import { Coffee, Pastry } from '@/types';
+import { allergenCollection, allergenGroups, individualAllergens } from '@/data/allergenGroups';
+
 
 export const coffeeMenu: Coffee[] = [
   {
@@ -81,6 +83,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Butter Croissant',
     price: 3.25,
     allergens: ['Gluten', 'Milk', 'Eggs'],
+    ingredients: ['Wheat flour', 'Butter', 'Eggs', 'Milk', 'Yeast', 'Salt', 'Sugar'],
     removableIngredients: ['Butter glaze'],
     description: 'Flaky, buttery French pastry perfect with coffee',
     image: '/Butter Croissant.png'
@@ -90,6 +93,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Chocolate Croissant',
     price: 3.75,
     allergens: ['Gluten', 'Milk', 'Eggs', 'Soy'],
+    ingredients: ['Wheat flour', 'Butter', 'Eggs', 'Milk', 'Dark chocolate', 'Soy lecithin', 'Yeast', 'Salt', 'Sugar'],
     removableIngredients: ['Chocolate filling'],
     description: 'Buttery croissant filled with rich dark chocolate',
     image: '/Chocolate Croissant.png'
@@ -99,6 +103,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Blueberry Muffin',
     price: 2.95,
     allergens: ['Gluten', 'Milk', 'Eggs'],
+    ingredients: ['Wheat flour', 'Fresh blueberries', 'Eggs', 'Milk', 'Butter', 'Sugar', 'Baking powder', 'Vanilla', 'Lemon zest'],
     removableIngredients: ['Blueberries', 'Sugar topping', 'Lemon zest'],
     description: 'Moist muffin bursting with fresh blueberries',
     image: '/Blueberry Muffin.png'
@@ -108,6 +113,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Banana Bread',
     price: 3.50,
     allergens: ['Gluten', 'Milk', 'Eggs', 'Nuts'],
+    ingredients: ['Wheat flour', 'Ripe bananas', 'Walnuts', 'Eggs', 'Butter', 'Sugar', 'Baking soda', 'Vanilla', 'Chocolate chips'],
     removableIngredients: ['Walnuts', 'Chocolate chips'],
     description: 'Sweet, moist bread made with ripe bananas and walnuts',
     image: '/Banana Bread.png'
@@ -117,6 +123,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Cranberry Scone',
     price: 3.25,
     allergens: ['Gluten', 'Milk'],
+    ingredients: ['Wheat flour', 'Dried cranberries', 'Butter', 'Milk', 'Sugar', 'Baking powder', 'Orange zest', 'Salt'],
     removableIngredients: ['Cranberries', 'Orange zest', 'Sugar glaze'],
     description: 'Traditional British scone with tart cranberries',
     image: '/Cranberry Scone.png'
@@ -126,6 +133,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Cheese Danish',
     price: 3.95,
     allergens: ['Gluten', 'Milk', 'Eggs'],
+    ingredients: ['Wheat flour', 'Cream cheese', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Fruit preserves'],
     removableIngredients: ['Cream cheese filling', 'Fruit topping'],
     description: 'Flaky pastry filled with sweet cream cheese',
     image: '/Cheese Danish.png'
@@ -135,6 +143,7 @@ export const pastryMenu: Pastry[] = [
     name: 'Everything Bagel',
     price: 2.50,
     allergens: ['Gluten', 'Sesame'],
+    ingredients: ['Wheat flour', 'Sesame seeds', 'Poppy seeds', 'Dried garlic', 'Dried onion', 'Salt', 'Yeast', 'Water'],
     removableIngredients: ['Everything seasoning', 'Sesame seeds', 'Poppy seeds'],
     description: 'Classic bagel topped with savory everything seasoning',
     image: '/Everything Bagel.png'
@@ -143,25 +152,43 @@ export const pastryMenu: Pastry[] = [
     id: 'cinnamon-roll',
     name: 'Cinnamon Roll',
     price: 4.25,
-    allergens: ['Gluten', 'Milk', 'Eggs'],
+    allergens: ['Gluten', 'Milk', 'Eggs', 'Pecans'],
+    ingredients: ['Wheat flour', 'Cinnamon', 'Pecans', 'Butter', 'Eggs', 'Milk', 'Sugar', 'Yeast', 'Vanilla', 'Powdered sugar'],
     removableIngredients: ['Cinnamon filling', 'Icing', 'Pecans'],
     description: 'Warm, gooey roll with cinnamon and sweet icing',
     image: '/Cinnamon Roll.png'
+  },
+  {
+    id: 'raspberry-muffin',
+    name: 'Raspberry Muffin',
+    description: 'Fresh baked muffin with juicy raspberries',
+    price: 3.25,
+    image: '/Blueberry Muffin.png',
+    allergens: ['Gluten', 'Eggs', 'Dairy'],
+    ingredients: ['Wheat flour', 'Fresh raspberries', 'Eggs', 'Milk', 'Butter', 'Sugar', 'Baking powder', 'Vanilla'],
+    removableIngredients: ['Raspberries']
+  },
+  {
+    id: 'mixed-berry-scone',
+    name: 'Mixed Berry Scone',
+    description: 'Buttery scone with mixed berries',
+    price: 3.75,
+    image: '/Cranberry Scone.png',
+    allergens: ['Gluten', 'Dairy'],
+    ingredients: ['Wheat flour', 'Mixed berries', 'Butter', 'Milk', 'Sugar', 'Baking powder', 'Salt'],
+    removableIngredients: ['Berries']
   }
 ];
 
 // Common allergen list for reference
+// Export the allergen collection for use in components
+export { allergenCollection, allergenGroups, individualAllergens };
+
+// Updated common allergens list that includes all possible allergens
 export const commonAllergens = [
-  'Milk',
-  'Eggs',
-  'Gluten',
-  'Nuts',
-  'Peanuts',
-  'Soy',
-  'Sesame',
-  'Fish',
-  'Shellfish'
-];
+  ...allergenCollection.groups.flatMap((group: { allergens: any; }) => group.allergens),
+  ...allergenCollection.individualAllergens
+].sort();
 
 // Milk options for coffee customization
 export const milkOptions = [

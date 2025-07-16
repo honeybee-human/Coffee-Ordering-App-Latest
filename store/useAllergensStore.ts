@@ -1,190 +1,183 @@
 import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
-import { Coffee, Pastry, Group, GroupMember, CartItem, CoffeeCustomization } from '@/types';
+import { Coffee, Pastry, GroupMember } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
-import { containsDairy } from '@/data/menu';
-import { normalizeAllergens } from '@/utils/allergens';
+import { allergenGroups } from '@/data/allergenGroups';
 
-interface AllergensStore {
+interface GroupAllergensStore {
   // State
   excludedAllergens: string[];
-  autoFilterEnabled: boolean; // New toggle state
-  
+  autoFilterEnabled: boolean;
+
   // Actions
   setExcludedAllergens: (allergens: string[]) => void;
   toggleAllergenFilter: (allergen: string) => void;
+  toggleAutoFilter: () => void;
   clearAllergenFilters: () => void;
   addMemberAllergensToFilters: (memberName: string, groupId: string, allergens: string[]) => void;
   updateFiltersFromGroupMembers: () => void;
-  toggleAutoFilter: () => void; // New action
-  
+
   // Helper functions
   getItemAllergens: (item: Coffee | Pastry) => string[];
-  getAllAllergens: (item: CartItem) => string[];
   hasAllergenConflict: (item: Coffee | Pastry) => boolean;
-  checkAllergenConflicts: (allergens: string[], members: GroupMember[]) => string[];
+  checkAllergenConflicts: (itemAllergens: string[], members: GroupMember[]) => GroupMember[];
 }
 
-// Define the shape of the persisted state
 type AllergensPersist = {
   excludedAllergens: string[];
-  autoFilterEnabled: boolean; // Persist the toggle state
+  autoFilterEnabled: boolean;
 };
 
-export const useAllergensStore = create<AllergensStore>()(  
-  persist(
-    (set, get) => ({
-      // Initial state
-      excludedAllergens: [],
-      autoFilterEnabled: false, // Default to disabled
-      
-      // Actions
-      setExcludedAllergens: (allergens: string[]) => {
-        set({ excludedAllergens: allergens });
-      },
-      
-      toggleAllergenFilter: (allergen: string) => {
-        set(state => {
-          const currentAllergens = state.excludedAllergens;
-          const allergenIndex = currentAllergens.indexOf(allergen);
+export const useAllergensStore = create<GroupAllergensStore>()(persist(
+  (set, get) => ({
+    // State
+    excludedAllergens: [],
+    autoFilterEnabled: false,
+
+    // Actions
+    setExcludedAllergens: (allergens: string[]) => {
+      set({ excludedAllergens: allergens });
+    },
+
+    toggleAllergenFilter: (allergen: string) => {
+      set(state => {
+        const currentAllergens = state.excludedAllergens;
+        const allergenIndex = currentAllergens.indexOf(allergen);
+        
+        if (allergenIndex === -1) {
+          // Adding allergen - check if it's a group name
+          const isGroupName = allergenGroups.find(group => 
+            group.name.toLowerCase() === allergen.toLowerCase() || group.id === allergen
+          );
           
-          if (allergenIndex === -1) {
-            return { excludedAllergens: [...currentAllergens, allergen] };
-          } else {
+          if (isGroupName) {
+            // Adding a group - add all allergens from the group
+            const groupAllergens = isGroupName.allergens.filter(
+              groupAllergen => !currentAllergens.includes(groupAllergen)
+            );
             return { 
-              excludedAllergens: [
-                ...currentAllergens.slice(0, allergenIndex),
-                ...currentAllergens.slice(allergenIndex + 1)
-              ] 
+              excludedAllergens: [...currentAllergens, ...groupAllergens]
+            };
+          } else {
+            // Adding individual allergen - just add it
+            return { 
+              excludedAllergens: [...currentAllergens, allergen]
             };
           }
-        });
-      },
-      
-      clearAllergenFilters: () => {
-        set({ excludedAllergens: [] });
-      },
-      
-      toggleAutoFilter: () => {
-        set(state => {
-          const newAutoFilterEnabled = !state.autoFilterEnabled;
-          
-          // If enabling auto-filter, immediately update filters
-          if (newAutoFilterEnabled) {
-            const { updateFiltersFromGroupMembers } = get();
-            // Use setTimeout to ensure state is updated first
-            setTimeout(() => updateFiltersFromGroupMembers(), 0);
-          }
-          
-          return { autoFilterEnabled: newAutoFilterEnabled };
-        });
-      },
-      
-      addMemberAllergensToFilters: (memberName: string, groupId: string, allergens: string[]) => {
-        const appStore = useGroupsStore.getState();
-        const group = appStore.groups.find(g => g.id === groupId);
-        if (!group) return;
-        
-        const existingMemberIndex = group.members.findIndex((m: { name: string; }) => m.name === memberName);
-        
-        if (existingMemberIndex >= 0) {
-          const updatedMember = {
-            ...group.members[existingMemberIndex],
-            allergens: allergens
-          };
-          appStore.removeGroupMember(groupId, memberName);
-          appStore.addGroupMember(groupId, updatedMember);
         } else {
-          const newMember: GroupMember = {
-            name: memberName,
-            allergens: allergens
-          };
-          appStore.addGroupMember(groupId, newMember);
-        }
-        
-        // Only auto-add to filters if auto-filter is enabled
-        const { autoFilterEnabled } = get();
-        if (autoFilterEnabled) {
-          set(state => {
-            const currentAllergens = new Set(state.excludedAllergens);
-            allergens.forEach(allergen => currentAllergens.add(allergen));
-            return { excludedAllergens: Array.from(currentAllergens) };
-          });
-        }
-      },
-      
-      updateFiltersFromGroupMembers: () => {
-        const { autoFilterEnabled } = get();
-        if (!autoFilterEnabled) return; // Don't update if auto-filter is disabled
-        
-        const { groups } = useGroupsStore.getState();
-        const activeGroupId = useGroupsStore.getState().activeGroupId;
-        
-        if (!activeGroupId) return;
-        
-        const activeGroup = groups.find(g => g.id === activeGroupId);
-        if (!activeGroup) return;
-        
-        // Collect all allergens from group members
-        const groupAllergens = new Set<string>();
-        activeGroup.members.forEach(member => {
-          if (member.allergens && member.allergens.length > 0) {
-            member.allergens.forEach(allergen => groupAllergens.add(allergen));
-          }
-        });
-        
-        // Update excluded allergens to include all group member allergens
-        set(state => {
-          const currentAllergens = new Set(state.excludedAllergens);
-          groupAllergens.forEach(allergen => currentAllergens.add(allergen));
-          return { excludedAllergens: Array.from(currentAllergens) };
-        });
-      },
-      
-      // Helper functions
-      getItemAllergens: (item: Coffee | Pastry): string[] => {
-        return item.allergens || [];
-      },
-
-      getAllAllergens: (item: CartItem): string[] => {
-        const baseAllergens = [...item.item.allergens];
-        
-        if (item.type === 'coffee') {
-          const customizations = item.customizations as CoffeeCustomization;
-          if (customizations.milk && containsDairy(customizations.milk)) {
-            if (!baseAllergens.includes('Milk')) {
-              baseAllergens.push('Milk');
+          // Removing allergen - check if it belongs to a group
+          const belongsToGroup = allergenGroups.find(group => 
+            group.allergens.includes(allergen)
+          );
+          
+          if (belongsToGroup) {
+            // Check if all allergens from this group are currently selected
+            const allGroupSelected = belongsToGroup.allergens.every(groupAllergen => 
+              currentAllergens.includes(groupAllergen)
+            );
+            
+            if (allGroupSelected) {
+              // Remove all allergens from the group
+              const filteredAllergens = currentAllergens.filter(a => 
+                !belongsToGroup.allergens.includes(a)
+              );
+              return { excludedAllergens: filteredAllergens };
+            } else {
+              // Only remove this specific allergen
+              const filteredAllergens = currentAllergens.filter(a => a !== allergen);
+              return { excludedAllergens: filteredAllergens };
             }
+          } else {
+            // Remove individual allergen
+            const filteredAllergens = currentAllergens.filter(a => a !== allergen);
+            return { excludedAllergens: filteredAllergens };
           }
         }
-        
-        return normalizeAllergens(baseAllergens);
-      },
-      
-      hasAllergenConflict: (item: Coffee | Pastry): boolean => {
-        const { excludedAllergens, getItemAllergens } = get();
-        if (!excludedAllergens.length) return false;
-        
-        const itemAllergens = getItemAllergens(item);
-        return itemAllergens.some(allergen => excludedAllergens.includes(allergen));
-      },
+      });
+    },
 
-      checkAllergenConflicts: (allergens: string[], members: GroupMember[]): string[] => {
-        return members
-          .filter(member => allergens.some(allergen => member.allergens.includes(allergen)))
-          .map(member => member.name);
+    clearAllergenFilters: () => {
+      set({ excludedAllergens: [] });
+    },
+
+    addMemberAllergensToFilters: (memberName: string, groupId: string, allergens: string[]) => {
+      const appStore = useGroupsStore.getState();
+      const group = appStore.groups.find(g => g.id === groupId);
+      if (!group) return;
+  
+      const existingMemberIndex = group.members.findIndex((m: { name: string; }) => m.name === memberName);
+  
+      if (existingMemberIndex >= 0) {
+        const updatedMember = {
+          ...group.members[existingMemberIndex],
+          allergens: allergens
+        };
+  
+        appStore.removeGroupMember(groupId, memberName);
+        appStore.addGroupMember(groupId, updatedMember);
+      } else {
+        const newMember: GroupMember = {
+          name: memberName,
+          allergens: allergens
+        };
+  
+        appStore.addGroupMember(groupId, newMember);
       }
-    }),
-    {
-      name: 'bean-bite-allergens',
-      partialize: (state) => ({ 
-        excludedAllergens: state.excludedAllergens,
-        autoFilterEnabled: state.autoFilterEnabled 
-      })
-    } as PersistOptions<AllergensStore, AllergensPersist>
-  )
-);
+  
+      set(state => {
+        const currentAllergens = new Set(state.excludedAllergens);
+        allergens.forEach(allergen => currentAllergens.add(allergen));
+        return { excludedAllergens: Array.from(currentAllergens) };
+      });
+    },
 
-// Selector hooks
+    // Helper functions
+    getItemAllergens: (item: Coffee | Pastry): string[] => {
+      return item.allergens || [];
+    },
+
+    hasAllergenConflict: (item: Coffee | Pastry): boolean => {
+      const { excludedAllergens, getItemAllergens } = get();
+      if (!excludedAllergens.length) return false;
+  
+      const itemAllergens = getItemAllergens(item);
+      return itemAllergens.some(allergen => excludedAllergens.includes(allergen));
+    },
+
+    checkAllergenConflicts: (itemAllergens: string[], members: GroupMember[]) => {
+      return members.filter(member =>
+        member.allergens.some(allergen => itemAllergens.includes(allergen))
+      );
+    },
+
+    toggleAutoFilter: () => {
+      set(state => ({ autoFilterEnabled: !state.autoFilterEnabled }));
+    },
+
+    updateFiltersFromGroupMembers: () => {
+      const { autoFilterEnabled } = get();
+      if (!autoFilterEnabled) return;
+      
+      const groupsStore = useGroupsStore.getState();
+      const activeGroup = groupsStore.groups.find(g => g.id === groupsStore.activeGroupId);
+      
+      if (activeGroup && activeGroup.members.length > 0) {
+        const allMemberAllergens = activeGroup.members.flatMap(member => member.allergens || []);
+        const uniqueAllergens = [...new Set(allMemberAllergens)];
+        set({ excludedAllergens: uniqueAllergens });
+      } else {
+        set({ excludedAllergens: [] });
+      }
+    },
+  }),
+  {
+    name: 'allergens-storage',
+    partialize: (state): AllergensPersist => ({
+      excludedAllergens: state.excludedAllergens,
+      autoFilterEnabled: state.autoFilterEnabled,
+    }),
+  } as PersistOptions<GroupAllergensStore, AllergensPersist>
+));
+
 export const useAllergenFilters = () => useAllergensStore(state => state.excludedAllergens);
 export const useAutoFilterEnabled = () => useAllergensStore(state => state.autoFilterEnabled);

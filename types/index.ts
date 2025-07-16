@@ -12,6 +12,7 @@ export interface Pastry {
   name: string;
   price: number;
   allergens: string[];
+  ingredients?: string[];
   removableIngredients: string[];
   description?: string;
   image?: string;
@@ -122,4 +123,18 @@ export interface ModalState {
     orderNumber: string;
     estimatedTime: number;
   };
+}
+
+
+export interface AllergenGroup {
+  id: string;
+  name: string;
+  description: string;
+  allergens: string[];
+  icon?: string;
+}
+
+export interface AllergenCollection {
+  groups: AllergenGroup[];
+  individualAllergens: string[];
 }

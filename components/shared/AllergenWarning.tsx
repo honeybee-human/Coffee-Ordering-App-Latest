@@ -5,6 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/ui/alert';
 import { Button } from '@/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { useModalsStore } from '@/store/useModalsStore';
+import { allergenGroups } from '@/data/allergenGroups';
 
 export const AllergenWarning: React.FC = () => {
   const { 
@@ -12,6 +13,33 @@ export const AllergenWarning: React.FC = () => {
     closeAllergenWarning, 
     proceedWithAllergen 
   } = useModalsStore();
+
+  // Helper function to get icon for allergen
+  const getAllergenIcon = (allergen: string): string => {
+    // Check if allergen belongs to any group
+    for (const group of allergenGroups) {
+      if (group.allergens.some(a => a.toLowerCase() === allergen.toLowerCase())) {
+        return group.icon || '';
+      }
+    }
+    
+    // Individual allergen icons
+    const individualIcons: { [key: string]: string } = {
+      'eggs': '🥚',
+      'peanuts': '🥜',
+      'soy': '🫘',
+      'sesame': '🌰',
+      'tomatoes': '🍅',
+      'latex': '🧤',
+      'caffeine': '☕',
+      'chocolate': '🍫',
+      'yeast': '🍞',
+      'sulphites': '🧪',
+      'lupin': '🌱'
+    };
+    
+    return individualIcons[allergen.toLowerCase()] || '⚠️';
+  };
 
   // Filter allergens to only show those that match with affected members' allergens
   const relevantAllergens = useMemo(() => {
@@ -48,7 +76,14 @@ export const AllergenWarning: React.FC = () => {
           <AlertDescription>
             <div className="mt-2 space-y-2">
               <div>
-                <strong>Conflicting allergens:</strong> {relevantAllergens.join(', ')}
+                <strong>Conflicting allergens:</strong>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  {relevantAllergens.map(allergen => (
+                    <span key={allergen} className="inline-flex items-center gap-1 text-sm bg-destructive/10 text-destructive px-2 py-1 rounded">
+                      {getAllergenIcon(allergen)} {allergen}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div>
                 <strong>Affected members:</strong> {allergenWarning.affectedMembers.map(member => member.name).join(', ')}

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { Coffee, Pastry, GroupMember } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
+import { allergenGroups } from '@/data/allergenGroups';
 
 interface GroupAllergensStore {
   // State
@@ -23,7 +24,7 @@ type AllergensPersist = {
   excludedAllergens: string[];
 };
 
-export const useAllergensStore = create<GroupAllergensStore>()(  
+export const useAllergensStore = create<GroupAllergensStore>()(
   persist(
     (set, get) => ({
       // Initial state
@@ -40,14 +41,61 @@ export const useAllergensStore = create<GroupAllergensStore>()(
           const allergenIndex = currentAllergens.indexOf(allergen);
           
           if (allergenIndex === -1) {
-            return { excludedAllergens: [...currentAllergens, allergen] };
+            // Adding allergen - check if it belongs to a group
+            const belongsToGroup = allergenGroups.find(group => 
+              group.allergens.includes(allergen)
+            );
+            
+            if (belongsToGroup) {
+              // Add all allergens from the group that aren't already selected
+              const groupAllergens = belongsToGroup.allergens.filter(
+                groupAllergen => !currentAllergens.includes(groupAllergen)
+              );
+              return { 
+                excludedAllergens: [...currentAllergens, ...groupAllergens]
+              };
+            } else {
+              // Add individual allergen
+              return { excludedAllergens: [...currentAllergens, allergen] };
+            }
           } else {
-            return { 
-              excludedAllergens: [
-                ...currentAllergens.slice(0, allergenIndex),
-                ...currentAllergens.slice(allergenIndex + 1)
-              ] 
-            };
+            // Removing allergen - check if it belongs to a group
+            const belongsToGroup = allergenGroups.find(group => 
+              group.allergens.includes(allergen)
+            );
+            
+            if (belongsToGroup) {
+              // Check which allergens from this group are currently selected
+              const groupAllergensInFilter = belongsToGroup.allergens.filter(
+                groupAllergen => currentAllergens.includes(groupAllergen)
+              );
+              
+              // If all allergens from the group are selected, remove all
+              // Otherwise, just remove the specific allergen
+              if (groupAllergensInFilter.length === belongsToGroup.allergens.length) {
+                // All group allergens are selected, remove all from group
+                const filteredAllergens = currentAllergens.filter(
+                  existingAllergen => !belongsToGroup.allergens.includes(existingAllergen)
+                );
+                return { excludedAllergens: filteredAllergens };
+              } else {
+                // Only some allergens from group are selected, remove just this one
+                return { 
+                  excludedAllergens: [
+                    ...currentAllergens.slice(0, allergenIndex),
+                    ...currentAllergens.slice(allergenIndex + 1)
+                  ] 
+                };
+              }
+            } else {
+              // Remove individual allergen
+              return { 
+                excludedAllergens: [
+                  ...currentAllergens.slice(0, allergenIndex),
+                  ...currentAllergens.slice(allergenIndex + 1)
+                ] 
+              };
+            }
           }
         });
       },

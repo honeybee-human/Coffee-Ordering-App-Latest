@@ -399,6 +399,29 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
           </Button>
         </section>
       </div>
+      
+      {/* Ingredients List Section */}
+      {pastry.ingredients && pastry.ingredients.length > 0 && (
+        <section className="mt-8 pt-6 border-t border-border" aria-label="Ingredients list">
+          <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
+          <div className="bg-muted/50 rounded-lg p-4">
+            <p className="text-sm text-muted-foreground mb-3">
+              This {pastry.name.toLowerCase()} contains the following ingredients:
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {pastry.ingredients.map((ingredient, index) => (
+                <Badge 
+                  key={`${ingredient}-${index}`}
+                  variant="secondary" 
+                  className="text-xs bg-background border"
+                >
+                  {ingredient}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </div>
   );
 };
