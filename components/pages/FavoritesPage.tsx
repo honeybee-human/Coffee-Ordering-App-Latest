@@ -173,12 +173,9 @@ export const FavoritesPage: React.FC = () => {
   };
 
   return (
-    <div className="px-4 pb-16">
-      <div className="flex items-center gap-2 py-4">
-        <Button variant="ghost" size="icon" onClick={navigateToMenu}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="text-xl font-semibold">Favorites</h1>
+    <div className="px-4 pb-16 container mx-auto px-4 py-8">
+      <div className="flex items-center gap-2">
+        <h1 className="">Favorites</h1>
       </div>
 
       <div className='flex w-full justify-end'>
@@ -197,7 +194,7 @@ export const FavoritesPage: React.FC = () => {
       <div className="space-y-6 pt-4">
         {/* Cart Set Favorites Section */}
         {cartSetFavorites.length > 0 && (
-          <Card>
+          <Card className='bg-transparent border-none'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Save className="h-5 w-5" />

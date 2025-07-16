@@ -89,6 +89,7 @@ export const Menu: React.FC = () => {
 
   return (
     <div className="space-y-6">
+              <h1>Menu</h1>
       {/* Search and Filter Section */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         {/* Search Bar with Mode Toggle */}

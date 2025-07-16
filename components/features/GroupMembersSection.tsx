@@ -64,7 +64,7 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
               onClick={onAddNewMember}
             >
               <UserPlus className="h-4 w-4 mr-2" />
-              Create New Member
+              New Member
             </Button>
             <Button 
               size="sm" 
@@ -72,7 +72,7 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
               onClick={onAddExistingMember}
             >
               <Users className="h-4 w-4 mr-2" />
-              Add Existing Member
+              Add Member
             </Button>
           </div>
         </div>

@@ -183,13 +183,12 @@ export const GroupManagement: React.FC = () => {
   }, [toggleAutoFilter]);
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
+    <div className="space-y-6 container mx-auto px-4 py-8">
+      <div className='bg-transparent border-none'>
+        <div>
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              <span className="text-lg font-bold">Group Management</span>
+              <h1>Group Management</h1>
             </div>
 
             <AlertDialog>
@@ -224,9 +223,9 @@ export const GroupManagement: React.FC = () => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
+          </div>
+        </div>
+        <div className='mt-10'>
           <Tabs defaultValue="groups" className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="groups">Active Group</TabsTrigger>
@@ -243,15 +242,35 @@ export const GroupManagement: React.FC = () => {
                     size="sm"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Create New Group
+                    New Group
                   </Button>
                 </div>
-                
+                                <div className="flex items-center  gap-2">
+
                 {/* Auto-Filter Toggle Section */}
-                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
+                <div className="flex gap-6 items-center p-3 rounded-lg bg-muted/50 w-full justify-between">
+                                  <Select
+                    value={activeGroup?.id || ''}
+                    onValueChange={selectGroup}
+                  >
+                    <SelectTrigger className="bg-muted">
+                      <SelectValue placeholder="Select a group" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groups.map(group => (
+                        <SelectItem 
+                          key={group.id} 
+                          value={group.id}
+                        >
+                          {group.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>  
+                  <div className="flex gap-3 w-full">
                   <div className="flex items-center gap-3">
                     <Filter className="h-4 w-4 text-muted-foreground" />
-                    <div>
+                    <div className='w-full'>
                       <Label className="text-sm font-medium">Auto-Filter Allergens</Label>
                       <p className="text-sm text-muted-foreground">
                         Automatically filter menu items based on active group member allergens
@@ -269,26 +288,8 @@ export const GroupManagement: React.FC = () => {
                   </Toggle>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <Select
-                    value={activeGroup?.id || ''}
-                    onValueChange={selectGroup}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groups.map(group => (
-                        <SelectItem 
-                          key={group.id} 
-                          value={group.id}
-                        >
-                          {group.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  
+
+                  </div>
                   {activeGroup && autoFilterEnabled && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Shield className="h-4 w-4 text-green-600" />
@@ -319,7 +320,7 @@ export const GroupManagement: React.FC = () => {
             </TabsContent>
             
             <TabsContent value="all-groups" className="space-y-4 mt-4">
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">All Groups</h3>
                   <Button
@@ -327,7 +328,7 @@ export const GroupManagement: React.FC = () => {
                     size="sm"
                   >
                     <Plus className="h-4 w-4 mr-2" />
-                    Create New Group
+                    New Group
                   </Button>
                 </div>
                               
@@ -436,8 +437,8 @@ export const GroupManagement: React.FC = () => {
               />
             </TabsContent>
           </Tabs>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Create Group Dialog */}
       <CreateGroupModal

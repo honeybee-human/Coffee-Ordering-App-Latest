@@ -125,7 +125,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   if (cartItems.length === 0) {
     return (
       <div className="space-y-6">
-        <h2>Shopping Cart</h2>
+        <h1 className="text-2xl font-bold">Shopping Cart</h1>
         <Card>
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
@@ -142,9 +142,9 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 container mx-auto px-4 py-8">
       <div className="flex items-center justify-between">
-        <h2>Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h2>
+        <h1 className="">Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h1>
         <div className="flex gap-2">
           {cartItems.length > 0 && (
             <Dialog open={saveSetDialogOpen} onOpenChange={setSaveSetDialogOpen}>

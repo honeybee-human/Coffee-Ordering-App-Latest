@@ -79,7 +79,7 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
         <div className="flex items-center gap-4">
           <Button size="sm" onClick={onAddNewMember}>
             <UserPlus className="h-4 w-4 mr-2" />
-            Create New Member
+            New Member
           </Button>
         </div>
       </div>

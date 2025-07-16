@@ -135,14 +135,11 @@ export const OrderHistoryPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <Button onClick={navigateToMenu} variant="outline">
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Back to Menu
-      </Button>
+    <div className="space-y-6 px-4 pb-16 container mx-auto px-4 py-8">
+
 
       <div>
-        <h2 className="text-xl mb-2">Order History</h2>
+        <h1 className="">Order History</h1>
         <p className="text-muted-foreground mb-4">
           {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
           {showBookmarkedOnly && ' (bookmarked only)'}
