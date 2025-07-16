@@ -144,14 +144,14 @@ export const PastryCard: React.FC<PastryCardProps> = ({
           {pastry.removableIngredients.length > 0 && (
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Customizable:</p>
-              <div className="flex flex-wrap gap-1">
+              <div className="flex flex-wrap gap-1 ">
                 {pastry.removableIngredients.slice(0, 2).map((ingredient: string) => (
-                  <Badge key={ingredient} variant="secondary" className="text-sm px-1 py-0">
+                  <Badge key={ingredient} variant="secondary" className="text-xs px-1 py-0">
                     {ingredient}
                   </Badge>
                 ))}
                 {pastry.removableIngredients.length > 2 && (
-                  <span className="text-sm text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
+                  <span className="text-xs text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
                 )}
               </div>
             </div>

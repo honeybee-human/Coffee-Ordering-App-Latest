@@ -94,7 +94,8 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
 
                 return (
                   <React.Fragment key={item.id}>
-                    <div className="p-4">
+                    <div className="flex flex-wrap justify-between p-4">
+                      {/* image, title, price */}
                       <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2">
                           <div className="flex items-start gap-4">
@@ -127,6 +128,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                         </div>
                       </div>
 
+                        
                       <CustomizationsList item={item} />
 
                       <div className="flex flex-col items-end gap-2">

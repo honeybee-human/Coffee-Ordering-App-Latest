@@ -160,7 +160,7 @@ export const Menu: React.FC = () => {
             </div>
           )}
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {filteredCoffeeMenu.map((coffee, index) => {
               return (
                 <CoffeeCard
@@ -210,7 +210,7 @@ export const Menu: React.FC = () => {
             </div>
           )}
           
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {filteredPastryMenu.map((pastry, index) => {
               return (
                 <PastryCard

@@ -22,7 +22,6 @@ interface AllergenFilterProps {
   groupBasedAllergens: string[];
   filteredOutCount: number;
   filterRef?: React.RefObject<HTMLDivElement>;
-  allergenGroups: AllergenGroup[];
 }
 
 export const AllergenFilter: React.FC<AllergenFilterProps> = ({

@@ -22,7 +22,7 @@ export const AllergenTag: React.FC<AllergenTagProps> = ({ item, groupAllergens =
     <div className="flex flex-wrap gap-2">
       {/* Original allergens */}
       {originalAllergens.map((allergen: string) => (
-        <span key={`original-${allergen}`} className="flex items-center gap-1 text-xs text-destructive">
+        <span key={`original-${allergen}`} className="flex items-center gap-1  text-destructive">
           <AlertTriangle className="h-3 w-3" />
           {allergen}
         </span>
