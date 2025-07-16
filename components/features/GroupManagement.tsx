@@ -371,7 +371,6 @@ const sortedGroups = useMemo(() => {
             
             <TabsContent value="members" className="space-y-4 mt-4">
               <AllMembersTab
-                allMembers={allMembers}
                 onOpenChangeGroups={handleOpenChangeGroups}
                 onEditMember={handleEditMember}
                 onAddNewMember={() => setIsAddMemberOpen(true)}
@@ -414,7 +413,6 @@ const sortedGroups = useMemo(() => {
         isOpen={isAddExistingMemberOpen}
         onClose={() => setIsAddExistingMemberOpen(false)}
         onAddMember={handleAddExistingMember}
-        existingMembers={allMembers.map(({ member }) => member)}
         currentGroup={activeGroup!}
       />
 
