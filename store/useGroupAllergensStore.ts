@@ -3,7 +3,7 @@ import { persist, PersistOptions } from 'zustand/middleware';
 import { Coffee, Pastry, GroupMember } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
 
-interface AllergensStore {
+interface GroupAllergensStore {
   // State
   excludedAllergens: string[];
   
@@ -23,7 +23,7 @@ type AllergensPersist = {
   excludedAllergens: string[];
 };
 
-export const useAllergensStore = create<AllergensStore>()(  
+export const useAllergensStore = create<GroupAllergensStore>()(  
   persist(
     (set, get) => ({
       // Initial state
@@ -109,7 +109,7 @@ export const useAllergensStore = create<AllergensStore>()(
     {
       name: 'bean-bite-allergens',
       partialize: (state) => ({ excludedAllergens: state.excludedAllergens })
-    } as PersistOptions<AllergensStore, AllergensPersist>
+    } as PersistOptions<GroupAllergensStore, AllergensPersist>
   )
 );
 

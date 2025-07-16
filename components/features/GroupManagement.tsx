@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/ui/alert-dialog';
-import { Plus, Trash2, Edit2, Users, AlertTriangle, UserPlus, Check, RotateCcw, X, Badge, Crown, Settings, ChevronDown, Sparkles, Star, Zap, Shield } from 'lucide-react';
+import { Plus, Trash2, Edit2, Users, AlertTriangle, UserPlus, Check, RotateCcw, X, Badge, Crown, Settings, ChevronDown, Sparkles, Star, Zap, Shield, Filter } from 'lucide-react';
 import { Group, GroupMember } from '@/types';
 import { ChangeGroupsModal } from '@/components/modals/ChangeGroupsModal';
 import { AddMemberModal } from '@/components/modals/AddMemberModal';
@@ -11,18 +11,17 @@ import { CardHeader, CardTitle, CardContent, Card } from '@/ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/ui/select';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
+import { useAllergensStore, useAutoFilterEnabled } from '@/store/useAllergensStore'; // Import allergen store
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/ui/tabs';
-
+import { Toggle } from '@/ui/toggle'; // Import Toggle component
+import { Label } from '@/ui/label';
 
 // Add to imports
 import { GroupSearchBar } from '../shared/GroupSearchBar';
 import { GroupSettingsModal } from '../modals/GroupSettingsModal';
 import { AddExistingMemberModal } from '@/components/modals/AddExistingMemberModal';
-
-
-
 
 export const GroupManagement: React.FC = () => {
   const {
@@ -39,40 +38,52 @@ export const GroupManagement: React.FC = () => {
   } = useGroupsStore();
 
   const { resetFavorites, cleanupMemberFavorites } = useFavoritesStore();
+  
+  // Allergen store hooks
+  const { toggleAutoFilter, updateFiltersFromGroupMembers, clearAllergenFilters } = useAllergensStore();
+  const autoFilterEnabled = useAutoFilterEnabled();
 
   const handleResetAllData = useCallback(() => {
     resetAllData();
     resetFavorites();
-  }, [resetAllData, resetFavorites]);
+    clearAllergenFilters(); // Clear allergen filters when resetting
+  }, [resetAllData, resetFavorites, clearAllergenFilters]);
 
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
-  const [isAddExistingMemberOpen, setIsAddExistingMemberOpen] = useState(false); // Add this state
+  const [isAddExistingMemberOpen, setIsAddExistingMemberOpen] = useState(false);
   const [isChangeGroupsOpen, setIsChangeGroupsOpen] = useState(false);
-  const [isGroupSettingsOpen, setIsGroupSettingsOpen] = useState(false); // Add this state
-  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null); // Add this state
+  const [isGroupSettingsOpen, setIsGroupSettingsOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<Group | null>(null);
   const [selectedMember, setSelectedMember] = useState<GroupMember | null>(null);
   const [editingGroupId, setEditingGroupId] = useState<string | null>(null);
   const [editGroupName, setEditGroupName] = useState('');
   const [editingMember, setEditingMember] = useState<GroupMember | null>(null);
   const activeGroup = useMemo(() => groups.find(group => group.id === activeGroupId), [groups, activeGroupId]);
-const [groupSearchQuery, setGroupSearchQuery] = useState('');
+  const [groupSearchQuery, setGroupSearchQuery] = useState('');
 
-const sortedGroups = useMemo(() => {
-  const filtered = groups.filter(group => 
-    group.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
-  );
-  
-  return [...filtered].sort((a, b) => {
+  // Update filters when active group changes and auto-filter is enabled
+  useEffect(() => {
+    if (autoFilterEnabled && activeGroupId) {
+      updateFiltersFromGroupMembers();
+    }
+  }, [activeGroupId, autoFilterEnabled, updateFiltersFromGroupMembers]);
 
-    // Then sort by favorite status
-    if (a.isFavorite && !b.isFavorite) return -1;
-    if (!a.isFavorite && b.isFavorite) return 1;
+  const sortedGroups = useMemo(() => {
+    const filtered = groups.filter(group => 
+      group.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
+    );
     
-    // Finally sort by name
-    return a.name.localeCompare(b.name);
-  });
-}, [groups, groupSearchQuery]);// Add to imports
+    return [...filtered].sort((a, b) => {
+      // Sort by favorite status
+      if (a.isFavorite && !b.isFavorite) return -1;
+      if (!a.isFavorite && b.isFavorite) return 1;
+      
+      // Finally sort by name
+      return a.name.localeCompare(b.name);
+    });
+  }, [groups, groupSearchQuery]);
+
   const handleCreateGroup = useCallback((groupName: string) => {
     createGroup(groupName);
     setIsCreateGroupOpen(false);
@@ -90,10 +101,14 @@ const sortedGroups = useMemo(() => {
     if (activeGroupId) {
       addGroupMember(activeGroupId, member);
       setIsAddMemberOpen(false);
+      
+      // Update filters if auto-filter is enabled
+      if (autoFilterEnabled) {
+        setTimeout(() => updateFiltersFromGroupMembers(), 0);
+      }
     }
-  }, [activeGroupId, addGroupMember]);
+  }, [activeGroupId, addGroupMember, autoFilterEnabled, updateFiltersFromGroupMembers]);
 
-  // Update the handleEditMember function to properly set the state and open the modal
   const handleEditMember = useCallback((member: GroupMember) => {
     setEditingMember(member);
     setIsAddMemberOpen(true);
@@ -144,17 +159,28 @@ const sortedGroups = useMemo(() => {
       removeGroupMember(groupId, member.name);
       cleanupMemberFavorites(member.name, groupId);
     }
-  }, [addGroupMember, removeGroupMember, cleanupMemberFavorites]);
+    
+    // Update filters if auto-filter is enabled and this affects the active group
+    if (autoFilterEnabled && groupId === activeGroupId) {
+      setTimeout(() => updateFiltersFromGroupMembers(), 0);
+    }
+  }, [addGroupMember, removeGroupMember, cleanupMemberFavorites, autoFilterEnabled, activeGroupId, updateFiltersFromGroupMembers]);
 
-  // Add this new callback for handling existing member addition
   const handleAddExistingMember = useCallback((member: GroupMember) => {
     if (activeGroupId) {
       addGroupMember(activeGroupId, member);
       setIsAddExistingMemberOpen(false);
+      
+      // Update filters if auto-filter is enabled
+      if (autoFilterEnabled) {
+        setTimeout(() => updateFiltersFromGroupMembers(), 0);
+      }
     }
-  }, [activeGroupId, addGroupMember]);
+  }, [activeGroupId, addGroupMember, autoFilterEnabled, updateFiltersFromGroupMembers]);
 
-  
+  const handleAutoFilterToggle = useCallback(() => {
+    toggleAutoFilter();
+  }, [toggleAutoFilter]);
 
   return (
     <div className="space-y-6">
@@ -220,6 +246,29 @@ const sortedGroups = useMemo(() => {
                     Create New Group
                   </Button>
                 </div>
+                
+                {/* Auto-Filter Toggle Section */}
+                <div className="flex items-center justify-between p-3 border rounded-lg bg-muted/50">
+                  <div className="flex items-center gap-3">
+                    <Filter className="h-4 w-4 text-muted-foreground" />
+                    <div>
+                      <Label className="text-sm font-medium">Auto-Filter Allergens</Label>
+                      <p className="text-xs text-muted-foreground">
+                        Automatically filter menu items based on active group member allergens
+                      </p>
+                    </div>
+                  </div>
+                  <Toggle
+                    pressed={autoFilterEnabled}
+                    onPressedChange={handleAutoFilterToggle}
+                    variant="outline"
+                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                  >
+                    <Shield className="h-4 w-4" />
+                    {autoFilterEnabled ? 'Enabled' : 'Disabled'}
+                  </Toggle>
+                </div>
+                
                 <div className="flex items-center gap-2">
                   <Select
                     value={activeGroup?.id || ''}
@@ -239,6 +288,13 @@ const sortedGroups = useMemo(() => {
                       ))}
                     </SelectContent>
                   </Select>
+                  
+                  {activeGroup && autoFilterEnabled && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Shield className="h-4 w-4 text-green-600" />
+                      <span>Auto-filtering active</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -250,6 +306,11 @@ const sortedGroups = useMemo(() => {
                   onRemoveMember={(groupId, memberName) => {
                     removeGroupMember(groupId, memberName);
                     cleanupMemberFavorites(memberName, groupId);
+                    
+                    // Update filters if auto-filter is enabled
+                    if (autoFilterEnabled && groupId === activeGroupId) {
+                      setTimeout(() => updateFiltersFromGroupMembers(), 0);
+                    }
                   }}
                   onEditMember={handleEditMember}
                   onChangeGroups={handleOpenChangeGroups}
@@ -316,8 +377,7 @@ const sortedGroups = useMemo(() => {
                           </div>
                         ) : (
                           <>
-                          {   group.id === activeGroupId && <Crown className="h-4 w-4 text-amber-500" />
-}
+                            {group.id === activeGroupId && <Crown className="h-4 w-4 text-amber-500" />}
                             {group.isFavorite && (
                               <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                             )}
@@ -336,32 +396,31 @@ const sortedGroups = useMemo(() => {
                         )}
                       </div>
                       <div className="flex items-center gap-1">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => toggleFavoriteGroup(group.id)}
-                            className={group.isFavorite ? "text-amber-500" : ""}
-                          >
-                            <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
-                          </Button>
-                        
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => startEditingGroup(group)}
-                          >
-                            <Settings className="h-3 w-3" />
-                          </Button>
-                        
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => deleteGroup(group.id)}
-                            disabled={groups.length <= 1}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                          </Button>
-                        
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => toggleFavoriteGroup(group.id)}
+                          className={group.isFavorite ? "text-amber-500" : ""}
+                        >
+                          <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                        </Button>
+                      
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => startEditingGroup(group)}
+                        >
+                          <Settings className="h-3 w-3" />
+                        </Button>
+                      
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => deleteGroup(group.id)}
+                          disabled={groups.length <= 1}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -387,28 +446,24 @@ const sortedGroups = useMemo(() => {
         onCreateGroup={handleCreateGroup}
       />
 
-
-<AddMemberModal
+      <AddMemberModal
         isOpen={isAddMemberOpen}
         onClose={() => {
           setIsAddMemberOpen(false);
-          setEditingMember(null); // Clear editing member when closing
+          setEditingMember(null);
         }}
         onAddMember={(member) => {
           if (editingMember) {
-            // If editing, remove the old member first
             removeGroupMember(activeGroup!.id, editingMember.name);
           }
           handleAddMember(member);
-          setEditingMember(null); // Clear editing member after saving
+          setEditingMember(null);
         }}
         existingMembers={allMembers.map(({ member }) => member)}
         editingMember={editingMember}
         isEditing={!!editingMember}
       />
 
-
-      {/* Add the missing AddExistingMemberModal */}
       <AddExistingMemberModal
         isOpen={isAddExistingMemberOpen}
         onClose={() => setIsAddExistingMemberOpen(false)}
@@ -416,7 +471,6 @@ const sortedGroups = useMemo(() => {
         currentGroup={activeGroup!}
       />
 
-      {/* Change Groups Modal */}
       <ChangeGroupsModal
         isOpen={isChangeGroupsOpen}
         onClose={handleCloseChangeGroups}
@@ -429,7 +483,7 @@ const sortedGroups = useMemo(() => {
         }}
       />
 
-<GroupSettingsModal
+      <GroupSettingsModal
         isOpen={isGroupSettingsOpen}
         onClose={() => {
           setIsGroupSettingsOpen(false);
@@ -439,11 +493,8 @@ const sortedGroups = useMemo(() => {
         onRenameGroup={handleRenameGroup}
         onAddMember={handleAddMember}
         existingMembers={allMembers.map(({ member }) => member)}
-      removeGroupMember={removeGroupMember}
+        removeGroupMember={removeGroupMember}
       />
-
-
     </div>
   );
 };
-
