@@ -53,10 +53,10 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
               <div>
                 <p className="my-4 text-muted-foreground text-sm">
                   An active group is the group of people you are currently ordering for.
-                  Create new groups and new members as needed, and label each of their allergens.
-                  and we'll warn you of potential conflicts. 
+                  Create new groups and new members as needed, then label each of their allergens.
+                  We'll warn you of potential conflicts. 
                  </p> <hr/> <p className="my-4 text-muted-foreground text-sm">To test functionality,
-                  your first group has a member with an allergy to blueberries. When a filter is off, you will see a warning chip on a product. In groups, you can set automatic filters on adding a member.
+                  your first group has a member with an allergy to blueberries. When a filter is off, you will see a warning chip on a product. In groups, you can set automatic filters based on active group.
                 </p><hr/><br/>
                 <div className="flex flex-col gap-2 text-base">
                   <span className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> <span>Create or join a group</span></span>

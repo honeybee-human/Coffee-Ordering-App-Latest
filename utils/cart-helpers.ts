@@ -1,5 +1,6 @@
 import { CartItem, CoffeeCustomization, PastryCustomization, GroupMember } from '@/types';
 import { calculateItemPrice } from './cart-calculations';
+import { getComprehensiveAllergens } from './allergens';
 
 /**
  * Checks if two cart items have identical customizations
@@ -140,7 +141,8 @@ export const getPersonAllergenConflicts = (items: CartItem[], person: string, gr
   
   const conflicts = new Set<string>();
   items.forEach(item => {
-    const itemAllergens = item.item.allergens || [];
+    // Use comprehensive allergens instead of just basic allergens
+    const itemAllergens = getComprehensiveAllergens(item.item);
     itemAllergens.forEach(allergen => {
       if (member.allergens.includes(allergen)) {
         conflicts.add(allergen);
@@ -171,7 +173,8 @@ export const calculatePersonTotals = (groupedItems: { [key: string]: CartItem[] 
  * Checks allergen conflicts for a cart item against group members
  */
 export const getAllergenConflicts = (item: CartItem, groupMembers: GroupMember[]): { conflicts: string[]; affectedMembers: string[] } => {
-  const itemAllergens = item.item.allergens || [];
+  // Use comprehensive allergens instead of just basic allergens
+  const itemAllergens = getComprehensiveAllergens(item.item);
   const affectedMembers: string[] = [];
   const conflicts: string[] = [];
   

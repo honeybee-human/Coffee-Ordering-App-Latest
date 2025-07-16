@@ -71,8 +71,6 @@ export const AllergenWarning: React.FC = () => {
         </DialogHeader>
         
         <Alert className="border-destructive/50">
-          <AlertTriangle className="h-4 w-4" />
-          <AlertTitle>Potential Allergen Conflict</AlertTitle>
           <AlertDescription>
             <div className="mt-2 space-y-2">
               <div>

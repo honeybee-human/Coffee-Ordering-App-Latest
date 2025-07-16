@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMemo } from 'react';
+import { useMemo, useCallback } from 'react';
 import { Star } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
@@ -11,6 +11,7 @@ import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useCurrentItemStore } from '@/store/useCurrentItemStore';
+import { useModalsStore } from '@/store/useModalsStore';
 
 interface PastryCardProps {
   pastry: Pastry;
@@ -27,6 +28,7 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
+  const { showAllergenWarning } = useModalsStore();
   // Add favorites as dependency to force re-render when favorites change
   const favorites = useFavoritesStore(state => state.favorites);
   
@@ -34,12 +36,50 @@ export const PastryCard: React.FC<PastryCardProps> = ({
     return activeGroup ? isItemFavorited('pastry', pastry.id, activeGroup.id) : false;
   }, [activeGroup, isItemFavorited, pastry.id, favorites]);
 
-  const handleToggleFavorite = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  // Get group members from active group
+  const groupMembers = useMemo(() => {
+    return activeGroup?.members || [];
+  }, [activeGroup]);
+
+  // Get all allergens for this pastry item (original + detected)
+  const allItemAllergens = useMemo(() => {
+    return [...pastry.allergens, ...comprehensiveAllergens];
+  }, [pastry.allergens, comprehensiveAllergens]);
+
+  // Helper function to execute the favorite toggle
+  const executeFavoriteToggle = useCallback(() => {
     if (activeGroup) {
-      toggleFavorite('pastry', pastry, activeGroup.id);
+      // Create pastry object with comprehensive allergens
+      const pastryWithComprehensiveAllergens = {
+        ...pastry,
+        allergens: allItemAllergens
+      };
+      toggleFavorite('pastry', pastryWithComprehensiveAllergens, activeGroup.id);
     }
-  };
+  }, [activeGroup, toggleFavorite, pastry, allItemAllergens]);
+
+  const handleToggleFavorite = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!activeGroup) return;
+
+    // Check for allergen conflicts
+    const affectedMembers = groupMembers.filter(member => {
+      if (!member.allergens) return false;
+      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
+    });
+
+    if (affectedMembers.length > 0) {
+      showAllergenWarning(
+        allItemAllergens,
+        affectedMembers,
+        pastry.name,
+        executeFavoriteToggle
+      );
+    } else {
+      executeFavoriteToggle();
+    }
+  }, [activeGroup, groupMembers, allItemAllergens, showAllergenWarning, pastry.name, executeFavoriteToggle]);
+
   const setCurrentItem = useCurrentItemStore(state => state.setCurrentItem);
   
   return (
