@@ -111,17 +111,21 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
 
   // Helper functions
   const handleCategoryToggle = (categoryAllergens: string[]) => {
-    const menuCategoryAllergens = categoryAllergens.filter(allergen => menuAllergens.includes(allergen));
-    const isAllSelected = menuCategoryAllergens.every(allergen => excludedAllergens.includes(allergen));
+    // For group-based allergens, don't filter by menu allergens since they come from group members
+    const relevantAllergens = categoryAllergens === groupBasedAllergens 
+      ? categoryAllergens 
+      : categoryAllergens.filter(allergen => menuAllergens.includes(allergen));
+    
+    const isAllSelected = relevantAllergens.every(allergen => excludedAllergens.includes(allergen));
     
     if (isAllSelected) {
-      menuCategoryAllergens.forEach(allergen => {
+      relevantAllergens.forEach(allergen => {
         if (excludedAllergens.includes(allergen)) {
           onToggleAllergenFilter(allergen);
         }
       });
     } else {
-      menuCategoryAllergens.forEach(allergen => {
+      relevantAllergens.forEach(allergen => {
         if (!excludedAllergens.includes(allergen)) {
           onToggleAllergenFilter(allergen);
         }
@@ -130,11 +134,15 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
   };
 
   const getCategoryCheckboxState = (categoryAllergens: string[]) => {
-    const menuCategoryAllergens = categoryAllergens.filter(allergen => menuAllergens.includes(allergen));
-    const selectedCount = menuCategoryAllergens.filter(allergen => excludedAllergens.includes(allergen)).length;
+    // For group-based allergens, don't filter by menu allergens since they come from group members
+    const relevantAllergens = categoryAllergens === groupBasedAllergens 
+      ? categoryAllergens 
+      : categoryAllergens.filter(allergen => menuAllergens.includes(allergen));
+    
+    const selectedCount = relevantAllergens.filter(allergen => excludedAllergens.includes(allergen)).length;
     
     if (selectedCount === 0) return 'unchecked';
-    if (selectedCount === menuCategoryAllergens.length) return 'checked';
+    if (selectedCount === relevantAllergens.length) return 'checked';
     return 'indeterminate';
   };
 
