@@ -165,6 +165,14 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
     setShowSearchSuggestions(false);
   };
 
+  // Add function to handle removing custom allergens
+  const handleRemoveCustomAllergen = (allergen: string) => {
+    setCustomAllergens(prev => prev.filter(a => a !== allergen));
+    if (excludedAllergens.includes(allergen)) {
+      onToggleAllergenFilter(allergen);
+    }
+  };
+
   const FilterContent = (
     <div className="space-y-6">
       <AllergenSearchBar
@@ -175,62 +183,83 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
         searchSuggestions={searchSuggestions}
         onAddAllergen={handleAddAllergenFromSearch}
       />
-
+        {/* Custom Allergens - Integrated without heading */}
+        {customAllergens.length > 0 && (
+          <div>
+            <div className="flex flex-wrap gap-4">
+              {customAllergens.map(allergen => {
+                const isExcluded = excludedAllergens.includes(allergen);
+                return (
+                  <div key={allergen} className="flex items-center space-x-2 bg-secondary p-1">
+                    <Checkbox
+                      id={`custom-allergen-${allergen}`}
+                      checked={isExcluded}
+                      onCheckedChange={() => onToggleAllergenFilter(allergen)}
+                      className=""
+                    />
+                    <label
+                      htmlFor={`custom-allergen-${allergen}`}
+                      className={`text-sm cursor-pointer transition-colors flex items-center gap-1`}
+                    >
+                      {allergen}
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveCustomAllergen(allergen)}
+                        className="h-4 w-4 p-0 text-gray-400 hover:text-gray-600 ml-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       <div className={`${isMobile ? 'space-y-6' : 'grid grid-cols-4 gap-6'}`}>
         {/* Group Member Allergens */}
-                {groupBasedAllergens.length > 0 && (
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <Checkbox
-                  id="group-member-category"
-                  checked={getCategoryCheckboxState(groupBasedAllergens) === 'checked'}
-                 
-                  onCheckedChange={() => handleCategoryToggle(groupBasedAllergens)}
-                  className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 h-5 w-5"
-                />
-                <h4 className="text-sm font-semibold text-amber-700">Member Allergens</h4>
-              </div>
-              <div className="grid grid-cols-1 gap-3">
-                {groupBasedAllergens.map(allergen => {
-                  const isExcluded = excludedAllergens.includes(allergen);
-                  return (
-                    <div key={allergen} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`group-allergen-${allergen}`}
-                        checked={isExcluded}
-                        onCheckedChange={() => onToggleAllergenFilter(allergen)}
-                        className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
-                      />
-                      <label
-                        htmlFor={`group-allergen-${allergen}`}
-                        className={`text-sm cursor-pointer transition-colors flex items-center gap-1 ${
-                          isExcluded ? 'text-amber-700 font-medium' : 'text-amber-600'
-                        }`}
-                      >
-                        {allergen}
-                        <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 border-amber-200 h-4 px-1 ml-1">
-                          <AlertTriangle className="h-2 w-2" />
-                        </Badge>
-                      </label>
-                    </div>
-                  );
-                })}
-              </div>
+        {groupBasedAllergens.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Checkbox
+                id="group-member-category"
+                checked={getCategoryCheckboxState(groupBasedAllergens) === 'checked'}
+                onCheckedChange={() => handleCategoryToggle(groupBasedAllergens)}
+                className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600 h-5 w-5"
+              />
+              <h4 className="text-sm font-semibold text-amber-700">Member Allergens</h4>
             </div>
-          )}
-          <AllergenCategorySection
-            id="group-member"
-            name="Member Allergens"
-            allergens={groupBasedAllergens}
-            menuAllergens={menuAllergens}
-            excludedAllergens={excludedAllergens}
-            groupBasedAllergens={groupBasedAllergens}
-            getCategoryCheckboxState={getCategoryCheckboxState}
-            onCategoryToggle={handleCategoryToggle}
-            onToggleAllergen={onToggleAllergenFilter}
-            className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
-          />
-        
+            <div className="grid grid-cols-1 gap-3">
+              {groupBasedAllergens.map(allergen => {
+                const isExcluded = excludedAllergens.includes(allergen);
+                return (
+                  <div key={allergen} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`group-allergen-${allergen}`}
+                      checked={isExcluded}
+                      onCheckedChange={() => onToggleAllergenFilter(allergen)}
+                      className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
+                    />
+                    <label
+                      htmlFor={`group-allergen-${allergen}`}
+                      className={`text-sm cursor-pointer transition-colors flex items-center gap-1 ${
+                        isExcluded ? 'text-amber-700 font-medium' : 'text-amber-600'
+                      }`}
+                    >
+                      {allergen}
+                      <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-800 border-amber-200 h-4 px-1 ml-1">
+                        <AlertTriangle className="h-2 w-2" />
+                      </Badge>
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+
 
         {/* Other Categories */}
         {customAllergenGroups.map((group) => (
@@ -247,21 +276,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
             onToggleAllergen={onToggleAllergenFilter}
           />
         ))}
-
-        {/* Other Menu Allergens */}
-        {otherMenuAllergens.length > 0 && (
-          <AllergenCategorySection
-            id="other"
-            name="Other"
-            allergens={otherMenuAllergens}
-            menuAllergens={menuAllergens}
-            excludedAllergens={excludedAllergens}
-            groupBasedAllergens={groupBasedAllergens}
-            getCategoryCheckboxState={getCategoryCheckboxState}
-            onCategoryToggle={handleCategoryToggle}
-            onToggleAllergen={onToggleAllergenFilter}
-          />
-        )}
       </div>
     </div>
   );

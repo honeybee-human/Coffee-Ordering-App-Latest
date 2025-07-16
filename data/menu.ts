@@ -22,40 +22,40 @@ export const coffeeMenu: Coffee[] = [
     id: 'latte',
     name: 'Latte',
     price: 4.50,
-    allergens: ['Milk'],
-    description: 'Smooth espresso with steamed milk and a light foam layer',
+    allergens: [''],
+    description: 'Smooth espresso with steamed  and a light foam layer',
     image: '/Latte.png'
   },
   {
     id: 'cappuccino',
     name: 'Cappuccino',
     price: 4.25,
-    allergens: ['Milk'],
-    description: 'Equal parts espresso, steamed milk, and rich foam',
+    allergens: [''],
+    description: 'Equal parts espresso, steamed , and rich foam',
     image: '/Capuccino.png'
   },
   {
     id: 'macchiato',
     name: 'Macchiato',
     price: 4.75,
-    allergens: ['Milk'],
-    description: 'Espresso "marked" with a dollop of foamed milk',
+    allergens: [''],
+    description: 'Espresso "marked" with a dollop of foamed ',
     image: '/Macchiato.png'
   },
   {
     id: 'mocha',
     name: 'Mocha',
     price: 5.00,
-    allergens: ['Milk', 'Soy'],
-    description: 'Rich chocolate and espresso blend with steamed milk',
+    allergens: [ 'Soy'],
+    description: 'Rich chocolate and espresso blend with steamed ',
     image: '/Mocha.png'
   },
   {
     id: 'flat-white',
     name: 'Flat White',
     price: 4.75,
-    allergens: ['Milk'],
-    description: 'Strong espresso with microfoam steamed milk',
+    allergens: [''],
+    description: 'Strong espresso with microfoam steamed ',
     image: '/Flat White.png'
   },
   {
@@ -70,8 +70,8 @@ export const coffeeMenu: Coffee[] = [
     id: 'frappuccino',
     name: 'Frappuccino',
     price: 5.50,
-    allergens: ['Milk', 'Soy'],
-    description: 'Blended coffee drink with ice, milk, and flavored syrups',
+    allergens: [ 'Soy'],
+    description: 'Blended coffee drink with ice, , and flavored syrups',
     image: '/Frappucino.png'
   }
 ];
@@ -81,7 +81,7 @@ export const pastryMenu: Pastry[] = [
     id: 'croissant',
     name: 'Butter Croissant',
     price: 3.25,
-    allergens: ['Gluten', 'Milk', 'Eggs'],
+    allergens: ['Gluten',  'Eggs'],
     ingredients: ['Wheat flour', 'Butter', 'Eggs', 'Yeast', 'Salt', 'Sugar'],
     removableIngredients: ['Butter glaze'],
     description: 'Flaky, buttery French pastry perfect with coffee',
@@ -91,7 +91,7 @@ export const pastryMenu: Pastry[] = [
     id: 'chocolate-croissant',
     name: 'Chocolate Croissant',
     price: 3.75,
-    allergens: ['Gluten', 'Milk', 'Eggs', 'Soy'],
+    allergens: ['Gluten',  'Eggs', 'Soy'],
     ingredients: ['Wheat flour', 'Butter', 'Eggs', 'Dark chocolate', 'Soy lecithin', 'Yeast', 'Salt', 'Sugar'],
     removableIngredients: ['Chocolate filling'],
     description: 'Buttery croissant filled with rich dark chocolate',
@@ -101,7 +101,7 @@ export const pastryMenu: Pastry[] = [
     id: 'blueberry-muffin',
     name: 'Blueberry Muffin',
     price: 2.95,
-    allergens: ['Gluten', 'Milk', 'Eggs'],
+    allergens: ['Gluten',  'Eggs'],
     ingredients: ['Wheat flour', 'Fresh blueberries', 'Eggs', 'Butter', 'Sugar', 'Baking powder', 'Vanilla', 'Lemon zest'],
     removableIngredients: ['Blueberries', 'Sugar topping', 'Lemon zest'],
     description: 'Moist muffin bursting with fresh blueberries',
@@ -111,7 +111,7 @@ export const pastryMenu: Pastry[] = [
     id: 'banana-bread',
     name: 'Banana Bread',
     price: 3.50,
-    allergens: ['Gluten', 'Milk', 'Eggs', 'Walnuts'],
+    allergens: ['Gluten',  'Eggs', 'Walnuts'],
     ingredients: ['Wheat flour', 'Ripe bananas', 'Walnuts', 'Eggs', 'Butter', 'Sugar', 'Baking soda', 'Vanilla'],
     removableIngredients: ['Walnuts'],
     description: 'Sweet, moist bread made with ripe bananas and walnuts',
@@ -121,7 +121,7 @@ export const pastryMenu: Pastry[] = [
     id: 'scone',
     name: 'Cranberry Scone',
     price: 3.25,
-    allergens: ['Gluten', 'Milk'],
+    allergens: ['Gluten', ''],
     ingredients: ['Wheat flour', 'Dried cranberries', 'Butter', 'Sugar', 'Baking powder', 'Orange zest', 'Salt'],
     removableIngredients: ['Cranberries', 'Orange zest', 'Sugar glaze'],
     description: 'Traditional British scone with tart cranberries',
@@ -131,7 +131,7 @@ export const pastryMenu: Pastry[] = [
     id: 'danish',
     name: 'Cheese Danish',
     price: 3.95,
-    allergens: ['Gluten', 'Milk', 'Eggs'],
+    allergens: ['Gluten',  'Eggs'],
     ingredients: ['Wheat flour', 'Cream cheese', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Fruit preserves'],
     removableIngredients: ['Cream cheese filling', 'Fruit topping'],
     description: 'Flaky pastry filled with sweet cream cheese',
@@ -151,7 +151,7 @@ export const pastryMenu: Pastry[] = [
     id: 'cinnamon-roll',
     name: 'Cinnamon Roll',
     price: 4.25,
-    allergens: ['Gluten', 'Milk', 'Eggs', 'Pecans'],
+    allergens: ['Gluten',  'Eggs', 'Pecans'],
     ingredients: ['Wheat flour', 'Cinnamon', 'Pecans', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Powdered sugar'],
     removableIngredients: ['Cinnamon filling', 'Icing', 'Pecans'],
     description: 'Warm, gooey roll with cinnamon and sweet icing',
@@ -168,15 +168,15 @@ export const commonAllergens = [
   ...allergenCollection.individualAllergens
 ].sort();
 
-// Milk options for coffee customization
+//  options for coffee customization
 export const milkOptions = [
-  'Whole Milk',
-  'Skim Milk', 
-  '2% Milk',
-  'Oat Milk',
-  'Almond Milk',
-  'Soy Milk',
-  'Coconut Milk'
+  'Whole ',
+  'Skim ', 
+  '2% ',
+  'Oat ',
+  'Almond ',
+  'Soy ',
+  'Coconut '
 ];
 
 // Syrup flavors for coffee customization
