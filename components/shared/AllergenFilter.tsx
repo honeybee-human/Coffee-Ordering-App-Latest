@@ -326,7 +326,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                 <Checkbox
                   id={`category-${group.id}`}
                   checked={getCategoryCheckboxState(group.allergens) === 'checked'}
-                 
                   onCheckedChange={() => handleCategoryToggle(group.allergens)}
                   className="h-5 w-5"
                 />
@@ -375,7 +374,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
               <Checkbox
                 id="other-category"
                 checked={getCategoryCheckboxState(otherMenuAllergens) === 'checked'}
-               
                 onCheckedChange={() => handleCategoryToggle(otherMenuAllergens)}
                 className="h-5 w-5"
               />

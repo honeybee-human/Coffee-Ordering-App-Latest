@@ -4,12 +4,13 @@ import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
 import { Separator } from '@/ui/separator';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
-import { GroupMember, CartItem } from '@/types';
+import { GroupMember, CartItem, CoffeeCustomization, PastryCustomization } from '@/types';
 import { combineIdenticalItems, getAllergenConflicts, groupAndCombineItems } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import CustomizationsList from '../shared/ListCustoms';
 import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
+import { useNavigationStore } from '@/store/useNavigationStore';
 
 interface CartProps {
   onNavigateToCheckout?: () => void;
@@ -19,6 +20,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   const activeGroup = useActiveGroup();
   const cartTotal = useCartTotal();
   const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
+  const { navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
 
   const groupMembers = activeGroup?.members || [];
   const cartItems = activeGroup?.cart || [];
@@ -47,6 +49,59 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
     if (!activeGroup) return;
     clearCart(activeGroup.id);
   }, [activeGroup, clearCart]);
+
+  const handleEditCartItem = React.useCallback((item: CartItem) => {
+    if (item.type === 'coffee' && 'syrups' in item.customizations) {
+      navigateToCoffeeDetail(
+        item.item.id,
+        {
+          ...item.customizations as CoffeeCustomization,
+          assignedTo: item.assignedTo
+        },
+        (newCustomizations: CoffeeCustomization) => {
+          if (!activeGroup) return;
+          
+          // Update the cart item with new customizations
+          const updatedItem = {
+            ...item,
+            customizations: {
+              syrups: newCustomizations.syrups,
+              milk: newCustomizations.milk
+            },
+            assignedTo: newCustomizations.assignedTo
+          };
+          
+          // Remove old item and add updated one
+          removeFromCart(activeGroup.id, item.id);
+          useGroupsStore.getState().addToCart(activeGroup.id, updatedItem);
+        }
+      );
+    } else if (item.type === 'pastry' && 'removedIngredients' in item.customizations) {
+      navigateToPastryDetail(
+        item.item.id,
+        {
+          ...item.customizations as PastryCustomization,
+          assignedTo: item.assignedTo
+        },
+        (newCustomizations: PastryCustomization) => {
+          if (!activeGroup) return;
+          
+          // Update the cart item with new customizations
+          const updatedItem = {
+            ...item,
+            customizations: {
+              removedIngredients: newCustomizations.removedIngredients
+            },
+            assignedTo: newCustomizations.assignedTo
+          };
+          
+          // Remove old item and add updated one
+          removeFromCart(activeGroup.id, item.id);
+          useGroupsStore.getState().addToCart(activeGroup.id, updatedItem);
+        }
+      );
+    }
+  }, [activeGroup, navigateToCoffeeDetail, navigateToPastryDetail, removeFromCart]);
 
   if (cartItems.length === 0) {
     return (
@@ -94,7 +149,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
 
                 return (
                   <React.Fragment key={item.id}>
-                    <div className="flex flex-wrap justify-between p-4">
+                    <div className="flex flex-wrap justify-between p-4 cursor-pointer hover:bg-muted/50 rounded-lg transition-colors" onClick={() => handleEditCartItem(item)}>
                       {/* image, title, price */}
                       <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2">
@@ -128,10 +183,9 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                         </div>
                       </div>
 
-                        
                       <CustomizationsList item={item} />
 
-                      <div className="flex flex-col items-end gap-2">
+                      <div className="flex flex-col items-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
