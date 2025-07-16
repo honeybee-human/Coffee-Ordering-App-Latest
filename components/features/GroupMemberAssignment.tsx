@@ -48,7 +48,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
               value={selectedPerson || "unassigned"} 
               onValueChange={(value) => setSelectedPerson(value === "unassigned" ? "" : value)}
             >
-              <SelectTrigger id="person-select" className="bg-muted">
+              <SelectTrigger id="person-select" className="bg-muted p-4">
                 <SelectValue placeholder="Select a person or leave unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -91,7 +91,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
               const conflictingAllergens = getConflictingAllergens(selectedMember, itemAllergens);
 
               return (
-                <div className="flex items-start gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <div className="flex items-start gap-2 p-3 bg-destructive/10 rounded-lg">
                   <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-destructive">
@@ -107,19 +107,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
             return null;
           })()}
 
-          {/* Summary info */}
-          <div className="text-xs text-muted-foreground">
-            {selectedPerson && selectedPerson !== "unassigned" ? (
-              <div className="flex items-center gap-1">
-                <span>Assigned to:</span>
-                <Badge variant="secondary" className="text-xs">
-                  {selectedPerson}
-                </Badge>
-              </div>
-            ) : (
-              <span></span>
-            )}
-          </div>
+       
         </div>
         <div className="mt-4"></div>
       </div>

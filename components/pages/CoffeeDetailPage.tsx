@@ -51,12 +51,13 @@ export const CoffeeDetailPage: React.FC<{
       }
     } else {
       // Reset customizations when switching to a new coffee
+      const defaultMilk = coffee?.allergens?.includes('Milk') ? 'Whole Milk' : 'No Milk';
       setCustomizations({
         syrups: [],
-        milk: 'Whole Milk'
+        milk: defaultMilk
       });
     }
-  }, [coffeeId, initialCustomizations, setSelectedPerson]);
+  }, [coffeeId, initialCustomizations, setSelectedPerson, coffee]);
 
   useEffect(() => {
     // Reset assignment when switching to a new coffee
@@ -267,6 +268,7 @@ export const CoffeeDetailPage: React.FC<{
           <CoffeeCustomizationComponent
             customizations={customizations}
             setCustomizations={setCustomizations}
+            coffee={coffee}
           />
         </div>
 

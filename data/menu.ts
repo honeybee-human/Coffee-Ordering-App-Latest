@@ -22,41 +22,49 @@ export const coffeeMenu: Coffee[] = [
     id: 'latte',
     name: 'Latte',
     price: 4.50,
-    allergens: [],
-    description: 'Smooth espresso with steamed  and a light foam layer',
+    allergens: ['Milk'],
+    description: 'Smooth espresso with steamed milk and a light foam layer',
     image: '/Latte.png'
   },
   {
     id: 'cappuccino',
     name: 'Cappuccino',
     price: 4.25,
-    allergens: [],
-    description: 'Equal parts espresso, steamed , and rich foam',
+    allergens: ['Milk'],
+    description: 'Equal parts espresso, steamed milk, and rich foam',
     image: '/Capuccino.png'
   },
   {
     id: 'macchiato',
     name: 'Macchiato',
     price: 4.75,
-    allergens: [],
-    description: 'Espresso "marked" with a dollop of foamed ',
+    allergens: ['Milk'],
+    description: 'Espresso "marked" with a dollop of foamed milk',
     image: '/Macchiato.png'
   },
   {
     id: 'mocha',
     name: 'Mocha',
     price: 5.00,
-    allergens: [ 'Soy'],
-    description: 'Rich chocolate and espresso blend with steamed ',
+    allergens: ['Milk', 'Soy'],
+    description: 'Rich chocolate and espresso blend with steamed milk',
     image: '/Mocha.png'
   },
   {
     id: 'flat-white',
     name: 'Flat White',
     price: 4.75,
-    allergens: [],
-    description: 'Strong espresso with microfoam steamed ',
+    allergens: ['Milk'],
+    description: 'Strong espresso with microfoam steamed milk',
     image: '/Flat White.png'
+  },
+  {
+    id: 'frappuccino',
+    name: 'Frappuccino',
+    price: 5.50,
+    allergens: ['Milk', 'Soy'],
+    description: 'Blended coffee drink with ice, milk, and flavored syrups',
+    image: '/Frappucino.png'
   },
   {
     id: 'cold-brew',
@@ -131,7 +139,7 @@ export const pastryMenu: Pastry[] = [
     id: 'danish',
     name: 'Cheese Danish',
     price: 3.95,
-    allergens: ['Gluten',  'Eggs', 'Cheese'],
+    allergens: ['Gluten',  'Eggs', 'Cheese', 'Milk'],
     ingredients: ['Wheat flour', 'Cheese', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Fruit preserves'],
     removableIngredients: ['Cream cheese filling', 'Fruit topping'],
     description: 'Flaky pastry filled with sweet cream cheese',
@@ -151,10 +159,10 @@ export const pastryMenu: Pastry[] = [
     id: 'cinnamon-roll',
     name: 'Cinnamon Roll',
     price: 4.25,
-    allergens: ['Gluten',  'Eggs', 'Pecans'],
-    ingredients: ['Wheat flour', 'Cinnamon', 'Pecans', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Powdered sugar'],
-    removableIngredients: ['Cinnamon filling', 'Icing', 'Pecans'],
-    description: 'Warm, gooey roll with cinnamon and sweet icing',
+    allergens: ['Gluten', 'Eggs', 'Pecans', 'Almonds'],
+    ingredients: ['Wheat flour', 'Cinnamon', 'Pecans', 'Almonds', 'Butter', 'Eggs', 'Sugar', 'Yeast', 'Vanilla', 'Powdered sugar'],
+    removableIngredients: ['Cinnamon filling', 'Icing', 'Pecans', 'Almonds'],
+    description: 'Warm, gooey roll with cinnamon, nuts, and sweet icing',
     image: '/Cinnamon Roll.png'
   }
 ];
@@ -168,15 +176,16 @@ export const commonAllergens = [
   ...allergenCollection.individualAllergens
 ].sort();
 
-//  options for coffee customization
+// Updated milk options for coffee customization
 export const milkOptions = [
-  'Whole ',
-  'Skim ', 
-  '2% ',
-  'Oat ',
-  'Almond ',
-  'Soy ',
-  'Coconut '
+  'No Milk',
+  'Whole Milk',
+  'Skim Milk', 
+  '2% Milk',
+  'Oat Milk',
+  'Almond Milk',
+  'Soy Milk',
+  'Coconut Milk'
 ];
 
 // Syrup flavors for coffee customization
