@@ -127,18 +127,57 @@ export const CoffeeDetailPage: React.FC<{
     toggleFavorite('coffee', coffeeWithComprehensiveAllergens, activeGroup.id, customizations, assignedTo);
   }, [coffee, activeGroup, customizations, selectedPerson, toggleFavorite, allItemAllergens]);
 
+  // Helper function to get allergens for milk type
+  const getMilkAllergens = (milk: string): string[] => {
+    const allergens: string[] = [];
+    if (milk.includes('Milk') && milk !== 'No Milk') allergens.push('Milk');
+    if (milk.includes('Soy')) allergens.push('Soy');
+    if (milk.includes('Almond')) allergens.push('Almonds');
+    return allergens;
+  };
+
+  // Helper function to get allergens for syrup
+  const getSyrupAllergens = (flavor: string): string[] => {
+    const allergens: string[] = [];
+    if (flavor.toLowerCase().includes('hazelnut')) {
+      allergens.push('Hazelnuts', 'Nuts');
+    }
+    return allergens;
+  };
+
+  // Calculate comprehensive allergens including customizations
+  const getComprehensiveAllergensWithCustomizations = (): string[] => {
+    const allAllergens = new Set([...allItemAllergens]);
+    
+    // Add milk allergens
+    if (customizations.milk && customizations.milk !== 'No Milk') {
+      const milkAllergens = getMilkAllergens(customizations.milk);
+      milkAllergens.forEach(allergen => allAllergens.add(allergen));
+    }
+    
+    // Add syrup allergens
+    customizations.syrups?.forEach(syrup => {
+      const syrupAllergens = getSyrupAllergens(syrup.flavor);
+      syrupAllergens.forEach(allergen => allAllergens.add(allergen));
+    });
+    
+    return Array.from(allAllergens);
+  };
+
+  const comprehensiveAllergensWithCustomizations = getComprehensiveAllergensWithCustomizations();
+
   const handleToggleFavorite = useCallback(() => {
     if (!coffee || !activeGroup) return;
 
-    // Check for allergen conflicts
+    // Check for allergen conflicts with comprehensive allergens including customizations
     const affectedMembers = groupMembers.filter(member => {
       if (!member.allergens) return false;
-      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
+      return comprehensiveAllergensWithCustomizations.some(allergen => member.allergens.includes(allergen));
     });
 
     if (affectedMembers.length > 0) {
       showAllergenWarning(
-        allItemAllergens,
+        comprehensiveAllergensWithCustomizations,
         affectedMembers,
         coffee.name,
         executeFavoriteToggle
@@ -146,7 +185,7 @@ export const CoffeeDetailPage: React.FC<{
     } else {
       executeFavoriteToggle();
     }
-  }, [coffee, activeGroup, groupMembers, allItemAllergens, showAllergenWarning, executeFavoriteToggle]);
+  }, [coffee, activeGroup, groupMembers, comprehensiveAllergensWithCustomizations, showAllergenWarning, executeFavoriteToggle]);
 
   const handleAddToCart = useCallback(() => {
     if (!coffee || !activeGroup) return;
@@ -160,15 +199,15 @@ export const CoffeeDetailPage: React.FC<{
       assignedTo: (selectedPerson && selectedPerson !== "unassigned") ? selectedPerson : undefined
     };
 
-    // Check for allergen conflicts
+    // Check for allergen conflicts with comprehensive allergens including customizations
     const affectedMembers = groupMembers.filter(member => {
       if (!member.allergens) return false;
-      return allItemAllergens.some(allergen => member.allergens.includes(allergen));
+      return comprehensiveAllergensWithCustomizations.some(allergen => member.allergens.includes(allergen));
     });
 
     if (affectedMembers.length > 0) {
       showAllergenWarning(
-        allItemAllergens,
+        comprehensiveAllergensWithCustomizations,
         affectedMembers,
         coffee.name,
         () => {
@@ -180,7 +219,7 @@ export const CoffeeDetailPage: React.FC<{
       addToCart(activeGroup.id, cartItem);
       showAddToCartModal(coffee.name);
     }
-  }, [coffee, activeGroup, customizations, selectedPerson, groupMembers, allItemAllergens, addToCart, showAddToCartModal, showAllergenWarning]);
+  }, [coffee, activeGroup, customizations, selectedPerson, groupMembers, comprehensiveAllergensWithCustomizations, addToCart, showAddToCartModal, showAllergenWarning]);
 
   const handleSave = useCallback(() => {
     if (onSave) {
@@ -262,6 +301,7 @@ export const CoffeeDetailPage: React.FC<{
           {/* Person Assignment using the new component */}
           <GroupMemberAssignment
             itemAllergens={allItemAllergens}
+            customizations={customizations}
           />
 
           {/* Direct customization without extra card wrapper */}
