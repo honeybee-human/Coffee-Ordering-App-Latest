@@ -44,7 +44,6 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
       <div>
         <div className="space-y-3">
           <div className="space-y-2">
-            <Label htmlFor="person-select">Who is this for? (Optional)</Label>
             <Select 
               value={selectedPerson || "unassigned"} 
               onValueChange={(value) => setSelectedPerson(value === "unassigned" ? "" : value)}
@@ -118,7 +117,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
                 </Badge>
               </div>
             ) : (
-              <span>This item will be unassigned in your group order</span>
+              <span></span>
             )}
           </div>
         </div>

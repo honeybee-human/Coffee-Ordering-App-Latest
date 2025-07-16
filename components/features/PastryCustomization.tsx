@@ -38,7 +38,7 @@ export const PastryCustomizationComponent: React.FC<PastryCustomizationProps> = 
 
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-3">Remove Ingredients</h2>
+      <h2 className="text-lg font-semibold mb-3">Removable Ingredients</h2>
       <div className="space-y-3">
         {pastry.removableIngredients.map(ingredient => (
           <div key={ingredient} className="flex items-center space-x-2">

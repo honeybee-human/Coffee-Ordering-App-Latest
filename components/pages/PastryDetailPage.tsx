@@ -62,38 +62,6 @@ const PastryNotFound: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   </div>
 );
 
-// Component for removable ingredients display
-const RemovableIngredients: React.FC<{
-  ingredients: string[];
-  pastry: Pastry;
-  groupAllergens: string[];
-  relevantDetectedAllergens: string[];
-}> = ({ ingredients, pastry, groupAllergens, relevantDetectedAllergens }) => (
-  <div>
-    <h2 className="text-lg font-semibold mb-3">Ingredients</h2>
-    <p className="text-muted-foreground mb-3">
-      The following ingredients can be removed from your pastry:
-    </p>
-    <div className="flex flex-wrap gap-2 mb-3">
-      {ingredients.map((ingredient: string) => (
-        <Badge 
-          key={ingredient} 
-          variant="outline" 
-          className="text-xs"
-        >
-          {ingredient}
-        </Badge>
-      ))}
-    </div>
-    
-    {/* Allergen Information */}
-    {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
-      <div className="pt-3">
-        <AllergenTag item={pastry} groupAllergens={groupAllergens} />
-      </div>
-    )}
-  </div>
-);
 
 // Component for order summary
 const OrderSummary: React.FC<{
@@ -111,10 +79,10 @@ const OrderSummary: React.FC<{
     
     {customizations.removedIngredients.length > 0 && (
       <div className="pt-2 border-t border-border">
-        <p className="text-sm font-medium text-muted-foreground mb-2">Removed ingredients:</p>
+        <p className=" font-medium text-muted-foreground mb-2">Removed ingredients:</p>
         <div className="space-y-1">
           {customizations.removedIngredients.map((ingredient, index) => (
-            <div key={`removed-${ingredient}-${index}`} className="text-sm text-muted-foreground">
+            <div key={`removed-${ingredient}-${index}`} className=" text-muted-foreground">
               • No {ingredient}
             </div>
           ))}
@@ -124,7 +92,7 @@ const OrderSummary: React.FC<{
 
     {selectedPerson && selectedPerson !== "unassigned" && (
       <div className="pt-2 border-t border-border">
-        <div className="flex justify-between items-center text-sm text-muted-foreground">
+        <div className="flex justify-between items-center  text-muted-foreground">
           <span>• Assigned to:</span>
           <span>{selectedPerson}</span>
         </div>
@@ -353,16 +321,6 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
         <section className="space-y-6" aria-label="Customization options">
           <GroupMemberAssignment itemAllergens={allItemAllergens} />
 
-          {/* Ingredients section */}
-          {hasRemovableIngredients && (
-            <RemovableIngredients
-              ingredients={pastry.removableIngredients!}
-              pastry={pastry}
-              groupAllergens={groupAllergens}
-              relevantDetectedAllergens={relevantDetectedAllergens}
-            />
-          )}
-
           {/* Customization component - only show if there are removable ingredients */}
           {hasRemovableIngredients && (
             <PastryCustomizationComponent
@@ -405,20 +363,24 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
         <section className="mt-8 pt-6 border-t border-border" aria-label="Ingredients list">
           <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
           <div className="bg-muted/50 rounded-lg p-4">
-            <p className="text-sm text-muted-foreground mb-3">
-              This {pastry.name.toLowerCase()} contains the following ingredients:
-            </p>
+
             <div className="flex flex-wrap gap-2">
               {pastry.ingredients.map((ingredient, index) => (
                 <Badge 
                   key={`${ingredient}-${index}`}
-                  variant="secondary" 
-                  className="text-xs bg-background border"
+                  variant="outline" 
+                  className="text-sm bg-background border"
                 >
                   {ingredient}
                 </Badge>
               ))}
             </div>
+               {/* Allergen Information */}
+    {(pastry.allergens.length > 0 || relevantDetectedAllergens.length > 0) && (
+      <div className="pt-3">
+        <AllergenTag item={pastry} groupAllergens={groupAllergens} />
+      </div>
+    )}
           </div>
         </section>
       )}
