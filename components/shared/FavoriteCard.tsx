@@ -1,5 +1,5 @@
 import React from 'react';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
@@ -84,11 +84,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
                 <div className="mt-1 whitespace-pre-line">{formatCustomizations(favorite)}</div>
               </div>
             )}
-            {favorite.assignedTo && (
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium">Assigned to:</span> {favorite.assignedTo}
-              </p>
-            )}
+
             {comprehensiveAllergens.length > 0 && (
               <div className="mt-1">
                 <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />
@@ -137,32 +133,18 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
             <span className="font-semibold">${favorite.item.price.toFixed(2)}</span>
           </div>
         </div>
-        <CardHeader className="pb-2">
+        <CardHeader className="">
           <CardTitle className="text-base text-primary">{favorite.item.name}</CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            {formatCustomizations(favorite) && (
-              <div className="text-xs text-muted-foreground">
-                <span className="font-medium">Customizations:</span>
-                <div className="mt-1 whitespace-pre-line">{formatCustomizations(favorite)}</div>
-              </div>
-            )}
-            {favorite.assignedTo && (
-              <p className="text-xs text-muted-foreground">
-                <span className="font-medium">Assigned to:</span> {favorite.assignedTo}
-              </p>
-            )}
-            {comprehensiveAllergens.length > 0 && <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />}
-          </div>
-          <div className="flex gap-2 mt-4">
+        <CardContent className="flex flex-col gap-4">
+                    <div className="flex gap-2">
             <Button
               onClick={handleAddToCart}
-              className="flex-1"
+              variant="default"
               size="sm"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Add to Cart
+              <Plus className="" />
+              <ShoppingCart className="h-4 w-4" />
             </Button>
             <Button
               onClick={handleEdit}
@@ -179,6 +161,16 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
+          <div className="space-y-2">
+            {formatCustomizations(favorite) && (
+              <div className="text-muted-foreground">
+                <p className="text-sm font-medium">Customizations:</p>
+                <div className="mt-1 whitespace-pre-line">{formatCustomizations(favorite)}</div>
+              </div>
+            )}
+            {comprehensiveAllergens.length > 0 && <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />}
+          </div>
+
         </CardContent>
       </div>
     </Card>

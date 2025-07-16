@@ -33,7 +33,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         />
       </div>
       <Select value={searchMode} onValueChange={(value: 'name' | 'description') => onSearchModeChange(value)}>
-        <SelectTrigger className="w-full sm:w-48 bg-muted">
+        <SelectTrigger className="w-full border border-muted hover:bg-white sm:w-48 bg-muted">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

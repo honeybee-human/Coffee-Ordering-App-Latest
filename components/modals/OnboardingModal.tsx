@@ -51,11 +51,11 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
             </DialogTitle>
             <DialogDescription asChild>
               <div>
-                <p className="my-4 text-muted-foreground text-sm lg:text-base">
-                  An active group is the group of people you are currently ordering for. 
-                  Your first active group is set to only be for you!
+                <p className="my-4 text-muted-foreground text-sm">
+                  An active group is the group of people you are currently ordering for.
                   Create new groups and new members as needed, and label each of their allergens.
-                  so that we can auto filter and warn you of potential conflicts. To test functionality,
+                  and we'll warn you of potential conflicts. 
+                  <br/><br/><hr/> <br/>To test functionality,
                   add a member who's allergic to blueberries. When a filter is off, you will see a warning chip on a product.
                 </p><hr/><br/>
                 <div className="flex flex-col gap-2 text-base">

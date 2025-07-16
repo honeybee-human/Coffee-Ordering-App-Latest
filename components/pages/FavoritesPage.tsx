@@ -1,7 +1,7 @@
-// FavoritesPage.tsx - Fixed version
 import React, { useState, useMemo } from 'react';
-import { ArrowLeft, Edit2 } from 'lucide-react';
+import { ArrowLeft, User } from 'lucide-react';
 import { Button } from '@/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { FavoriteCard } from '../shared/FavoriteCard';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useAllergensStore } from '@/store/useAllergensStore';
@@ -12,11 +12,17 @@ import { AllergenFilter } from '../shared/AllergenFilter';
 import { FavoriteItem, CoffeeCustomization, PastryCustomization } from '@/types';
 import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 
+interface PersonFavoritesGroup {
+  personName: string;
+  favorites: FavoriteItem[];
+  isUnassigned?: boolean;
+}
+
 export const FavoritesPage: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const getGroupFavorites = useFavoritesStore(state => state.getGroupFavorites);
   const updateFavorite = useFavoritesStore(state => state.updateFavorite);
-  const allFavorites = useFavoritesStore(state => state.favorites); // Add this line
+  const allFavorites = useFavoritesStore(state => state.favorites);
   const excludedAllergens = useAllergensStore(state => state.excludedAllergens);
   const toggleAllergenFilter = useAllergensStore(state => state.toggleAllergenFilter);
   const clearAllergenFilters = useAllergensStore(state => state.clearAllergenFilters);
@@ -24,8 +30,6 @@ export const FavoritesPage: React.FC = () => {
   const { navigateToMenu, navigateToFavoriteDetail, navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
   const { showAddToCartModal } = useModalsStore();
 
-  // Fixed: Add allFavorites as dependency
-  // Updated: Use the new getGroupFavorites logic
   const favorites = useMemo(() => {
     return activeGroup ? getGroupFavorites(activeGroup.id) : [];
   }, [activeGroup, getGroupFavorites, allFavorites]);
@@ -56,6 +60,34 @@ export const FavoritesPage: React.FC = () => {
     );
   }, [favorites, excludedAllergens]);
 
+  // Group favorites by person
+  const favoritesByPerson = useMemo(() => {
+    const groups: PersonFavoritesGroup[] = [];
+    const groupedMap = new Map<string, FavoriteItem[]>();
+
+    // Group favorites by assignedTo
+    filteredFavorites.forEach(favorite => {
+      const assignedTo = favorite.assignedTo || 'Unassigned';
+      if (!groupedMap.has(assignedTo)) {
+        groupedMap.set(assignedTo, []);
+      }
+      groupedMap.get(assignedTo)!.push(favorite);
+    });
+
+    // Convert to array and sort (put unassigned at the end)
+    const sortedEntries = Array.from(groupedMap.entries()).sort(([a], [b]) => {
+      if (a === 'Unassigned') return 1;
+      if (b === 'Unassigned') return -1;
+      return a.localeCompare(b);
+    });
+
+    return sortedEntries.map(([personName, favorites]) => ({
+      personName,
+      favorites,
+      isUnassigned: personName === 'Unassigned'
+    }));
+  }, [filteredFavorites]);
+
   const filteredOutCount = favorites.length - filteredFavorites.length;
 
   const handleAddToCart = (favorite: FavoriteItem) => {
@@ -74,7 +106,6 @@ export const FavoritesPage: React.FC = () => {
   };
 
   const handleEditFavorite = (favorite: FavoriteItem) => {
-    // Navigate to the appropriate detail page with the current customizations
     if (favorite.type === 'coffee' && 'syrups' in favorite.customizations) {
       navigateToCoffeeDetail(
         favorite.item.id, 
@@ -83,7 +114,6 @@ export const FavoritesPage: React.FC = () => {
           assignedTo: favorite.assignedTo
         },
         (newCustomizations: CoffeeCustomization) => {
-          // Only update if customizations or assignment has changed
           if (JSON.stringify(newCustomizations) !== JSON.stringify(favorite.customizations) ||
               newCustomizations.assignedTo !== favorite.assignedTo) {
             updateFavorite(favorite.id, {
@@ -104,7 +134,6 @@ export const FavoritesPage: React.FC = () => {
           assignedTo: favorite.assignedTo
         },
         (newCustomizations: PastryCustomization) => {
-          // Only update if customizations or assignment has changed
           if (JSON.stringify(newCustomizations) !== JSON.stringify(favorite.customizations) ||
               newCustomizations.assignedTo !== favorite.assignedTo) {
             updateFavorite(favorite.id, {
@@ -128,7 +157,8 @@ export const FavoritesPage: React.FC = () => {
         <h1 className="text-xl font-semibold">Favorites</h1>
       </div>
 
-      <AllergenFilter
+<div className='flex w-full justify-end'>
+      <AllergenFilter 
         filtersOpen={filtersOpen}
         setFiltersOpen={setFiltersOpen}
         excludedAllergens={excludedAllergens}
@@ -138,47 +168,69 @@ export const FavoritesPage: React.FC = () => {
         groupBasedAllergens={groupBasedAllergens}
         filteredOutCount={filteredOutCount}
       />
+      </div>
 
-      {filteredFavorites.length === 0 ? (
+      {favoritesByPerson.length === 0 ? (
         <div className="text-center py-10 text-muted-foreground">
           No favorites match the selected filters.
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-4">
-          {filteredFavorites.map(fav => (
-            <FavoriteCard
-              key={fav.id}
-              favorite={fav}
-              groupAllergens={groupAllergens}
-              groupMembers={activeGroup?.members || []}
-              onAddToCart={() => handleAddToCart(fav)}
-              onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
-              onEdit={() => handleEditFavorite(fav)}
-              formatCustomizations={(favorite) => {
-                if (favorite.type === 'coffee') {
-                  const customizations = favorite.customizations as any;
-                  const parts = [];
-                  
-                  if (customizations.milk && customizations.milk !== 'Whole Milk') {
-                    parts.push(`• ${customizations.milk}`);
-                  }
-                  
-                  if (customizations.syrups?.length > 0) {
-                    customizations.syrups.forEach((syrup: any) => {
-                      parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`);
-                    });
-                  }
-                  
-                  return parts.join('\n');
-                } else {
-                  const customizations = favorite.customizations as any;
-                  if (customizations.removedIngredients?.length > 0) {
-                    return customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`).join('\n');
-                  }
-                  return '';
-                }
-              }}
-            />
+        <div className="space-y-6 pt-4">
+          {favoritesByPerson.map(({ personName, favorites, isUnassigned }) => (
+            <Card key={personName} className="bg-gray-50/50 border-gray-200">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <User className="h-5 w-5 text-primary" />
+                  {isUnassigned ? (
+                    <h3  className="text-muted-foreground">Unassigned Items</h3>
+                  ) : (
+                    <h3>{personName}</h3>
+                  )}
+                  <span className="text-sm text-muted-foreground font-normal">
+                    ({favorites.length} item{favorites.length !== 1 ? 's' : ''})
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-start">
+                  {favorites.map(fav => (
+                    <FavoriteCard
+                      key={fav.id}
+                      favorite={fav}
+                      groupAllergens={groupAllergens}
+                      groupMembers={activeGroup?.members || []}
+                      onAddToCart={() => handleAddToCart(fav)}
+                      onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
+                      onEdit={() => handleEditFavorite(fav)}
+                      formatCustomizations={(favorite) => {
+                        if (favorite.type === 'coffee') {
+                          const customizations = favorite.customizations as any;
+                          const parts = [];
+                          
+                          if (customizations.milk && customizations.milk !== 'Whole Milk') {
+                            parts.push(`• ${customizations.milk}`);
+                          }
+                          
+                          if (customizations.syrups?.length > 0) {
+                            customizations.syrups.forEach((syrup: any) => {
+                              parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`);
+                            });
+                          }
+                          
+                          return parts.join('\n');
+                        } else {
+                          const customizations = favorite.customizations as any;
+                          if (customizations.removedIngredients?.length > 0) {
+                            return customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`).join('\n');
+                          }
+                          return '';
+                        }
+                      }}
+                    />
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       )}

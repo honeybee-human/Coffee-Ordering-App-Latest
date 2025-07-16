@@ -84,15 +84,16 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                   
                   return (
                     <div key={item.id} className="p-4">
-                      <div className="grid grid-cols-3 sm:grid-cols-2 gap-4">
+                      <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2 ">
                           <div className="flex items-start gap-4">
+                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
                               <ImageWithFallback
                                 src={item.item.image || '/coffee-icon.svg'}
                                 alt={item.item.name}
-                                className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0 w-full h-full object-cover"
+                                className="w-full h-full object-cover"
                               />
-                              
+                            </div>
                             <div className="flex-1">
                               <h4 className="flex items-center justify-between gap-2">
                                 {item.item.name}
@@ -111,18 +112,19 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                               </div>
                               
                             </div>
-                                                          <div className="text-muted-foreground whitespace-pre-line">
-                                <CustomizationsList item={item}/>
-                              </div>
+
 
                               {hasAllergenConflict && (
                                 <p className="text-sm text-destructive mt-2">
                                   ⚠️ Contains {conflicts.join(', ')} - affects {affectedMembers.join(', ')}
                                 </p>
                               )}
+                              
                           </div>
+                          
                         </div>
 
+<CustomizationsList item={item} />
 
                         <div className="flex flex-col items-end gap-2">
 

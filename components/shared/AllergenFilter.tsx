@@ -172,7 +172,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                 <div className="flex items-center justify-between">
                   <DialogTitle className="text-lg flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-destructive" />
-                    Exclude Items Containing:
+                    Exclude:
                   </DialogTitle>
                   {excludedAllergens.length > 0 && (
                     <Button 
@@ -197,13 +197,13 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
           <CollapsibleTrigger asChild>
             {FilterTriggerButton}
           </CollapsibleTrigger>
-          <CollapsibleContent className="absolute top-full right-0 mt-2 z-50">
+          <CollapsibleContent className="absolute top-full right-0 mt-2 z-10">
             <Card className="w-96 bg-white border shadow-xl">
-              <CardHeader className="pb-4">
+              <CardHeader className="">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <AlertTriangle className="h-5 w-5 text-destructive" />
-                    Exclude Items Containing:
+                    Exclude:
                   </CardTitle>
                   {excludedAllergens.length > 0 && (
                     <Button 
