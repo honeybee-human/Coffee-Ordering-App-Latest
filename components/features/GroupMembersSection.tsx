@@ -24,7 +24,9 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
   onChangeGroups
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  
+ const hasAllergies = useMemo(() => {
+    return activeGroup.members.some(m => m.allergens && m.allergens.length > 0);
+  }, [activeGroup.members]);
   const filteredMembers = useMemo(() => {
     if (!searchQuery.trim()) return activeGroup.members;
     
@@ -36,24 +38,23 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
   return (
     <>
       <Separator />
-      {/* Warning for Just You group */}
-      {activeGroup.name === 'Just You' && (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-3 flex items-center gap-2 mb-3">
-          <AlertTriangle className="h-5 w-5" />
-          <span>
-            You cannot add another member to this group or delete yourself from this group. Please make another group and make it active to add or manage group members.
-          </span>
-        </div>
-      )}
-      {/* Popup alert for allergic members */}
-      {activeGroup.members.some(m => m.allergens && m.allergens.length > 0) && (
+  {hasAllergies ? (
         <div className="bg-destructive/10 border border-destructive text-destructive rounded-md p-3 flex items-center gap-2 mb-3">
           <AlertTriangle className="h-5 w-5" />
           <span>
             Warning: Some members in this group have allergies! Please review their allergens before placing an order.
           </span>
         </div>
+      ) : (
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-3 flex items-center gap-2 mb-3">
+          <AlertTriangle className="h-5 w-5" />
+          <span>
+            Currently no allergies recorded for members in this group. Double check if this is correct!
+          </span>
+        </div>
       )}
+
+
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold">Members in {activeGroup.name}</span>
@@ -61,7 +62,6 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
             <Button 
               size="sm" 
               onClick={onAddNewMember}
-              disabled={activeGroup.name === 'Just You'}
             >
               <UserPlus className="h-4 w-4 mr-2" />
               Create New Member
@@ -70,7 +70,6 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
               size="sm" 
               variant="outline"
               onClick={onAddExistingMember}
-              disabled={activeGroup.name === 'Just You'}
             >
               <Users className="h-4 w-4 mr-2" />
               Add Existing Member
@@ -109,7 +108,6 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
                 onRemoveMember={onRemoveMember}
                 onChangeGroups={onChangeGroups}
                 groupId={activeGroup.id}
-                isDisabled={activeGroup.name === 'Just You'}
               />
             ))}
           </div>

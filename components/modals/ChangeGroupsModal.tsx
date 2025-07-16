@@ -61,7 +61,7 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
               <div className="space-y-2">
                 <Label>Group Membership</Label>
                 <div className="space-y-2">
-                  {groups.filter(group => group.name !== 'Just You').map(group => {
+                  {groups.map(group => {
                     const isMember = group.members.some(m => 
                       m.name === selectedMember.name && 
                       JSON.stringify(m.allergens.sort()) === JSON.stringify(selectedMember.allergens.sort())

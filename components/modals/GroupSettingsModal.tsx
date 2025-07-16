@@ -89,7 +89,6 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
               value={groupName}
               onChange={(e) => setGroupName(e.target.value)}
               placeholder="Enter group name"
-              disabled={group?.name === 'Just You'}
             />
           </div>
           

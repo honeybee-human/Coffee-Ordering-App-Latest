@@ -46,8 +46,8 @@ export const useGroupsStore = create<GroupsStore>()(persist(
       if (groups.length === 0) {
         const defaultGroup = {
           id: Date.now().toString(),
-          name: 'Just You',
-          members: [{ name: 'You', allergens: [] }],
+          name: 'My First Group',
+          members: [{ name: 'You', allergens: ["Blueberries"] }],
           cart: [],
           dateCreated: new Date()
         };
@@ -174,8 +174,8 @@ export const useGroupsStore = create<GroupsStore>()(persist(
     resetAllData: () => {
       const defaultGroup = {
         id: Date.now().toString(),
-        name: 'Just You',
-        members: [{ name: 'You', allergens: [] }],
+        name: 'My First Group',
+        members: [{ name: 'You', allergens: ["Blueberries"] }],
         cart: [],
         dateCreated: new Date()
       };

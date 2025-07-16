@@ -63,9 +63,6 @@ const GroupsPage: React.FC = () => {
     
     // Then sort the filtered groups
     return [...filteredGroups].sort((a, b) => {
-      // Always keep 'Just You' at the top
-      if (a.name === 'Just You') return -1;
-      if (b.name === 'Just You') return 1;
       
       // Then sort by favorite status
       if (a.isFavorite && !b.isFavorite) return -1;
@@ -109,10 +106,10 @@ const GroupsPage: React.FC = () => {
               <Card key={group.id} className="p-4">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
-                    {group.name === 'Just You' && (
+                    {group.id === activeGroupId && (
                       <Crown className="h-4 w-4 text-amber-500" />
                     )}
-                    {group.isFavorite && group.name !== 'Just You' && (
+                    {group.isFavorite && (
                       <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                     )}
                     <div>
@@ -123,7 +120,6 @@ const GroupsPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    {group.name !== 'Just You' && (
                       <Button
                         variant="outline"
                         size="sm"
@@ -132,7 +128,7 @@ const GroupsPage: React.FC = () => {
                       >
                         <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
                       </Button>
-                    )}
+                    
                     <Button
                       variant="outline"
                       size="sm"
@@ -204,7 +200,6 @@ const GroupsPage: React.FC = () => {
                   )
                 }
                 required
-                disabled={editingGroup?.name === 'Just You'}
               />
             </div>
             <div className="flex justify-end gap-2">

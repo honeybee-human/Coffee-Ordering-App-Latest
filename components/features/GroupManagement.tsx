@@ -64,10 +64,7 @@ const sortedGroups = useMemo(() => {
   );
   
   return [...filtered].sort((a, b) => {
-    // Always put "Just You" first
-    if (a.name === 'Just You') return -1;
-    if (b.name === 'Just You') return 1;
-    
+
     // Then sort by favorite status
     if (a.isFavorite && !b.isFavorite) return -1;
     if (!a.isFavorite && b.isFavorite) return 1;
@@ -302,12 +299,10 @@ const sortedGroups = useMemo(() => {
                                 if (e.key === 'Escape') cancelEditing();
                               }}
                               className="flex-1"
-                              disabled={group.name === 'Just You'}
                             />
                             <Button 
                               size="sm" 
                               onClick={() => handleRenameGroup(group.id)}
-                              disabled={group.name === 'Just You'}
                             >
                               <Check className="h-3 w-3" />
                             </Button>
@@ -321,10 +316,9 @@ const sortedGroups = useMemo(() => {
                           </div>
                         ) : (
                           <>
-                            {group.name === 'Just You' && (
-                              <Crown className="h-4 w-4 text-amber-500" />
-                            )}
-                            {group.isFavorite && group.name !== 'Just You' && (
+                          {   group.id === activeGroupId && <Crown className="h-4 w-4 text-amber-500" />
+}
+                            {group.isFavorite && (
                               <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
                             )}
                             <span className={group.id === activeGroupId ? 'text-primary' : ''}>
@@ -342,7 +336,6 @@ const sortedGroups = useMemo(() => {
                         )}
                       </div>
                       <div className="flex items-center gap-1">
-                        {group.name !== 'Just You' && (
                           <Button
                             size="sm"
                             variant="ghost"
@@ -351,8 +344,7 @@ const sortedGroups = useMemo(() => {
                           >
                             <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
                           </Button>
-                        )}
-                        {group.name !== 'Just You' && (
+                        
                           <Button
                             size="sm"
                             variant="ghost"
@@ -360,8 +352,7 @@ const sortedGroups = useMemo(() => {
                           >
                             <Settings className="h-3 w-3" />
                           </Button>
-                        )}
-                        {group.name !== 'Just You' && (
+                        
                           <Button
                             size="sm"
                             variant="ghost"
@@ -370,7 +361,7 @@ const sortedGroups = useMemo(() => {
                           >
                             <Trash2 className="h-3 w-3" />
                           </Button>
-                        )}
+                        
                       </div>
                     </div>
                   ))}

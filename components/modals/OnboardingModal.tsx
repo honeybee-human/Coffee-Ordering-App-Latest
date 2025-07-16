@@ -56,7 +56,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
                   Create new groups and new members as needed, and label each of their allergens.
                   and we'll warn you of potential conflicts. 
                   <br/><br/><hr/> <br/>To test functionality,
-                  add a member who's allergic to blueberries. When a filter is off, you will see a warning chip on a product.
+                  your first group has a member with an allergy to blueberries. When a filter is off, you will see a warning chip on a product. In groups, you can set automatic filters on adding a member.
                 </p><hr/><br/>
                 <div className="flex flex-col gap-2 text-base">
                   <span className="flex items-center gap-2"><Users className="h-5 w-5 text-primary" /> <span>Create or join a group</span></span>
