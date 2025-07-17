@@ -84,14 +84,14 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   
   return (
     <Card 
-      className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group bg-white/80 backdrop-blur-sm border border-white/20"
+      className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group bg-white/80 backdrop-blur-sm border border-white/20"
       onClick={() => {
         setCurrentItem('pastry', pastry);
         onSelect(pastry.id);
       }}
     >
       {/* Mobile Layout: Horizontal split */}
-      <div className="flex sm:hidden h-40">
+      <div className="flex sm:hidden min-h-40">
         {/* Image Container - Left Side (40%) */}
         <div className="relative w-2/5 overflow-hidden">
           <ImageWithFallback

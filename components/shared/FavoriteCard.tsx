@@ -10,7 +10,7 @@ import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 
 interface FavoriteCardProps {
-  favorite: FavoriteItem;
+  favorite: FavoriteItem & { type: 'coffee' | 'pastry' }; // Exclude cart-set type
   groupAllergens: string[];
   groupMembers: GroupMember[];
   onAddToCart: (item: CartItem) => void;

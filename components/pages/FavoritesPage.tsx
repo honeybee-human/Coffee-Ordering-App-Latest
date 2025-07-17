@@ -338,7 +338,7 @@ export const FavoritesPage: React.FC = () => {
                     {favorites.map(fav => (
                       <FavoriteCard
                         key={fav.id}
-                        favorite={fav}
+                        favorite={fav as FavoriteItem & { type: "coffee" | "pastry" }}
                         groupAllergens={groupAllergens}
                         groupMembers={activeGroup?.members || []}
                         onAddToCart={() => handleAddToCart(fav)}
