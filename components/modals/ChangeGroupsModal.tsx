@@ -52,12 +52,6 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
         <div className="space-y-4">
           {selectedMember && (
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <span className="font-medium">{selectedMember.name}</span>
-                {selectedMember.allergens && selectedMember.allergens.length > 0 && (
-                  <AlertTriangle className="h-4 w-4 text-destructive" />
-                )}
-              </div>
               
               <div className="space-y-2">
                 <Label>Group Membership</Label>
@@ -69,7 +63,7 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
                     );
                     
                     return (
-                      <div key={group.id} className="flex items-center justify-between p-3 rounded border">
+                      <div key={group.id} className="flex items-center justify-between p-3 shadow-md rounded-lg bg-white">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{group.name}</span>
                           {isMember ? (
@@ -86,8 +80,8 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
                         </div>
                         
                         <Button
-                          size="sm"
-                          variant={isMember ? "destructive" : "default"}
+                        className={isMember ?'text-red-600': 'text-primary'}
+                          variant="ghost"
                           onClick={() => handleToggleMemberGroup(group.id, isMember)}
                         >
                           {isMember ? (

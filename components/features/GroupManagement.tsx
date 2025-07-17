@@ -191,7 +191,7 @@ export const GroupManagement: React.FC = () => {
         <div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <h1>Group Management</h1>
+              <h1>Groups</h1>
             </div>
 
             <AlertDialog>
@@ -240,14 +240,7 @@ export const GroupManagement: React.FC = () => {
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Active Group</h3>
-                  <Button
-                    onClick={() => setIsCreateGroupOpen(true)}
-                    size="sm"
-                    className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
-                  >
-                    <Plus className="h-5 w-5 md:mr-2" />
-                    <span className="hidden md:inline">New Group</span>
-                  </Button>
+                  
                 </div>
                 
                 {/* Mobile: Active group selector on its own line */}
@@ -345,7 +338,7 @@ export const GroupManagement: React.FC = () => {
                     <div 
                       key={group.id} 
                       className={`flex items-center justify-between p-3 rounded-lg border ${
-                        group.id === activeGroupId ? 'bg-primary/10 border-primary/20' : 'bg-card border-border'
+                        group.id === activeGroupId ? ' shadow-md border-border' : 'border-none'
                       }`}
                     >
                       <div className="flex items-center gap-2 flex-1">
@@ -377,13 +370,11 @@ export const GroupManagement: React.FC = () => {
                             </Button>
                           </div>
                         ) : (
-                          <>
-                            {group.id === activeGroupId && <Crown className="h-4 w-4 text-amber-500" />}
-                            {group.isFavorite && (
-                              <Star className="h-4 w-4 text-amber-500 fill-amber-500" />
-                            )}
-                            <span className={group.id === activeGroupId ? 'text-primary' : ''}>
-                              {group.name}
+                          <div className='flex flex-col md:flex-row gap-2'>
+                           
+                            <span className={group.id === activeGroupId ? 'text-primary flex flex-row gap-2' : ''}>
+                                                          {group.id === activeGroupId && <Crown className="h-4 w-4 text-amber-500" />}
+ {group.name}
                             </span>
                             <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-sm font-medium text-secondary-foreground">
                               {group.members.length} member{group.members.length !== 1 ? 's' : ''}
@@ -393,7 +384,7 @@ export const GroupManagement: React.FC = () => {
                                 {group.cart.length} item{group.cart.length !== 1 ? 's' : ''} in cart
                               </span>
                             )}
-                          </>
+                          </div>
                         )}
                       </div>
                       <div className="flex items-center gap-1">

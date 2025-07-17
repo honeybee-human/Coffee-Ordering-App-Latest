@@ -88,8 +88,8 @@ export const AddExistingMemberModal: React.FC<AddExistingMemberModalProps> = ({
               </p>
             ) : (
               filteredMembers.map((member: GroupMember, index: any) => (
-                <div key={`${member.name}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex-1">
+                <div key={`${member.name}-${index}`} className="flex items-center justify-between p-3 border border-border bg-white rounded-lg">
+                  <div className="flex-1 ">
                     <p className="font-medium">{member.name}</p>
                     {member.allergens && member.allergens.length > 0 ? (
                       <div className="flex flex-wrap gap-1 mt-1">

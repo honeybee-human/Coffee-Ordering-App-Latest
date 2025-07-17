@@ -266,7 +266,7 @@ export const FavoritesPage: React.FC = () => {
         <h1 className="">Saved</h1>
       </div>
 
-      <div className='flex w-full justify-end'>
+      <div className='flex w-full md:justify-end'>
         <AllergenFilter 
           filtersOpen={filtersOpen}
           setFiltersOpen={setFiltersOpen}

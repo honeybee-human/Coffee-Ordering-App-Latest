@@ -57,7 +57,7 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-lg font-semibold">Members in {activeGroup.name}</span>
+          <span className="text-lg font-semibold">Members</span>
           <div className="flex gap-2">
             <Button
               onClick={onAddNewMember}
