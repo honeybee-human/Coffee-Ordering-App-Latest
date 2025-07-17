@@ -41,24 +41,16 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
 
   return (
     <Card className="border-none overflow-hidden shadow-lg">
-      <CardHeader className="bg-muted/30">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div>
+      <CardHeader className="bg-muted/30 ">
+        <div className="flex flex-wrap  w-full items-center justify-between">
+          <div className="flex flex-wrap w-full items-center gap-3">
+            <div className="flex w-full justify-between gap-6 flex-wrap">
+                <div className="flex w-full justify-between gap-6">
               <h3 className="font-semibold">Order #{order.orderNumber}</h3>
-              {order.groupName && (
-                <p className="text-sm font-medium text-primary">{order.groupName}</p>
-              )}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                <span>{new Date(order.orderDate).toLocaleDateString()}</span>
-                <Clock className="h-4 w-4 ml-2" />
-                <span>{new Date(order.orderDate).toLocaleTimeString()}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
+                         <Badge variant={getStatusBadgeVariant(order.status)}>
+              {order.status}
+            </Badge>
+                          <Button
               variant="ghost"
               size="icon"
               onClick={(e) => onToggleBookmark(order.id, e)}
@@ -70,9 +62,18 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
                 <Bookmark className="h-5 w-5" />
               )}
             </Button>
-            <Badge variant={getStatusBadgeVariant(order.status)}>
-              {order.status}
-            </Badge>
+             
+            </div>
+              {order.groupName && (
+                <p className="text-sm font-medium text-primary">{order.groupName}</p>
+              )}
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4" />
+                <span>{new Date(order.orderDate).toLocaleDateString()}</span>
+                <Clock className="h-4 w-4 ml-2" />
+                <span>{new Date(order.orderDate).toLocaleTimeString().substring(0,5) + new Date(order.orderDate).toLocaleTimeString().substring(8)}</span>
+              </div>
+            </div>
           </div>
         </div>
       </CardHeader>
@@ -154,7 +155,7 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
           disabled={!activeGroup}
         >
           <RefreshCw className="h-5 w-5 md:mr-2" />
-          <span className="hidden md:inline">Active</span>
+          <span className="md:inline">Active</span>
         </Button>
         
         {!hideOriginalButton && (
@@ -166,7 +167,7 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
               className="flex-1"
             >
               <RefreshCw className="h-5 w-5 md:mr-2" />
-              <span className="hidden md:inline">Original</span>
+              <span className="md:inline">Original</span>
             </Button>
           ) : (
             <Button
@@ -177,6 +178,8 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
             >
               <RefreshCw className="h-5 w-5 md:mr-2" />
               <span className="hidden md:inline">Original Group Unavailable</span>
+                            <span className="md:hidden">No Original</span>
+
             </Button>
           )
         )}
