@@ -69,7 +69,6 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
               ) : (
                 <Bookmark className="h-5 w-5" />
               )}
-              <span className="hidden md:inline ml-2">Bookmark</span>
             </Button>
             <Badge variant={getStatusBadgeVariant(order.status)}>
               {order.status}
