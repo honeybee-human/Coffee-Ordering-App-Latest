@@ -284,7 +284,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
               onClick={handleSave}
               className="flex items-center gap-2"
             >
-              Save Changes
+              Save Changes To Selected Item
             </Button>
           )}
           <Button
