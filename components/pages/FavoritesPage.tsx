@@ -140,14 +140,18 @@ export const FavoritesPage: React.FC = () => {
     }
   };
 
-  const handleReorderBookmarkedOrder = (order: Order) => {
-    if (activeGroup) {
+  const handleReorderBookmarkedOrder = (orderId: string) => {
+    const order = bookmarkedOrders.find(o => o.id === orderId);
+    if (activeGroup && order) {
       reorderItems(activeGroup.id, order.id);
       showAddToCartModal(`Order #${order.orderNumber} items added to cart`);
     }
   };
 
-  const handleReorderToOriginalGroup = (order: Order) => {
+  const handleReorderToOriginalGroup = (orderId: string) => {
+    const order = bookmarkedOrders.find(o => o.id === orderId);
+    if (!order) return;
+    
     // Check if the original group still exists
     const originalGroup = useGroupsStore.getState().groups.find(g => g.id === order.groupId);
     if (!originalGroup) {
@@ -469,9 +473,9 @@ export const FavoritesPage: React.FC = () => {
                   order={order}
                   onToggleBookmark={handleToggleBookmark}
                   onReorderToActiveGroup={handleReorderBookmarkedOrder}
-                  onReorderToOriginalGroup={() => {}} // Empty function since we're hiding the button
+                  onReorderToOriginalGroup={handleReorderToOriginalGroup}
                   activeGroup={activeGroup}
-                  hideOriginalButton={true} // Hide the "Original" button
+                  hideOriginalButton={true}
                 />
               ))}
             </div>
