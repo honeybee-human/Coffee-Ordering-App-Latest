@@ -250,7 +250,7 @@ export const CoffeeDetailPage: React.FC<{
         <div className="flex items-center gap-2">
           {onSave && (
             <Button
-              variant="default"
+              variant="outline"
               onClick={handleSave}
               className="flex items-center gap-2"
             >

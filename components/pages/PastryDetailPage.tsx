@@ -280,7 +280,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
         <div className="flex items-center gap-2">
           {onSave && (
             <Button
-              variant="default"
+              variant="outline"
               onClick={handleSave}
               className="flex items-center gap-2"
             >
