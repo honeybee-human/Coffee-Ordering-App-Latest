@@ -240,7 +240,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
                       <div className="flex items-center gap-2">
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps - 1)}
                         >
                           <Minus className="h-3 w-3" />
@@ -248,7 +248,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
                         <Badge variant="secondary">{syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''}</Badge>
                         <Button
                           size="sm"
-                          variant="outline"
+                          variant="ghost"
                           onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps + 1)}
                         >
                           <Plus className="h-3 w-3" />

@@ -3,6 +3,7 @@ import { AlertTriangle, Edit2, Trash2, UserMinus, Users } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Group, GroupMember } from '@/types';
+import { Separator } from '@radix-ui/react-select';
 
 interface MemberCardProps {
   member: GroupMember;
@@ -73,7 +74,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({
       <div className="flex gap-2">
         <Button
           size="sm"
-          variant="outline"
+          variant="ghost"
           onClick={() => onEditMember(member)}
         >
           <Edit2 className="h-3 w-3 mr-1" />
@@ -83,7 +84,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({
         {onChangeGroups && (
           <Button
             size="sm"
-            variant="outline"
+            variant="ghost"
             onClick={() => onChangeGroups(member)}
             disabled={isDisabled}
           >
@@ -95,7 +96,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
         {onDeleteMember && groups && (
           <Button
             size="sm"
-            variant="destructive"
+        variant="ghost"
+            className='text-destructive'
             onClick={() => onDeleteMember(member, groups)}
             disabled={isDisabled || member.name== 'You'}
           >
@@ -104,10 +106,12 @@ export const MemberCard: React.FC<MemberCardProps> = ({
           </Button>
         )}
         
+        
         {onRemoveMember && groupId && (
           <Button
             size="sm"
-            variant="destructive"
+            variant="ghost"
+            className='text-destructive'
             onClick={() => onRemoveMember(groupId, member.name)}
             disabled={isDisabled}
           >

@@ -125,18 +125,9 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   if (cartItems.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold">Shopping Cart</h1>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center space-y-4">
-              <ShoppingCart className="h-16 w-16 mx-auto text-muted-foreground" />
-              <div>
-                <h3>Your cart is empty</h3>
-                <p className="text-muted-foreground">Add some delicious items to get started!</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <h1 className="space-y-6 container mx-auto px-4 py-8">Shopping Cart</h1>
+
+                <p className="text-muted-foreground text-center">Your cart is empty.</p>
       </div>
     );
   }
@@ -251,7 +242,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                       <div className="flex flex-col items-end gap-2" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center gap-2">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
@@ -260,7 +251,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                           </Button>
                           <span className="w-8 text-center text-lg">{item.quantity}</span>
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
                           >

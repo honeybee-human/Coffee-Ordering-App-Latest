@@ -280,8 +280,8 @@ export const GroupManagement: React.FC = () => {
                   <Toggle
                     pressed={autoFilterEnabled}
                     onPressedChange={handleAutoFilterToggle}
-                    variant="outline"
-                    className="data-[state=on]:bg-primary data-[state=on]:text-primary-foreground"
+                    variant="default"
+                    className="border data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600"
                   >
                     <Shield className="h-4 w-4" />
                     {autoFilterEnabled ? 'Enabled' : 'Disabled'}
@@ -290,12 +290,7 @@ export const GroupManagement: React.FC = () => {
                 
 
                   </div>
-                  {activeGroup && autoFilterEnabled && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Shield className="h-4 w-4 text-green-600" />
-                      <span>Auto-filtering active</span>
-                    </div>
-                  )}
+                 
                 </div>
               </div>
 
