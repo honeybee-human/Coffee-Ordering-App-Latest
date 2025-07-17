@@ -116,7 +116,7 @@ export const combineIdenticalItems = (cartItems: CartItem[]): CartItem[] => {
       };
     } else {
       // Add as a new item
-      combinedItems.push(item);
+      combinedItems.push({ ...item });
     }
   });
   

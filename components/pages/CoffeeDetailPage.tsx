@@ -262,6 +262,7 @@ export const CoffeeDetailPage: React.FC<{
             onClick={handleToggleFavorite}
             className="flex items-center gap-2"
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+            
           >
             <Star 
               className={`h-5 w-5 ${

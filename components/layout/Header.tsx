@@ -55,7 +55,7 @@ export const Header: React.FC<HeaderProps> = ({
     },
     {
       icon: Heart,
-      label: 'Favorites',
+      label: 'Saved',
       page: 'favorites',
       count: null,
       action: onNavigateToFavorites

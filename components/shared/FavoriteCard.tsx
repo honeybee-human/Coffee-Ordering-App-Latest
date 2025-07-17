@@ -58,13 +58,13 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
 
   return (
     <Card 
-      className="coffee-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02] overflow-hidden group cursor-pointer bg-white/80 backdrop-blur-sm border border-white/20 p-2 sm:p-3 max-w-xs sm:max-w-sm"
+      className="coffee-card hover:shadow-xl transition-all duration-300 hover:scale-[1.02]  group cursor-pointer bg-white/80 backdrop-blur-sm border border-white/20 p-2 sm:p-3"
       onClick={() => onNavigateToDetail(favorite)}
     >
       {/* Mobile Layout: Horizontal split */}
       <div className="flex sm:hidden">
         {/* Image Container - Left Side (40%) */}
-        <div className="relative w-2/5 overflow-hidden">
+        <div className="relative ">
           <ImageWithFallback
             src={favorite.item.image || '/coffee-icon.svg'}
             alt={favorite.item.name}
@@ -95,28 +95,25 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
             <Button
               onClick={handleAddToCart}
               className="flex-1 text-xs h-7"
-              size="sm"
+              size="lg"
             >
               <Plus className="h-3 w-3 mr-1" />
-              Add
             </Button>
             <Button
               onClick={handleEdit}
               variant="outline"
               className="flex-1 text-xs h-7"
-              size="sm"
+              size="lg"
             >
               <Edit2 className="h-3 w-3 mr-1" />
-              Edit
             </Button>
             <Button
               onClick={handleRemoveFavorite}
               variant="outline"
               className="flex-1 text-xs h-7"
-              size="sm"
+              size="lg"
             >
               <Trash2 className="h-3 w-3 mr-1" />
-              Remove
             </Button>
           </div>
         </div>
