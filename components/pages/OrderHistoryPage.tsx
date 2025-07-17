@@ -164,7 +164,7 @@ export const OrderHistoryPage: React.FC = () => {
 
       <div className="space-y-6">
         {filteredOrders.map((order: Order) => (
-          <Card key={order.id} className="overflow-hidden">
+          <Card key={order.id} className="border-none overflow-hidden shadow-lg ">
             <CardHeader className="bg-muted/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">

@@ -207,7 +207,7 @@ export const FavoritesPage: React.FC = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {cartSetFavorites.map(cartSet => (
-                  <Card key={cartSet.id} className="border">
+                  <Card key={cartSet.id} className="border-none shadow-lg">
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base">{cartSet.name}</CardTitle>
                       <p className="text-sm text-muted-foreground">
