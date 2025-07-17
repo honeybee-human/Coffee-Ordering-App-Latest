@@ -177,7 +177,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
               </DialogContent>
             </Dialog>
           )}
-          <Button variant="outline" onClick={handleClearCart} size="icon">
+          <Button variant="outline" onClick={handleClearCart}>
             <Trash2 className="h-5 w-5 md:mr-2" />
             <span className="hidden md:inline">Clear Cart</span>
           </Button>

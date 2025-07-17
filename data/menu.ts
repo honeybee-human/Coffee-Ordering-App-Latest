@@ -121,8 +121,8 @@ export const pastryMenu: Pastry[] = [
     id: 'scone',
     name: 'Cranberry Scone',
     price: 3.25,
-    allergens: ['Pecans', ],
-    ingredients: ['Wheat flour', 'Pecans', 'Dried cranberries', 'Butter', 'Sugar', 'Baking powder', 'Orange zest', 'Salt'],
+    allergens: ['Pecans' ],
+    ingredients: ['Wheat flour', 'Pecans', 'Hazelnuts', 'Dried cranberries', 'Butter', 'Sugar', 'Baking powder', 'Orange zest', 'Salt'],
     removableIngredients: ['Cranberries', 'Orange zest', 'Sugar glaze'],
     description: 'Traditional British scone with tart cranberries',
     image: '/Cranberry Scone.png'
