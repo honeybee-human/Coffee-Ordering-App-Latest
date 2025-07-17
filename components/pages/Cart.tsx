@@ -125,7 +125,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   if (cartItems.length === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="space-y-6 container mx-auto px-4 py-8">Shopping Cart</h1>
+        <h1 className="space-y-6 container mx-auto px-4 py-8">Cart</h1>
 
                 <p className="text-muted-foreground text-center">Your cart is empty.</p>
       </div>
@@ -135,14 +135,14 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   return (
     <div className="space-y-6 container mx-auto px-4 py-8">
       <div className="flex items-center justify-between">
-        <h1 className="">Shopping Cart ({cartItems.length} item{cartItems.length !== 1 ? 's' : ''})</h1>
+        <h1 className="">Cart</h1>
         <div className="flex gap-2">
           {cartItems.length > 0 && (
             <Dialog open={saveSetDialogOpen} onOpenChange={setSaveSetDialogOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save as Set
+                  <Save className="h-4 w-4 md:mr-2" />
+                  <span className="hidden md:inline">Save as Set</span>
                 </Button>
               </DialogTrigger>
               <DialogContent>
@@ -177,9 +177,9 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
               </DialogContent>
             </Dialog>
           )}
-          <Button variant="outline" onClick={handleClearCart} size="sm">
-            <Trash2 className="h-4 w-4 mr-2" />
-            Clear Cart
+          <Button variant="outline" onClick={handleClearCart} size="icon">
+            <Trash2 className="h-5 w-5 md:mr-2" />
+            <span className="hidden md:inline">Clear Cart</span>
           </Button>
         </div>
       </div>
@@ -243,27 +243,27 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                         <div className="flex items-center gap-2">
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={() => handleQuantityUpdate(item.id, item.quantity - 1)}
                             disabled={item.quantity <= 1}
                           >
-                            <Minus className="h-3 w-3" />
+                            <Minus className="h-4 w-4" />
                           </Button>
                           <span className="w-8 text-center text-lg">{item.quantity}</span>
                           <Button
                             variant="ghost"
-                            size="sm"
+                            size="icon"
                             onClick={() => handleQuantityUpdate(item.id, item.quantity + 1)}
                           >
-                            <Plus className="h-3 w-3" />
+                            <Plus className="h-4 w-4" />
                           </Button>
 
                           <Button
                             variant="ghost"
-                            size="lg"
+                            size="icon"
                             onClick={() => handleRemoveItem(item.id)}
                           >
-                            <Trash2 className="h-4 w-4" />
+                            <Trash2 className="h-5 w-5" />
                           </Button>
                         </div>
                       </div>

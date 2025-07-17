@@ -30,9 +30,11 @@ const GroupsPage: React.FC = () => {
 
   const handleCreateGroup = (e: React.FormEvent) => {
     e.preventDefault();
-    createGroup(newGroupName);
-    setNewGroupName('');
-    setShowCreateGroup(false);
+    if (newGroupName.trim()) {
+      createGroup(newGroupName);
+      setNewGroupName('');
+      setShowCreateGroup(false);
+    }
   };
 
   const handleEditGroup = (group: Group) => {
@@ -46,29 +48,22 @@ const GroupsPage: React.FC = () => {
 
   const handleUpdateGroup = (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingGroup) {
+    if (editingGroup && editingGroup.name.trim()) {
       renameGroup(editingGroup.id, editingGroup.name);
+      setShowEditGroup(false);
     }
-    setShowEditGroup(false);
   };
 
-  // Modify the sortedGroups function to filter by search query
   const sortedGroups = useMemo(() => {
-    // First filter by search query
     const filteredGroups = groupSearchQuery.trim()
       ? allGroups.filter(group => 
           group.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
         )
       : allGroups;
-    
-    // Then sort the filtered groups
+
     return [...filteredGroups].sort((a, b) => {
-      
-      // Then sort by favorite status
       if (a.isFavorite && !b.isFavorite) return -1;
       if (!a.isFavorite && b.isFavorite) return 1;
-      
-      // If both have the same favorite status, sort by name
       return a.name.localeCompare(b.name);
     });
   }, [allGroups, groupSearchQuery]);
@@ -89,7 +84,6 @@ const GroupsPage: React.FC = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Add search bar */}
           <div className="flex items-center justify-between gap-2">
             <GroupSearchBar 
               searchQuery={groupSearchQuery} 
@@ -120,14 +114,22 @@ const GroupsPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleFavoriteGroup(group.id)}
-                        className={group.isFavorite ? "text-amber-500" : ""}
-                      >
-                        <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
-                      </Button>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => selectGroup(group.id)} // Corrected function
+                    >
+                      <Crown className="h-5 w-5 md:mr-2" />
+                      <span className="hidden md:inline">Select</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => toggleFavoriteGroup(group.id)}
+                      className={group.isFavorite ? "text-amber-500" : ""}
+                    >
+                      <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                    </Button>
                     
                     <Button
                       variant="outline"

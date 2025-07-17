@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Card } from '@/ui/card';
 import { Button } from '@/ui/button';
-import { UserPlus } from 'lucide-react';
+import { Plus, UserPlus } from 'lucide-react';
 import { GroupMember, Group } from '@/types';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
@@ -77,9 +77,12 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
       <div className="flex items-center justify-between">
         <h3 className="text-lg font-semibold">All Members</h3>
         <div className="flex items-center gap-4">
-          <Button size="sm" onClick={onAddNewMember}>
-            <UserPlus className="h-4 w-4 mr-2" />
-            New Member
+          <Button
+            onClick={onAddNewMember}
+            className="mb-4"
+          >
+            <Plus className="h-4 w-4 md:mr-2" />
+            <span className="hidden md:inline">New Member</span>
           </Button>
         </div>
       </div>
@@ -89,7 +92,7 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
           <MemberSearchBar 
             searchQuery={searchQuery} 
             onSearchChange={setSearchQuery} 
-            placeholder="Search all members..."
+            placeholder="Search"
           />
           <p className="text-sm text-muted-foreground whitespace-nowrap">
             {filteredMembers.length} of {allMembers.length} members

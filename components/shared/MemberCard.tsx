@@ -77,8 +77,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
           variant="ghost"
           onClick={() => onEditMember(member)}
         >
-          <Edit2 className="h-3 w-3 mr-1" />
-          Edit
+          <Edit2 className="h-3 w-3 md:mr-1" />
+          <span className="hidden md:inline">Edit</span>
         </Button>
         
         {onChangeGroups && (
@@ -88,24 +88,23 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             onClick={() => onChangeGroups(member)}
             disabled={isDisabled}
           >
-            <Users className="h-3 w-3 mr-1" />
-            Change Groups
+            <Users className="h-3 w-3 md:mr-1" />
+            <span className="hidden md:inline">Change Groups</span>
           </Button>
         )}
         
         {onDeleteMember && groups && (
           <Button
             size="sm"
-        variant="ghost"
+            variant="ghost"
             className='text-destructive'
             onClick={() => onDeleteMember(member, groups)}
             disabled={isDisabled || member.name== 'You'}
           >
-            <Trash2 className="h-3 w-3 mr-1" />
-            Delete
+            <Trash2 className="h-3 w-3 md:mr-1" />
+            <span className="hidden md:inline">Delete</span>
           </Button>
         )}
-        
         
         {onRemoveMember && groupId && (
           <Button
@@ -115,8 +114,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             onClick={() => onRemoveMember(groupId, member.name)}
             disabled={isDisabled}
           >
-            <UserMinus className="h-3 w-3" />
-            Remove
+            <UserMinus className="h-3 w-3 md:mr-1" />
+            <span className="hidden md:inline">Remove</span>
           </Button>
         )}
       </div>

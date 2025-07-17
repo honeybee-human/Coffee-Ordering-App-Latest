@@ -17,6 +17,7 @@ import { FavoriteItem, CoffeeCustomization, PastryCustomization, CartSetFavorite
 import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 import { calculateCartSubtotal } from '@/utils/cart-calculations';
 import { combineIdenticalItems } from '@/utils/cart-helpers';
+import { OrderHistoryCard } from '../shared/OrderHistoryCard';
 
 interface PersonFavoritesGroup {
   personName: string;
@@ -280,7 +281,7 @@ export const FavoritesPage: React.FC = () => {
             <Heart className="h-4 w-4" />
             Items
             {favoritesByPerson.reduce((total, group) => total + group.favorites.length, 0) > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ml-1 hidden md:inline-flex">
                 {favoritesByPerson.reduce((total, group) => total + group.favorites.length, 0)}
               </Badge>
             )}
@@ -289,7 +290,7 @@ export const FavoritesPage: React.FC = () => {
             <Save className="h-4 w-4" />
             Carts
             {cartSetFavorites.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ml-1 hidden md:inline-flex">
                 {cartSetFavorites.length}
               </Badge>
             )}
@@ -298,14 +299,14 @@ export const FavoritesPage: React.FC = () => {
             <Bookmark className="h-4 w-4" />
             History
             {bookmarkedOrders.length > 0 && (
-              <Badge variant="secondary" className="ml-1">
+              <Badge variant="secondary" className="ml-1 hidden md:inline-flex">
                 {bookmarkedOrders.length}
               </Badge>
             )}
           </TabsTrigger>
         </TabsList>
 
-        {/* Favorites Tab */}
+        {/* Favorites Tab - Redesigned without Cards */}
         <TabsContent value="favorites" className="space-y-6">
           {favoritesByPerson.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
@@ -314,62 +315,59 @@ export const FavoritesPage: React.FC = () => {
               <p>Items you favorite will appear here for quick access.</p>
             </div>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-8">
               {favoritesByPerson.map(({ personName, favorites, isUnassigned }) => (
-                <Card key={personName} className="bg-gray-50/50 border-gray-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <User className="h-5 w-5 text-primary" />
-                      {isUnassigned ? (
-                        <span className="text-muted-foreground">Unassigned Items</span>
-                      ) : (
-                        <span>{personName}</span>
-                      )}
-                      <span className="text-sm text-muted-foreground font-normal">
-                        ({favorites.length} item{favorites.length !== 1 ? 's' : ''})
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-start">
-                      {favorites.map(fav => (
-                        <FavoriteCard
-                          key={fav.id}
-                          favorite={fav}
-                          groupAllergens={groupAllergens}
-                          groupMembers={activeGroup?.members || []}
-                          onAddToCart={() => handleAddToCart(fav)}
-                          onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
-                          onEdit={() => handleEditFavorite(fav)}
-                          formatCustomizations={(favorite) => {
-                            if (favorite.type === 'coffee') {
-                              const customizations = favorite.customizations as any;
-                              const parts = [];
-                              
-                              if (customizations.milk && customizations.milk !== 'Whole Milk') {
-                                parts.push(`• ${customizations.milk}`);
-                              }
-                              
-                              if (customizations.syrups?.length > 0) {
-                                customizations.syrups.forEach((syrup: any) => {
-                                  parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`);
-                                });
-                              }
-                              
-                              return parts.join('\n');
-                            } else {
-                              const customizations = favorite.customizations as any;
-                              if (customizations.removedIngredients?.length > 0) {
-                                return customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`).join('\n');
-                              }
-                              return '';
+                <div key={personName} className="space-y-4">
+                  <h3 className="flex items-center gap-2 text-xl font-semibold border-b pb-2">
+                    <User className="h-6 w-6 text-primary" />
+                    {isUnassigned ? (
+                      <span className="text-muted-foreground">Unassigned Items</span>
+                    ) : (
+                      <span>{personName}</span>
+                    )}
+                    <span className="text-sm text-muted-foreground font-normal">
+                      ({favorites.length} item{favorites.length !== 1 ? 's' : ''})
+                    </span>
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    {favorites.map(fav => (
+                      <FavoriteCard
+                        key={fav.id}
+                        favorite={fav}
+                        groupAllergens={groupAllergens}
+                        groupMembers={activeGroup?.members || []}
+                        onAddToCart={() => handleAddToCart(fav)}
+                        onNavigateToDetail={() => navigateToFavoriteDetail(fav)}
+                        onEdit={() => handleEditFavorite(fav)}
+                        formatCustomizations={(favorite) => {
+                          if (favorite.type === 'coffee') {
+                            const customizations = favorite.customizations as any;
+                            const parts = [];
+                            
+                            if (customizations.milk && customizations.milk !== 'Whole Milk') {
+                              parts.push(`• ${customizations.milk}`);
                             }
-                          }}
-                        />
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                            
+                            if (customizations.syrups?.length > 0) {
+                              customizations.syrups.forEach((syrup: any) => {
+                                parts.push(`• ${syrup.pumps} pump${syrup.pumps !== 1 ? 's' : ''} ${syrup.flavor}`);
+                              });
+                            }
+                            
+                            return parts.join('\n');
+                          } else {
+                            const customizations = favorite.customizations as any;
+                            if (customizations.removedIngredients?.length > 0) {
+                              return customizations.removedIngredients.map((ingredient: string) => `• No ${ingredient}`).join('\n');
+                            }
+                            return '';
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}
@@ -423,28 +421,28 @@ export const FavoritesPage: React.FC = () => {
                       </div>
                       <div className="flex gap-2">
                         <Button 
-                          size="sm" 
+                          size="icon" 
                           variant="outline"
                           className="flex-1"
                           onClick={() => handlePreviewCartSet(cartSet)}
                         >
-                          <Eye className="h-3 w-3 mr-1" />
-                          Preview
+                          <Eye className="h-5 w-5 md:mr-1" />
+                          <span className="hidden md:inline">Preview</span>
                         </Button>
                         <Button 
-                          size="sm" 
+                          size="icon" 
                           className="flex-1"
                           onClick={() => handleAddCartSetToCart(cartSet)}
                         >
-                          <ShoppingCart className="h-3 w-3 mr-1" />
-                          Add to Cart
+                          <ShoppingCart className="h-5 w-5 md:mr-1" />
+                          <span className="hidden md:inline">Add to Cart</span>
                         </Button>
                         <Button 
-                          size="sm" 
+                          size="icon" 
                           variant="outline"
                           onClick={() => removeCartSetFromFavorites(cartSet.id)}
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-5 w-5" />
                         </Button>
                       </div>
                     </CardContent>
@@ -455,7 +453,7 @@ export const FavoritesPage: React.FC = () => {
           )}
         </TabsContent>
 
-        {/* Bookmarked Orders Tab - Using exact same structure as OrderHistoryPage */}
+        {/* Bookmarked Orders Tab - Using OrderHistoryCard component */}
         <TabsContent value="bookmarked" className="space-y-6">
           {bookmarkedOrders.length === 0 ? (
             <div className="text-center py-10 text-muted-foreground">
@@ -466,139 +464,15 @@ export const FavoritesPage: React.FC = () => {
           ) : (
             <div className="space-y-6">
               {bookmarkedOrders.map((order: Order) => (
-                <Card key={order.id} className="border-none overflow-hidden shadow-lg">
-                  <CardHeader className="bg-muted/30">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-base">Order #{order.orderNumber}</CardTitle>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(order.orderDate).toLocaleDateString()} • ${order.totalAmount.toFixed(2)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{order.status}</Badge>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={(e) => handleToggleBookmark(order.id, e)}
-                          className="p-2"
-                        >
-                          {order.isBookmarked ? (
-                            <BookmarkCheck className="h-4 w-4 text-primary" />
-                          ) : (
-                            <Bookmark className="h-4 w-4" />
-                          )}
-                        </Button>
-                        <Badge variant={getStatusBadgeVariant(order.status)}>
-                          {order.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      {/* Order Items by Person */}
-                      <div className="space-y-4">
-                        {(() => {
-                          // Group items by assigned person
-                          const itemsByPerson = order.items.reduce((acc: Record<string, CartItem[]>, item: CartItem) => {
-                            const assignedTo = item.assignedTo || 'Unassigned';
-                            if (!acc[assignedTo]) acc[assignedTo] = [];
-                            acc[assignedTo].push(item);
-                            return acc;
-                          }, {});
-
-                          return Object.entries(itemsByPerson).map(([person, items]) => (
-                            <div key={person} className="space-y-2">
-                              <div className="flex items-center gap-2 text-sm font-medium">
-                                <User className="h-4 w-4" />
-                                <span>{person}</span>
-                              </div>
-                              <div className="ml-6 space-y-1">
-                                {items.map((item: CartItem, index: number) => (
-                                  <div key={index} className="flex justify-between text-sm">
-                                    <span>{item.quantity}x {item.item.name}</span>
-                                    <span className="text-muted-foreground">
-                                      ${(item.item.price * item.quantity).toFixed(2)}
-                                    </span>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ));
-                        })()}
-                      </div>
-
-                      {/* Order Details */}
-                      <div className="space-y-2 pt-4 border-t">
-                        <div className="flex justify-between items-center">
-                          <span className="text-muted-foreground">Subtotal</span>
-                          <span>${order.totalAmount.toFixed(2)}</span>
-                        </div>
-                        {order.paymentInfo && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-muted-foreground">Payment Method</span>
-                            <div className="flex items-center gap-2">
-                              <CreditCard className="h-4 w-4" />
-                              <span>Credit Card</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Group Members */}
-                      <div className="pt-4 border-t">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                          <Users className="h-4 w-4" />
-                          <span>Group Members</span>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {order.groupMembers.map((member: GroupMember) => (
-                            <Badge key={member.name} variant="secondary">
-                              <User className="h-3 w-3 mr-1" />
-                              {member.name}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                  
-                  <CardFooter className="bg-muted/30 flex justify-between">
-                    <Button
-                      onClick={() => handleReorderBookmarkedOrder(order)}
-                      variant="default"
-                      size="sm"
-                      className="flex-1 mr-2"
-                      disabled={!activeGroup}
-                    >
-                      <RefreshCw className="h-4 w-4 mr-2" />
-                      Active Group
-                    </Button>
-                    
-                    {order.groupId && useGroupsStore.getState().groups.some(g => g.id === order.groupId) ? (
-                      <Button
-                        onClick={() => handleReorderToOriginalGroup(order)}
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Original Group
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        disabled
-                      >
-                        <RefreshCw className="h-4 w-4 mr-2" />
-                        Original Group Unavailable
-                      </Button>
-                    )}
-                  </CardFooter>
-                </Card>
+                <OrderHistoryCard
+                  key={order.id}
+                  order={order}
+                  onToggleBookmark={handleToggleBookmark}
+                  onReorderToActiveGroup={handleReorderBookmarkedOrder}
+                  onReorderToOriginalGroup={() => {}} // Empty function since we're hiding the button
+                  activeGroup={activeGroup}
+                  hideOriginalButton={true} // Hide the "Original" button
+                />
               ))}
             </div>
           )}

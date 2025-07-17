@@ -196,10 +196,10 @@ export const GroupManagement: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-destructive hover:text-destructive"
+                  className="text-destructive hover:text-destructive md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
                 >
-                  <RotateCcw className="h-4 w-4 mr-2" />
-                  Reset All Data
+                  <RotateCcw className="h-5 w-5 md:mr-2" />
+                  <span className="hidden md:inline">Reset All Data</span>
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -240,57 +240,57 @@ export const GroupManagement: React.FC = () => {
                   <Button
                     onClick={() => setIsCreateGroupOpen(true)}
                     size="sm"
+                    className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Group
+                    <Plus className="h-5 w-5 md:mr-2" />
+                    <span className="hidden md:inline">New Group</span>
                   </Button>
                 </div>
-                                <div className="flex items-center  gap-2">
-
-                {/* Auto-Filter Toggle Section */}
-                <div className="flex gap-6 items-center p-3 rounded-lg bg-muted/50 w-full justify-between">
-                                  <Select
-                    value={activeGroup?.id || ''}
-                    onValueChange={selectGroup}
-                  >
-                    <SelectTrigger className="bg-muted">
-                      <SelectValue placeholder="Select a group" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groups.map(group => (
-                        <SelectItem 
-                          key={group.id} 
-                          value={group.id}
-                        >
-                          {group.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>  
-                  <div className="flex gap-3 w-full">
-                  <div className="flex items-center gap-3">
-                    <Filter className="h-4 w-4 text-muted-foreground" />
-                    <div className='w-full'>
-                      <Label className="text-sm font-medium">Auto-Filter Allergens</Label>
-                      <p className="text-sm text-muted-foreground">
-                        Automatically filter menu items based on active group member allergens
-                      </p>
-                    </div>
-                  </div>
-                  <Toggle
-                    pressed={autoFilterEnabled}
-                    onPressedChange={handleAutoFilterToggle}
-                    variant="default"
-                    className="border data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600 hover:bg-muted/50 hover:scale-105 transition-all duration-200"
-                  >
-                    <Shield className="h-4 w-4" />
-                    {autoFilterEnabled ? 'Enabled' : 'Disabled'}
-                  </Toggle>
-                </div>
                 
-
+                {/* Mobile: Active group selector on its own line */}
+                <div className="flex flex-col md:flex-row md:items-center gap-4">
+                  <div className="w-full md:flex-1">
+                    <Select
+                      value={activeGroup?.id || ''}
+                      onValueChange={selectGroup}
+                    >
+                      <SelectTrigger className="bg-muted">
+                        <SelectValue placeholder="Select a group" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {groups.map(group => (
+                          <SelectItem 
+                            key={group.id} 
+                            value={group.id}
+                          >
+                            {group.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                 
+                  
+                  {/* Mobile: Auto filter and enable button on line below */}
+                  <div className="flex items-center justify-between md:justify-start gap-3 p-3 rounded-lg bg-muted/50 w-full md:flex-1">
+                    <div className="flex items-center gap-3 flex-1">
+                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <div className='flex-1'>
+                        <Label className="text-sm font-medium">Auto-Filter Allergens</Label>
+                        <p className="text-sm text-muted-foreground hidden md:block">
+                          Automatically filter menu items based on active group member allergens
+                        </p>
+                      </div>
+                    </div>
+                    <Toggle
+                      pressed={autoFilterEnabled}
+                      onPressedChange={handleAutoFilterToggle}
+                      variant="default"
+                      className="border data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600 hover:bg-muted/50 hover:scale-105 transition-all duration-200 shrink-0"
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span className="hidden md:inline ml-1">{autoFilterEnabled ? 'Enabled' : 'Disabled'}</span>
+                    </Toggle>
+                  </div>
                 </div>
               </div>
 
@@ -303,7 +303,6 @@ export const GroupManagement: React.FC = () => {
                     removeGroupMember(groupId, memberName);
                     cleanupMemberFavorites(memberName, groupId);
                     
-                    // Update filters if auto-filter is enabled
                     if (autoFilterEnabled && groupId === activeGroupId) {
                       setTimeout(() => updateFiltersFromGroupMembers(), 0);
                     }
@@ -321,9 +320,10 @@ export const GroupManagement: React.FC = () => {
                   <Button
                     onClick={() => setIsCreateGroupOpen(true)}
                     size="sm"
+                    className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Group
+                    <Plus className="h-5 w-5 md:mr-2" />
+                    <span className="hidden md:inline">New Group</span>
                   </Button>
                 </div>
                               
@@ -360,15 +360,17 @@ export const GroupManagement: React.FC = () => {
                             <Button 
                               size="sm" 
                               onClick={() => handleRenameGroup(group.id)}
+                              className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2"
                             >
-                              <Check className="h-3 w-3" />
+                              <Check className="h-4 w-4" />
                             </Button>
                             <Button 
                               size="sm" 
                               variant="ghost" 
                               onClick={cancelEditing}
+                              className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2"
                             >
-                              <X className="h-3 w-3" />
+                              <X className="h-4 w-4" />
                             </Button>
                           </div>
                         ) : (
@@ -396,17 +398,18 @@ export const GroupManagement: React.FC = () => {
                           size="sm"
                           variant="ghost"
                           onClick={() => toggleFavoriteGroup(group.id)}
-                          className={group.isFavorite ? "text-amber-500" : ""}
+                          className={`${group.isFavorite ? "text-amber-500" : ""} md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2`}
                         >
-                          <Star className={`h-4 w-4 ${group.isFavorite ? "fill-amber-500" : ""}`} />
+                          <Star className={`h-5 w-5 ${group.isFavorite ? "fill-amber-500" : ""}`} />
                         </Button>
                       
                         <Button
                           size="sm"
                           variant="ghost"
                           onClick={() => startEditingGroup(group)}
+                          className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2"
                         >
-                          <Settings className="h-3 w-3" />
+                          <Settings className="h-5 w-5" />
                         </Button>
                       
                         <Button
@@ -414,8 +417,9 @@ export const GroupManagement: React.FC = () => {
                           variant="ghost"
                           onClick={() => deleteGroup(group.id)}
                           disabled={groups.length <= 1}
+                          className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2"
                         >
-                          <Trash2 className="h-3 w-3" />
+                          <Trash2 className="h-5 w-5" />
                         </Button>
                       </div>
                     </div>

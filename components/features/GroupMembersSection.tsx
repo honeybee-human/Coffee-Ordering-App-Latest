@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { AlertTriangle, UserPlus, Users } from 'lucide-react';
+import { AlertTriangle, Plus, UserPlus, Users } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Separator } from '@/ui/separator';
 import { Group, GroupMember } from '@/types';
@@ -59,20 +59,22 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
         <div className="flex items-center justify-between">
           <span className="text-lg font-semibold">Members in {activeGroup.name}</span>
           <div className="flex gap-2">
-            <Button 
-              size="sm" 
+            <Button
               onClick={onAddNewMember}
+              size="sm"
+              className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
             >
-              <UserPlus className="h-4 w-4 mr-2" />
-              New Member
+              <Plus className="h-5 w-5 md:mr-2" />
+              <span className="hidden md:inline">New Member</span>
             </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
+            <Button
               onClick={onAddExistingMember}
+              variant="outline"
+              size="sm"
+              className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
             >
-              <Users className="h-4 w-4 mr-2" />
-              Add Member
+              <UserPlus className="h-5 w-5 md:mr-2" />
+              <span className="hidden md:inline">Add Member</span>
             </Button>
           </div>
         </div>
@@ -82,7 +84,7 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
             <MemberSearchBar 
               searchQuery={searchQuery} 
               onSearchChange={setSearchQuery} 
-              placeholder="Search members in this group..."
+              placeholder="Search"
             />
             <p className="text-sm text-muted-foreground whitespace-nowrap">
               {filteredMembers.length} of {activeGroup.members.length} members

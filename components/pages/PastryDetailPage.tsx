@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { ArrowLeft, Star, Plus, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Star, Plus, AlertTriangle, Save } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Badge } from '@/ui/badge';
@@ -54,7 +54,7 @@ const PastryNotFound: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   <div className="space-y-6">
     <Button onClick={onBack} variant="outline">
       <ArrowLeft className="h-4 w-4 mr-2" />
-      Back to Menu
+      
     </Button>
     <div className="text-center text-muted-foreground">
       Pastry not found
@@ -268,7 +268,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
     <div className="mx-auto space-y-6">
       <Button onClick={onBack} variant="outline" className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors">
         <ArrowLeft className="h-4 w-4" />
-        Back to Menu
+        <span className="hidden md:inline"></span>
       </Button>
       
       {/* Header */}
@@ -284,7 +284,8 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
               onClick={handleSave}
               className="flex items-center gap-2"
             >
-              Save Changes To Selected Item
+              <Save className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Save Changes To Selected Item</span>
             </Button>
           )}
           <Button
@@ -300,7 +301,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
                   : 'text-muted-foreground'
               }`}
             />
-            {isFavorited ? 'Favorited' : 'Add to Favorites'}
+            <span className="hidden md:inline">{isFavorited ? 'Favorited' : 'Add to Favorites'}</span>
           </Button>
         </div>
       </header>

@@ -1,6 +1,6 @@
 // CoffeeDetailPage.tsx - Updated with allergen warning for favorites
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { ArrowLeft, Star, Plus } from 'lucide-react';
+import { ArrowLeft, Star, Plus, Save } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
@@ -79,7 +79,7 @@ export const CoffeeDetailPage: React.FC<{
       <div className="container mx-auto px-4 py-8">
         <Button onClick={onBack} variant="outline" className="mb-4">
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Menu
+          
         </Button>
         <div className="text-center py-8">
           <p className="text-muted-foreground">Coffee not found</p>
@@ -238,7 +238,7 @@ export const CoffeeDetailPage: React.FC<{
     <div className="mx-auto space-y-6">
       <Button onClick={onBack} variant="outline" className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors">
         <ArrowLeft className="h-4 w-4" />
-        Back to Menu
+        <span className="hidden md:inline"></span>
       </Button>
       
       {/* Header */}
@@ -254,7 +254,8 @@ export const CoffeeDetailPage: React.FC<{
               onClick={handleSave}
               className="flex items-center gap-2"
             >
-              Save Changes To Selected Item
+              <Save className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">Save Changes To Selected Item</span>
             </Button>
           )}
           <Button
@@ -262,7 +263,6 @@ export const CoffeeDetailPage: React.FC<{
             onClick={handleToggleFavorite}
             className="flex items-center gap-2"
             aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-            
           >
             <Star 
               className={`h-5 w-5 ${
@@ -271,7 +271,7 @@ export const CoffeeDetailPage: React.FC<{
                   : 'text-muted-foreground'
               }`}
             />
-            {isFavorited ? 'Favorited' : 'Add to Favorites'}
+            <span className="hidden md:inline">{isFavorited ? 'Favorited' : 'Add to Favorites'}</span>
           </Button>
         </div>
       </div>

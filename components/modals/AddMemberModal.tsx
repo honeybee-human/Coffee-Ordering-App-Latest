@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, Save } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
 import { Input } from '@/ui/input';
@@ -249,7 +249,7 @@ useEffect(() => {
                   <Badge
                     key={allergen}
                     variant="secondary"
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 text-base"
                   >
                     {allergen}
                     <button
@@ -272,7 +272,8 @@ useEffect(() => {
               Cancel
             </Button>
             <Button onClick={handleAddMember}>
-              {isEditing ? 'Save Changes' : 'Add Member'}
+              <Save className="h-4 w-4 md:mr-2" />
+              <span className="hidden md:inline">{isEditing ? 'Save Changes' : 'Add Member'}</span>
             </Button>
           </div>
         </div>
