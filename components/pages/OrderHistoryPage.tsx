@@ -1,9 +1,10 @@
 import React from 'react';
-import { ArrowLeft, Package } from 'lucide-react';
+import { ArrowLeft, Package, RotateCcw } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
 import { Switch } from '@/ui/switch';
 import { Label } from '@/ui/label';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/ui/alert-dialog';
 import { Order } from '@/types';
 import { GroupFilter } from '@/components/shared/GroupFilter';
 import { useNavigationStore } from '@/store/useNavigationStore';
@@ -15,7 +16,7 @@ import { OrderHistoryCard } from '../shared/OrderHistoryCard';
 export const OrderHistoryPage: React.FC = () => {
   const { navigateToMenu } = useNavigationStore();
   const orderHistory = useOrdersStore(state => state.orders);
-  const { toggleOrderBookmark } = useOrdersStore();
+  const { toggleOrderBookmark, clearOrderHistory } = useOrdersStore();
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const { showAllergenWarning } = useModalsStore();
   const { selectGroup } = useGroupsStore();
@@ -94,6 +95,10 @@ export const OrderHistoryPage: React.FC = () => {
     toggleOrderBookmark(orderId);
   };
 
+  const handleClearOrderHistory = () => {
+    clearOrderHistory();
+  };
+
   if (orderHistory.length === 0) {
     return (
       <div className="space-y-4">
@@ -102,18 +107,14 @@ export const OrderHistoryPage: React.FC = () => {
           
         </Button>
         
-        <Card>
-          <CardContent className="pt-6">
             <div className="text-center py-8">
-              <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg mb-2">No Orders Yet</h3>
+              <Package className="h-12 w-12 mx-auto opacity-50 mb-4" />
+              <h3 className="mb-2 text-muted-foreground">No Orders Yet</h3>
               <p className="text-muted-foreground mb-4">
                 Your order history will appear here once you place your first order.
               </p>
               <Button onClick={navigateToMenu}>Start Ordering</Button>
             </div>
-          </CardContent>
-        </Card>
       </div>
     );
   }
@@ -121,11 +122,49 @@ export const OrderHistoryPage: React.FC = () => {
   return (
     <div className="space-y-6 px-4 pb-16 container mx-auto px-4 py-8">
       <div>
-        <h1 className="">Order History</h1>
-        <p className="text-muted-foreground mb-4">
-          {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
-          {showBookmarkedOnly && ' (bookmarked only)'}
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h1 className="">Order History</h1>
+            <p className="text-muted-foreground">
+              {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
+              {showBookmarkedOnly && ' (bookmarked only)'}
+            </p>
+          </div>
+          
+          {/* Reset Order History Button */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-destructive hover:text-destructive"
+              >
+                <RotateCcw className="h-4 w-4 mr-2" />
+                Clear History
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <RotateCcw className="h-5 w-5 text-destructive" />
+                  Clear Order History
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to clear all order history? This action cannot be undone and will remove all past orders and bookmarks.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleClearOrderHistory}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Clear History
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
         
         {/* Bookmark filter toggle */}
         <div className="flex items-center space-x-2 mb-4">

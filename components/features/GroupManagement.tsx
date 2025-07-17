@@ -11,7 +11,8 @@ import { CardHeader, CardTitle, CardContent, Card } from '@/ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/ui/select';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
-import { useAllergensStore, useAutoFilterEnabled } from '@/store/useAllergensStore'; // Import allergen store
+import { useOrdersStore } from '@/store/useOrdersStore';
+import { useAllergensStore, useAutoFilterEnabled } from '@/store/useAllergensStore';
 import { Button } from '@/ui/button';
 import { Input } from '@/ui/input';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/ui/tabs';
@@ -38,6 +39,7 @@ export const GroupManagement: React.FC = () => {
   } = useGroupsStore();
 
   const { resetFavorites, cleanupMemberFavorites } = useFavoritesStore();
+  const { clearOrderHistory } = useOrdersStore();
   
   // Allergen store hooks
   const { toggleAutoFilter, updateFiltersFromGroupMembers, clearAllergenFilters } = useAllergensStore();
@@ -46,8 +48,9 @@ export const GroupManagement: React.FC = () => {
   const handleResetAllData = useCallback(() => {
     resetAllData();
     resetFavorites();
-    clearAllergenFilters(); // Clear allergen filters when resetting
-  }, [resetAllData, resetFavorites, clearAllergenFilters]);
+    clearAllergenFilters();
+    clearOrderHistory(); // Clear order history when resetting all data
+  }, [resetAllData, resetFavorites, clearAllergenFilters, clearOrderHistory]);
 
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isAddMemberOpen, setIsAddMemberOpen] = useState(false);
