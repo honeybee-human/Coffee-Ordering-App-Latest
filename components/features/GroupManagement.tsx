@@ -281,7 +281,7 @@ export const GroupManagement: React.FC = () => {
                     pressed={autoFilterEnabled}
                     onPressedChange={handleAutoFilterToggle}
                     variant="default"
-                    className="border data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600"
+                    className="border data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600 hover:bg-muted/50 hover:scale-105 transition-all duration-200"
                   >
                     <Shield className="h-4 w-4" />
                     {autoFilterEnabled ? 'Enabled' : 'Disabled'}

@@ -21,12 +21,13 @@
   --popover: #ffffff;
   --popover-foreground: #0d0703;
   --primary: #2d1505;
+  --primary-hover: #4a2a0f;
   --primary-foreground: #ffffff;
   --secondary: #f5f1eb;
   --secondary-foreground: #2d1505;
   --muted: #f0ede6;
   --muted-foreground: #5d4a3d;
-  --accent: #d4af37;
+  --accent: #cfc3b1;
   --accent-foreground: #0d0703;
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
