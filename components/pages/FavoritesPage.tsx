@@ -573,7 +573,7 @@ export const FavoritesPage: React.FC = () => {
                       disabled={!activeGroup}
                     >
                       <RefreshCw className="h-4 w-4 mr-2" />
-                      Reorder to Active Group
+                      Active Group
                     </Button>
                     
                     {order.groupId && useGroupsStore.getState().groups.some(g => g.id === order.groupId) ? (
@@ -584,7 +584,7 @@ export const FavoritesPage: React.FC = () => {
                         className="flex-1"
                       >
                         <RefreshCw className="h-4 w-4 mr-2" />
-                        Reorder to Original Group
+                        Original Group
                       </Button>
                     ) : (
                       <Button
