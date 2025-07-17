@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
@@ -23,6 +23,11 @@ export const PageRouter: React.FC = () => {
   const { showAllergenWarning } = useModalsStore();
   const { completeOrder } = useOrdersStore();
   const { clearCart } = useGroupsStore();
+
+  // Reset scroll position to top whenever the page changes
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [appState.currentPage]);
 
   const handleOrderComplete = (order: Order) => {
     completeOrder(order);
