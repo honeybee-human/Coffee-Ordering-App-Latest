@@ -84,69 +84,51 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   
   return (
     <Card 
-      className="coffee-card cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group bg-white/80 backdrop-blur-sm border border-white/20"
+className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
       onClick={() => {
         setCurrentItem('pastry', pastry);
         onSelect(pastry.id);
       }}
     >
       {/* Mobile Layout: Horizontal split */}
-      <div className="flex sm:hidden min-h-40">
-        {/* Image Container - Left Side (40%) */}
-        <div className="relative w-2/5 overflow-hidden">
-          <ImageWithFallback
-            src={pastry.image || '/coffee-icon.svg'}
-            alt={pastry.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 w-6 p-0 hover:bg-accent/20"
-              onClick={handleToggleFavorite}
-            >
-              <Star 
-                className={`h-3 w-3 transition-colors ${
-                  isFavorited 
-                    ? 'fill-accent text-accent' 
-                    : 'text-muted-foreground hover:text-accent'
-                }`}
-              />
-            </Button>
-          </div>
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
-            ${pastry.price.toFixed(2)}
-          </div>
-        </div>
-        {/* Content Container - Right Side (60%) */}
-        <div className="w-3/5 p-3 flex flex-col justify-between">
-          <div className="space-y-1">
-            <h3 className="font-bold text-primary line-clamp-1">{pastry.name}</h3>
-            <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
-          </div>
-          <div className="space-y-2">
-            {comprehensiveAllergens.length > 0 && <AllergenTag item={pastry} groupAllergens={groupAllergens} />}
-            {pastry.removableIngredients.length > 0 && (
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Customizable:</p>
-                <div className="flex flex-wrap gap-1">
-                  {pastry.removableIngredients.slice(0, 2).map((ingredient: string) => (
-                    <Badge key={ingredient} variant="secondary" className="text-sm px-1 py-0">
-                      {ingredient}
-                    </Badge>
-                  ))}
-                  {pastry.removableIngredients.length > 2 && (
-                    <span className="text-sm text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
+     <div className="flex md:hidden min-h-40">
+  {/* Image */}
+  <div className="relative w-2/5 overflow-hidden">
+    <ImageWithFallback
+      src={pastry.image || '/coffee-icon.svg'}
+      alt={pastry.name}
+      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+    />
+    <div className="absolute top-2 right-2 bg-white/90 rounded-full p-1">
+      <Button variant="ghost" size="sm" onClick={handleToggleFavorite}>
+        <Star className={`h-3 w-3 ${isFavorited ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
+      </Button>
+    </div>
+    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
+      ${pastry.price.toFixed(2)}
+    </div>
+  </div>
+
+  {/* Content */}
+  <div className="w-3/5 p-3 flex flex-col justify-between">
+    <h3 className="font-bold text-primary line-clamp-1">{pastry.name}</h3>
+    <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
+    {comprehensiveAllergens.length > 0 && <AllergenTag item={pastry} groupAllergens={groupAllergens} />}
+    {pastry.removableIngredients.length > 0 && (
+      <div className="flex flex-wrap gap-1 mt-1">
+        {pastry.removableIngredients.slice(0, 2).map(i => (
+          <Badge key={i} variant="secondary" className="text-xs px-1 py-0">{i}</Badge>
+        ))}
+        {pastry.removableIngredients.length > 2 && <span className="text-xs text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>}
       </div>
+    )}
+  </div>
+</div>
+
+{/* Tablet/Desktop */}
+
       {/* Tablet/Desktop Layout: Vertical */}
-      <div className="hidden sm:block">
+      <div className="hidden md:block">
         <div className="relative overflow-hidden">
           <ImageWithFallback
             src={pastry.image || '/coffee-icon.svg'}
