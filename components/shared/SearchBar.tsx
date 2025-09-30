@@ -32,7 +32,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           className="pl-10 bg-white"
         />
       </div>
-      <Select value={searchMode} onValueChange={(value: 'name' | 'description') => onSearchModeChange(value)}  className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] sm:w-48 bg-white">
+      <div className='border border-b-2 border-r-2'>
+      <Select value={searchMode} onValueChange={(value: 'name' | 'description') => onSearchModeChange(value)}>
         <SelectTrigger className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] sm:w-48 bg-white">
           <SelectValue />
         </SelectTrigger>
@@ -41,6 +42,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <SelectItem value="description">Search by Description</SelectItem>
         </SelectContent>
       </Select>
+      </div>
     </div>
   );
 };
