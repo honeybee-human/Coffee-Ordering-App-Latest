@@ -80,8 +80,8 @@ export const Header: React.FC<HeaderProps> = ({
             className="flex items-center cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200"
             onClick={onNavigateToLanding}
           >
-            <div className="p-2 sm:p-3 rounded-[1px]">
-              <Coffee className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
+            <div className="p-2 sm:p-3 rounded-[1px] flex flex-row gap-2 items-center">
+              <Coffee className="h-6 w-6 sm:h-8 sm:w-8 text-white" /> <div className='font-black text-lg'>Bean Bite</div>
             </div>
           </div>
 

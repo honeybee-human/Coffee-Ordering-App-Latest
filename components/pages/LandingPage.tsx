@@ -27,13 +27,12 @@ export const LandingPage: React.FC = () => {
     'Riverstone Bistro', 'Maple & Oak', 'Olive Branch', 'Seaside Table', 'Sunrise Diner',
     'Copper Pot', 'Garden Plate', 'Velvet Fork', 'Stone Hearth', 'Amber Lounge'
   ];
-  const [restaurants, setRestaurants] = useState<string[]>(initialRestaurants);
 
 
   return (
     <div className="container mx-auto px-4 py-8 space-y-10">
       <h1 className="text-6xl font-black text-center text-primary mt-[30px] animate-title-pop">SafePlate</h1>
-      <p className="text-center text-muted-foreground max-w-2xl mx-auto">SafePlate is software for restaurants and people with severe allergies.</p>
+      <p className="text-center text-muted-foreground max-w-2xl mx-auto">SafePlate is the platform where restaurants and customers connect safely!</p>
 
       {/* Banner wrapped to reserve space */}
       <div className="w-full">
@@ -77,10 +76,12 @@ export const LandingPage: React.FC = () => {
           </div>
           
         </div>
+                            <h2>Demo Restaurant : Bean Bite</h2>
+
                   <div className="flex items-center justify-center">
         <Button
           size="lg"
-          className="m-8 p-8 w-full sm:w-64 text-lg border border-b-2 border-r-2"
+          className="mb-8 p-8 w-full sm:w-64 text-lg border border-b-2 border-r-2"
           onClick={navigateToMenu}
         >
           View Our Menu
@@ -258,7 +259,7 @@ export const LandingPage: React.FC = () => {
         {/* Bottom: continuously scrolling restaurant cards */}
         <div className="w-full mb-[150px]">
           <p className="text-center font-medium mb-4">Restaurants using our platform</p>
-          <MovingCardBanner items={restaurants} />
+          <MovingCardBanner items={initialRestaurants} />
         </div>
 
       </div>

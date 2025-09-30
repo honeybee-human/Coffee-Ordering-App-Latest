@@ -99,7 +99,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
       </div>
       <div>
         <div className="space-y-3">
-          <div className="space-y-2">
+          <div className="space-y-2 border border-r-2 border-b-2">
             <Select 
               value={selectedPerson || "unassigned"} 
               onValueChange={handlePersonChange}

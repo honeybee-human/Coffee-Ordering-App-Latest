@@ -236,44 +236,44 @@ export const CoffeeDetailPage: React.FC<{
 
   return (
     <div className="mx-auto space-y-6">
-      <Button onClick={onBack} variant="outline" className="flex items-center gap-2 transition-colors">
+
+      
+      {/* Header */}
+      <div className="space-y-6 container mx-auto px-4 py-8 flex flex-row justify-between">
+              <div className='flex gap-8'>
+              <Button onClick={onBack} variant="outline" className="flex items-center gap-2 transition-colors">
         <ArrowLeft className="h-4 w-4" />
         <span className="hidden md:inline"></span>
       </Button>
-      
-      {/* Header */}
-      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-primary mb-2">{coffee.name}</h1>
           <p className="text-muted-foreground text-lg leading-relaxed">{coffee.description}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {onSave && (
-            <Button
-              variant="outline"
-              onClick={handleSave}
-              className="flex items-center gap-2"
-            >
-              <Save className="h-4 w-4 md:mr-2" />
-              <span className="hidden md:inline">Save Changes To Selected Item</span>
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            onClick={handleToggleFavorite}
-            className="flex items-center gap-2"
-            aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            <Star 
-              className={`h-5 w-5 ${
-                isFavorited 
-                  ? 'fill-accent text-accent' 
-                  : 'text-muted-foreground'
-              }`}
-            />
-            <span className="hidden md:inline">{isFavorited ? 'Favorited' : 'Add to Favorites'}</span>
-          </Button>
-        </div>
+        </div></div>
+<div className="flex items-center gap-2">
+  {onSave && (
+    <Button
+      onClick={handleSave}
+      className="flex items-center gap-2 border border-b-2 border-r-2 bg-white text-black rounded-lg hover:bg-gray-50"
+    >
+      <Save className="h-4 w-4 md:mr-2" />
+      <span className="hidden md:inline">Save Changes To Selected Item</span>
+    </Button>
+  )}
+  <Button
+    onClick={handleToggleFavorite}
+    className="flex items-center gap-2 border border-b-2 border-r-2 bg-white text-black rounded-lg hover:bg-gray-50"
+    aria-label={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+  >
+    <Star 
+      className={`h-5 w-5 ${
+        isFavorited 
+          ? 'fill-accent text-accent' 
+          : 'text-muted-foreground'
+      }`}
+    />
+    <span className="hidden md:inline">{isFavorited ? 'Favorited' : 'Add to Favorites'}</span>
+  </Button>
+</div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-8">
@@ -315,7 +315,7 @@ export const CoffeeDetailPage: React.FC<{
 
         <div className='flex-col space-y-5'>
           {/* Order Summary */}
-          <div>
+          <div className='bg-white p-4 border border-b-2 border-r-2'>
             <h2 className="text-lg font-semibold mb-3">Order Summary</h2>
             <div className="text-sm font-medium">
               Total: ${totalPrice.toFixed(2)}

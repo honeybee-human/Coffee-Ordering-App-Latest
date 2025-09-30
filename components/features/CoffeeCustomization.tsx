@@ -165,11 +165,12 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
   const currentMilkAllergens = customizations.milk !== 'No Milk' ? getMilkAllergens(customizations.milk) : [];
   const currentMilkAffectedMembers = currentMilkAllergens.length > 0 ? getAffectedMembers(currentMilkAllergens) : [];
 
-  return (
-    <div className="">
+return (
+  <div className="">
+    <div>
+      <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
       <div>
-        <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
-        <div>
+        <div className='border border-r-2 border-b-2'>
           <Select value={customizations.milk} onValueChange={setMilk}>
             <SelectTrigger className="bg-white">
               <SelectValue placeholder="Select milk type" />
@@ -180,40 +181,41 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
               ))}
             </SelectContent>
           </Select>
-          
-          {/* Show info message for milk-required coffees */}
-          {requiresMilk && (
-            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-[1px]">
-              <div className="text-sm text-red-600">
-                This coffee requires milk - 'No Milk' option is not available.
-              </div>
-            </div>
-          )}
-          
-          {/* Persistent allergen warning for selected milk */}
-          {currentMilkAffectedMembers.length > 0 && (
-            <div className="mt-2 flex items-start gap-2 p-3 bg-destructive/10 rounded-lg">
-              <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-destructive">
-                  Allergen Warning for {currentMilkAffectedMembers.map(m => m.name).join(', ')}
-                </p>
-                <p className="text-xs text-destructive/80">
-                  This item may contain: {currentMilkAllergens.join(', ')}
-                </p>
-              </div>
-            </div>
-          )}
         </div>
-        <div className="mt-4 pt-4"></div>
+        {/* Show info message for milk-required coffees */}
+        {requiresMilk && (
+          <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-[1px]">
+            <div className="text-sm text-red-600">
+              This coffee requires milk - 'No Milk' option is not available.
+            </div>
+          </div>
+        )}
+        
+        {/* Persistent allergen warning for selected milk */}
+        {currentMilkAffectedMembers.length > 0 && (
+          <div className="mt-2 flex items-start gap-2 p-3 bg-destructive/10 rounded-lg">
+            <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-destructive">
+                Allergen Warning for {currentMilkAffectedMembers.map(m => m.name).join(', ')}
+              </p>
+              <p className="text-xs text-destructive/80">
+                This item may contain: {currentMilkAllergens.join(', ')}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
+      <div className="mt-4 pt-4"></div>
+    </div>
 
-      <div>
-        <h2 className="text-lg font-semibold mb-3">Flavor Syrups</h2>
-        <div className="space-y-4">
-          <div className="flex gap-2">
+    <div>
+      <h2 className="text-lg font-semibold mb-3">Flavor Syrups</h2>
+      <div className="space-y-4">
+        <div className="flex gap-2">
+          <div className='border border-r-2 border-b-2 flex-1'>
             <Select value={selectedSyrup} onValueChange={setSelectedSyrup}>
-              <SelectTrigger className="flex-1 bg-white">
+              <SelectTrigger className="bg-white">
                 <SelectValue placeholder="Add syrup flavor" />
               </SelectTrigger>
               <SelectContent>
@@ -222,62 +224,63 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
                 ))}
               </SelectContent>
             </Select>
-            <Button onClick={handleAddSyrup} disabled={!selectedSyrup}>
-              <Plus className="h-4 w-4" />
-            </Button>
           </div>
+          <Button onClick={handleAddSyrup} disabled={!selectedSyrup}>
+            <Plus className="h-4 w-4" />
+          </Button>
+        </div>
 
-          {customizations.syrups.length > 0 && (
-            <div className="space-y-2">
-              {customizations.syrups.map(syrup => {
-                const syrupAllergens = getSyrupAllergens(syrup.flavor);
-                const syrupAffectedMembers = syrupAllergens.length > 0 ? getAffectedMembers(syrupAllergens) : [];
-                
-                return (
-                  <div key={syrup.flavor} className="space-y-2">
-                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <span className="text-sm">{syrup.flavor}</span>
-                      <div className="flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps - 1)}
-                        >
-                          <Minus className="h-3 w-3" />
-                        </Button>
-                        <Badge variant="secondary">{syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''}</Badge>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps + 1)}
-                        >
-                          <Plus className="h-3 w-3" />
-                        </Button>
+        {customizations.syrups.length > 0 && (
+          <div className="space-y-2">
+            {customizations.syrups.map(syrup => {
+              const syrupAllergens = getSyrupAllergens(syrup.flavor);
+              const syrupAffectedMembers = syrupAllergens.length > 0 ? getAffectedMembers(syrupAllergens) : [];
+              
+              return (
+                <div key={syrup.flavor} className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-white border border-r-2 border-b-2 rounded-[1px]">
+                    <span className="text-sm">{syrup.flavor}</span>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps - 1)}
+                      >
+                        <Minus className="h-3 w-3" />
+                      </Button>
+                      <Badge variant="secondary">{syrup.pumps} pump{syrup.pumps !== 1 ? 's' : ''}</Badge>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => updateSyrupPumps(syrup.flavor, syrup.pumps + 1)}
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  {/* Persistent allergen warning for selected syrup */}
+                  {syrupAffectedMembers.length > 0 && (
+                    <div className="ml-3 flex items-start gap-2 p-3 bg-destructive/10 rounded-[1px]">
+                      <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-destructive">
+                          Allergen Warning for {syrupAffectedMembers.map(m => m.name).join(', ')}
+                        </p>
+                        <p className="text-xs text-destructive/80">
+                          This item may contain: {syrupAllergens.join(', ')}
+                        </p>
                       </div>
                     </div>
-                    
-                    {/* Persistent allergen warning for selected syrup */}
-                    {syrupAffectedMembers.length > 0 && (
-                      <div className="ml-3 flex items-start gap-2 p-3 bg-destructive/10 rounded-[1px]">
-                        <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
-                        <div className="space-y-1">
-                          <p className="text-sm font-medium text-destructive">
-                            Allergen Warning for {syrupAffectedMembers.map(m => m.name).join(', ')}
-                          </p>
-                          <p className="text-xs text-destructive/80">
-                            This item may contain: {syrupAllergens.join(', ')}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <div className="mt-4 pt-4"></div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
+      <div className="mt-4 pt-4"></div>
     </div>
-  );
+  </div>
+);
 };
