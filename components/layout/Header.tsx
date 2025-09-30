@@ -41,21 +41,6 @@ export const Header: React.FC<HeaderProps> = ({
       action: onNavigateToMenu
     },
     {
-      icon: ShoppingCart,
-      label: 'Cart',
-      page: 'cart',
-      count: activeGroup?.cart.length || 0,
-      action: onNavigateToCart,
-      isCart: true
-    },
-    {
-      icon: Users,
-      label: 'Groups',
-      page: 'groups',
-      count: null,
-      action: onNavigateToGroups
-    },
-    {
       icon: Heart,
       label: 'Saved',
       page: 'favorites',
@@ -68,7 +53,23 @@ export const Header: React.FC<HeaderProps> = ({
       page: 'order-history',
       count: null,
       action: onNavigateToOrderHistory
-    }
+    },
+    
+    {
+      icon: Users,
+      label: 'Groups',
+      page: 'groups',
+      count: null,
+      action: onNavigateToGroups
+    },
+    {
+      icon: ShoppingCart,
+      label: 'Cart',
+      page: 'cart',
+      count: activeGroup?.cart.length || 0,
+      action: onNavigateToCart,
+      isCart: true
+    },
   ];
 
   return (

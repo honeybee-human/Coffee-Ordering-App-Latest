@@ -12,6 +12,7 @@ import { useOrdersStore } from '@/store/useOrdersStore';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { OrderHistoryCard } from '../shared/OrderHistoryCard';
+import { SavedSearchBar } from '../shared/SavedSearchBar';
 
 export const OrderHistoryPage: React.FC = () => {
   const { navigateToMenu } = useNavigationStore();
@@ -69,6 +70,8 @@ export const OrderHistoryPage: React.FC = () => {
 
   const [selectedGroup, setSelectedGroup] = React.useState<string>('all');
   const [showBookmarkedOnly, setShowBookmarkedOnly] = React.useState(false);
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [searchMode, setSearchMode] = React.useState<'item' | 'person' | 'group' | 'month'>('item');
   
   // Get unique group names from orders
   const groupNames = Array.from(new Set(orderHistory.map((order: Order) => order.groupName).filter(Boolean)));
@@ -86,9 +89,33 @@ export const OrderHistoryPage: React.FC = () => {
     if (showBookmarkedOnly) {
       filtered = filtered.filter((order: Order) => order.isBookmarked);
     }
+
+    // Search filters: item, person, group, month (prefix match)
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      filtered = filtered.filter(order => {
+        switch (searchMode) {
+          case 'person':
+            return order.items.some(item => (item.assignedTo || 'Unassigned').toLowerCase().startsWith(q));
+          case 'item':
+            return order.items.some(item => item.item.name.toLowerCase().startsWith(q));
+          case 'group':
+            return (order.groupName || '').toLowerCase().startsWith(q);
+          case 'month':
+            try {
+              const monthName = new Date(order.orderDate).toLocaleString('en-US', { month: 'long' }).toLowerCase();
+              return monthName.startsWith(q);
+            } catch {
+              return false;
+            }
+          default:
+            return true;
+        }
+      });
+    }
     
     return filtered;
-  }, [orderHistory, selectedGroup, showBookmarkedOnly]);
+  }, [orderHistory, selectedGroup, showBookmarkedOnly, searchQuery, searchMode]);
 
   const handleToggleBookmark = (orderId: string, event: React.MouseEvent) => {
     event.stopPropagation();
@@ -103,11 +130,10 @@ export const OrderHistoryPage: React.FC = () => {
   return (
     <div className="space-y-6 container mx-auto px-4 py-8">
       <div>
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-6">
           <div>
             <h1>Order History</h1>
             <p className="text-muted-foreground">
-              {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
               {showBookmarkedOnly && ' (bookmarked only)'}
             </p>
           </div>
@@ -142,20 +168,38 @@ export const OrderHistoryPage: React.FC = () => {
                 >
                   Clear History
                 </AlertDialogAction>
-              </AlertDialogFooter>
+          </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
         
-        {/* Bookmark filter toggle */}
-        <div className="flex items-center space-x-2 mb-4">
-          <Switch
-            id="bookmark-filter"
-            checked={showBookmarkedOnly}
-            onCheckedChange={setShowBookmarkedOnly}
+        {/* Search row under header with toggle and group filter */}
+        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
+          <SavedSearchBar
+            query={searchQuery}
+            onQueryChange={setSearchQuery}
+            mode={searchMode}
+            onModeChange={setSearchMode}
+            modes={["item","person","group","month"]}
           />
-          <Label htmlFor="bookmark-filter">Show bookmarked orders only</Label>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="bookmark-filter"
+                checked={showBookmarkedOnly}
+                onCheckedChange={setShowBookmarkedOnly}
+              />
+              <Label htmlFor="bookmark-filter">Show bookmarked only</Label>
+            </div>
+            <GroupFilter
+              groupNames={groupNames.filter((name): name is string => name !== undefined)}
+              selectedGroup={selectedGroup}
+              onChange={setSelectedGroup}
+            />
+          </div>
         </div>
+        
+       
         
         <GroupFilter
           groupNames={groupNames.filter((name): name is string => name !== undefined)}
@@ -177,7 +221,7 @@ export const OrderHistoryPage: React.FC = () => {
               : 'Try adjusting your filters to see more orders.'}
           </p>
           {orderHistory.length === 0 && (
-            <Button onClick={navigateToMenu} variant="outline">Start Ordering</Button>
+            <Button onClick={navigateToMenu} className="rounded-lg">Start Ordering</Button>
           )}
         </div>
       ) : (

@@ -38,8 +38,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="name">Search by Name</SelectItem>
-          <SelectItem value="description">Search by Description</SelectItem>
+          <SelectItem value="name">Item Name</SelectItem>
+          <SelectItem value="description">Item Description</SelectItem>
         </SelectContent>
       </Select>
       </div>

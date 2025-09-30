@@ -13,6 +13,8 @@ import { useOrdersStore } from '@/store/useOrdersStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { AllergenFilter } from '../shared/AllergenFilter';
+import { SavedSearchBar } from '../shared/SavedSearchBar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { FavoriteItem, CoffeeCustomization, PastryCustomization, CartSetFavorite, Order, CartItem, GroupMember } from '@/types';
 import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 import { calculateCartSubtotal } from '@/utils/cart-calculations';
@@ -45,6 +47,55 @@ export const FavoritesPage: React.FC = () => {
     return activeGroup ? getBookmarkedOrders().filter(order => order.groupId === activeGroup.id) : [];
   }, [activeGroup, getBookmarkedOrders]);
 
+  // Saved (Bookmarked) search and sort state
+  const [savedSearchQuery, setSavedSearchQuery] = useState('');
+  const [savedSearchMode, setSavedSearchMode] = useState<'item' | 'person'>('item');
+  const [savedSort, setSavedSort] = useState<'newest' | 'oldest' | 'person' | 'item'>('newest');
+
+  const filteredBookmarkedOrders = useMemo(() => {
+    let list = [...bookmarkedOrders];
+    const q = savedSearchQuery.trim().toLowerCase();
+
+    if (q) {
+      list = list.filter(order => {
+        if (savedSearchMode === 'person') {
+          return order.items.some(item => (item.assignedTo || 'Unassigned').toLowerCase().startsWith(q));
+        }
+        // item name prefix search
+        return order.items.some(item => item.item.name.toLowerCase().startsWith(q));
+      });
+    }
+
+    // Sorting
+    switch (savedSort) {
+      case 'oldest':
+        list.sort((a, b) => new Date(a.orderDate).getTime() - new Date(b.orderDate).getTime());
+        break;
+      case 'person':
+        list.sort((a, b) => {
+          const aPersons = Array.from(new Set(a.items.map(i => i.assignedTo || 'Unassigned'))).sort();
+          const bPersons = Array.from(new Set(b.items.map(i => i.assignedTo || 'Unassigned'))).sort();
+          const aKey = aPersons[0] || '';
+          const bKey = bPersons[0] || '';
+          return aKey.localeCompare(bKey);
+        });
+        break;
+      case 'item':
+        list.sort((a, b) => {
+          const aItem = (a.items[0]?.item.name || '').toLowerCase();
+          const bItem = (b.items[0]?.item.name || '').toLowerCase();
+          return aItem.localeCompare(bItem);
+        });
+        break;
+      case 'newest':
+      default:
+        list.sort((a, b) => new Date(b.orderDate).getTime() - new Date(a.orderDate).getTime());
+        break;
+    }
+
+    return list;
+  }, [bookmarkedOrders, savedSearchQuery, savedSearchMode, savedSort]);
+
   const favorites = useMemo(() => {
     return activeGroup ? getGroupFavorites(activeGroup.id) : [];
   }, [activeGroup, getGroupFavorites, allFavorites]);
@@ -73,11 +124,24 @@ export const FavoritesPage: React.FC = () => {
   }, [groupAllergens, allAllergens]);
 
   const filteredFavorites = useMemo(() => {
-    if (!excludedAllergens.length) return favorites;
-    return favorites.filter(favorite =>
-      !favorite.item.allergens?.some(allergen => excludedAllergens.includes(allergen))
-    );
-  }, [favorites, excludedAllergens]);
+    let list = favorites;
+    // Allergen filters
+    if (excludedAllergens.length) {
+      list = list.filter(favorite =>
+        !favorite.item.allergens?.some(allergen => excludedAllergens.includes(allergen))
+      );
+    }
+    // Search filters when viewing Items tab
+    const q = savedSearchQuery.trim().toLowerCase();
+    if (q && activeTab === 'favorites') {
+      if (savedSearchMode === 'person') {
+        list = list.filter(fav => (fav.assignedTo || 'Unassigned').toLowerCase().startsWith(q));
+      } else {
+        list = list.filter(fav => fav.item.name.toLowerCase().startsWith(q));
+      }
+    }
+    return list;
+  }, [favorites, excludedAllergens, savedSearchQuery, savedSearchMode, activeTab]);
 
   // Group favorites by person
   const favoritesByPerson = useMemo(() => {
@@ -262,11 +326,18 @@ export const FavoritesPage: React.FC = () => {
 
   return (
     <div className="px-4 pb-16 container mx-auto px-4 py-8">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 mb-6">
         <h1 className="">Saved</h1>
       </div>
 
-      <div className='flex w-full md:justify-end'>
+      {/* Search row under Saved header, matching Menu style */}
+      <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+        <SavedSearchBar
+          query={savedSearchQuery}
+          onQueryChange={setSavedSearchQuery}
+          mode={savedSearchMode}
+          onModeChange={(value) => setSavedSearchMode(value as "item" | "person")}
+        />
         <AllergenFilter 
           filtersOpen={filtersOpen}
           setFiltersOpen={setFiltersOpen}
@@ -317,7 +388,7 @@ export const FavoritesPage: React.FC = () => {
               <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg mb-2">No Favorite Items</h3>
               <p className="text-muted-foreground mb-4">Items you favorite will appear here for quick access.</p>
-              <Button onClick={navigateToMenu} variant="outline">Browse Menu</Button>
+              <Button onClick={navigateToMenu} className=" rounded-lg">Browse Menu</Button>
             </div>
           ) : (
             <div className="space-y-8">
@@ -385,7 +456,7 @@ export const FavoritesPage: React.FC = () => {
               <ShoppingCartIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg mb-2">No Saved Cart Sets</h3>
               <p className="text-muted-foreground mb-4">Save your cart as a set for quick reordering.</p>
-              <Button onClick={navigateToMenu} variant="outline">Browse Menu</Button>
+              <Button onClick={navigateToMenu} className=" rounded-lg">Browse Menu</Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -459,29 +530,64 @@ export const FavoritesPage: React.FC = () => {
           )}
         </TabsContent>
 
-        {/* Bookmarked Orders Tab - Using OrderHistoryCard component */}
+        {/* Bookmarked Orders Tab - with Saved search row */}
         <TabsContent value="bookmarked" className="space-y-6">
           <div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white">
             {bookmarkedOrders.length === 0 ? (
               <div className="text-center text-muted-foreground">
                 <Bookmark className="h-12 w-12 mx-auto mb-4 opacity-50" />
                 <h3 className="text-lg mb-2">No Bookmarked Orders</h3>
-                <p>Bookmark orders from your order history for quick reordering.</p>
+                <p className="mb-4">Bookmark orders from your order history for quick reordering.</p>
+                            <Button onClick={navigateToMenu} className=" rounded-lg">Browse Menu</Button>
+
               </div>
             ) : (
-              <div className="space-y-6">
-                {bookmarkedOrders.map((order: Order) => (
-                  <OrderHistoryCard
-                    key={order.id}
-                    order={order}
-                    onToggleBookmark={handleToggleBookmark}
-                    onReorderToActiveGroup={handleReorderBookmarkedOrder}
-                    onReorderToOriginalGroup={handleReorderToOriginalGroup}
-                    activeGroup={activeGroup}
-                    hideOriginalButton={true}
+              <>
+                {/* Search, Sort row matching Menu */}
+                <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-6">
+                  <SavedSearchBar
+                    query={savedSearchQuery}
+                    onQueryChange={setSavedSearchQuery}
+                    mode={savedSearchMode}
+                    onModeChange={(value) => setSavedSearchMode(value as "item" | "person")}
                   />
-                ))}
-              </div>
+                  <div className='border border-b-2 border-r-2'>
+                    <Select value={savedSort} onValueChange={(v: 'newest'|'oldest'|'person'|'item') => setSavedSort(v)}>
+                      <SelectTrigger className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] sm:w-48 bg-white">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="newest">Sort: Newest First</SelectItem>
+                        <SelectItem value="oldest">Sort: Oldest First</SelectItem>
+                        <SelectItem value="person">Sort: Person A–Z</SelectItem>
+                        <SelectItem value="item">Sort: Item A–Z</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                {/* Results */}
+                {filteredBookmarkedOrders.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-muted-foreground text-lg mb-2">No bookmarks match your search</div>
+                    <Button variant="outline" onClick={() => setSavedSearchQuery('')}>Clear Search</Button>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {filteredBookmarkedOrders.map((order: Order) => (
+                      <OrderHistoryCard
+                        key={order.id}
+                        order={order}
+                        onToggleBookmark={handleToggleBookmark}
+                        onReorderToActiveGroup={handleReorderBookmarkedOrder}
+                        onReorderToOriginalGroup={handleReorderToOriginalGroup}
+                        activeGroup={activeGroup}
+                        hideOriginalButton={true}
+                      />
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </TabsContent>
