@@ -82,7 +82,7 @@ export const GroupOrderContent: React.FC = () => {
                 return (
                   <div key={item.id} className="flex justify-between items-start text-sm">
                     <div className="flex-1 flex gap-2">
-                      <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                      <div className="w-8 h-8 rounded-[1px] overflow-hidden flex-shrink-0">
                         <ImageWithFallback
                           src={item.item.image || '/coffee-icon.svg'}
                           alt={item.item.name}
@@ -139,7 +139,7 @@ export const GroupOrderContent: React.FC = () => {
               return (
                 <div key={item.id} className="flex justify-between items-start text-sm">
                   <div className="flex-1 flex gap-2">
-                    <div className="w-8 h-8 rounded-md overflow-hidden flex-shrink-0">
+                    <div className="w-8 h-8 rounded-[1px] overflow-hidden flex-shrink-0">
                       <ImageWithFallback
                         src={item.item.image || '/coffee-icon.svg'}
                         alt={item.item.name}

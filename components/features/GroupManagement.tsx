@@ -199,7 +199,7 @@ export const GroupManagement: React.FC = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="text-destructive hover:text-destructive md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
+                  className="text-destructive md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
                 >
                   <RotateCcw className="h-5 w-5 md:mr-2" />
                   <span className="hidden md:inline">Reset All Data</span>
@@ -219,7 +219,7 @@ export const GroupManagement: React.FC = () => {
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
                     onClick={handleResetAllData}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    className="bg-destructive text-destructive-foreground"
                   >
                     Reset All Data
                   </AlertDialogAction>
@@ -250,7 +250,7 @@ export const GroupManagement: React.FC = () => {
                       value={activeGroup?.id || ''}
                       onValueChange={selectGroup}
                     >
-                      <SelectTrigger className="bg-muted">
+                      <SelectTrigger className="bg-white">
                         <SelectValue placeholder="Select a group" />
                       </SelectTrigger>
                       <SelectContent>
@@ -267,7 +267,7 @@ export const GroupManagement: React.FC = () => {
                   </div>
                   
                   {/* Mobile: Auto filter and enable button on line below */}
-                  <div className="flex items-center justify-between md:justify-start gap-3 p-3 rounded-lg bg-muted/50 w-full md:flex-1">
+                  <div className="flex items-center justify-between md:justify-start gap-3 p-3 rounded-[1px] bg-muted/50 w-full md:flex-1">
                     <div className="flex items-center gap-3 flex-1">
                       <Filter className="h-4 w-4 text-muted-foreground" />
                       <div className='flex-1'>
@@ -281,7 +281,7 @@ export const GroupManagement: React.FC = () => {
                       pressed={autoFilterEnabled}
                       onPressedChange={handleAutoFilterToggle}
                       variant="default"
-                      className="border data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600 hover:bg-muted/50 hover:scale-105 transition-all duration-200 shrink-0"
+                      className="border border-r-2 border-b-2 data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 shrink-0"
                     >
                       <Shield className="h-4 w-4" />
                       <span className="hidden md:inline ml-1">{autoFilterEnabled ? 'Enabled' : 'Disabled'}</span>
@@ -337,7 +337,7 @@ export const GroupManagement: React.FC = () => {
                   {sortedGroups.map((group: Group) => (
                     <div 
                       key={group.id} 
-                      className={`flex items-center justify-between p-3 rounded-lg border ${
+                      className={`flex items-center justify-between p-3 rounded-[1px] border ${
                         group.id === activeGroupId ? ' shadow-md border-border' : 'border-none'
                       }`}
                     >
@@ -376,11 +376,11 @@ export const GroupManagement: React.FC = () => {
                                                           {group.id === activeGroupId && <Crown className="h-4 w-4 text-amber-500" />}
  {group.name}
                             </span>
-                            <span className="inline-flex items-center rounded-md bg-secondary px-2 py-1 text-sm font-medium text-secondary-foreground">
+                            <span className="inline-flex items-center rounded-[1px] bg-secondary px-2 py-1 text-sm font-medium text-secondary-foreground">
                               {group.members.length} member{group.members.length !== 1 ? 's' : ''}
                             </span>
                             {group.cart && group.cart.length > 0 && (
-                              <span className="inline-flex items-center rounded-md border px-2 py-1 text-sm font-medium">
+                              <span className="inline-flex items-center rounded-[1px] border px-2 py-1 text-sm font-medium">
                                 {group.cart.length} item{group.cart.length !== 1 ? 's' : ''} in cart
                               </span>
                             )}

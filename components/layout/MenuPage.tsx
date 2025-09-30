@@ -7,7 +7,7 @@ export const MenuPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="relative overflow-hidden rounded-2xl">
+      <div className="relative overflow-hidden rounded-[1px]">
         <div className="absolute inset-0 bg-gradient-to-r from-primary/90 to-primary/60"></div>
         <ImageWithFallback
           src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400&q=80"

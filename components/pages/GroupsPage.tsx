@@ -78,7 +78,7 @@ const GroupsPage: React.FC = () => {
       </div>
 
       {allGroups.length === 0 ? (
-        <div className="text-center py-8 bg-muted/50 rounded-lg">
+        <div className="text-center py-8 bg-muted/50 rounded-[1px]">
           <p className="text-muted-foreground mb-4">No groups created yet. Create your first group to start ordering together!</p>
           <p className="text-sm text-muted-foreground">You need to create a group before you can add items to your cart.</p>
         </div>
@@ -97,7 +97,7 @@ const GroupsPage: React.FC = () => {
           
           <div className="grid gap-6">
             {sortedGroups.map((group: Group) => (
-              <Card key={group.id} className="p-4">
+              <Card key={group.id} className="p-4 bg-white border border-b-2 border-r-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
                     {group.id === activeGroupId && (

@@ -144,7 +144,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({
                 <div key={item.id}>
                   <div className="flex justify-between items-start">
                     <div className="flex-1 flex gap-3">
-                      <div className="w-12 h-12 rounded-md overflow-hidden flex-shrink-0">
+                      <div className="w-12 h-12 rounded-[1px] overflow-hidden flex-shrink-0">
                         <ImageWithFallback
                           src={item.item.image || '/coffee-icon.svg'}
                           alt={item.item.name}

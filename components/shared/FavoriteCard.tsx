@@ -64,7 +64,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
 
   return (
     <Card 
-className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
+className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
       onClick={() => onNavigateToDetail(favorite)}
     >
       {/* Mobile Layout: Horizontal split */}
@@ -107,7 +107,7 @@ className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-accent/20"
+              className="h-8 w-8 p-0"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="h-4 w-4" />
@@ -115,7 +115,7 @@ className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-accent/20"
+              className="h-8 w-8 p-0"
               onClick={handleEdit}
             >
               <Edit2 className="h-4 w-4" />
@@ -123,7 +123,7 @@ className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 hover:bg-red-50"
+              className="h-8 w-8 p-0"
               onClick={handleRemoveFavorite}
             >
               <Trash2 className="h-4 w-4 text-red-600" />
@@ -145,35 +145,35 @@ className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[
               <AllergenWarning />
             </div>
           )}
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
+          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-[1px] text-sm font-semibold shadow-md">
             ${favorite.item.price.toFixed(2)}
           </div>
           <div className="absolute top-2 right-2 flex gap-1">
-            <div className="bg-white/90 backdrop-blur-sm rounded-full p-1">
+            <div className="bg-white/90 backdrop-blur-sm rounded-[1px] p-1">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 hover:bg-accent/20"
+                className="h-6 w-6 p-0"
                 onClick={handleAddToCart}
               >
                 <ShoppingCart className="h-3 w-3" />
               </Button>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-full p-1">
+            <div className="bg-white/90 backdrop-blur-sm rounded-[1px] p-1">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 hover:bg-accent/20"
+                className="h-6 w-6 p-0"
                 onClick={handleEdit}
               >
                 <Edit2 className="h-3 w-3" />
               </Button>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-full p-1">
+            <div className="bg-white/90 backdrop-blur-sm rounded-[1px] p-1">
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-6 w-6 p-0 hover:bg-red-50"
+                className="h-6 w-6 p-0"
                 onClick={handleRemoveFavorite}
               >
                 <Trash2 className="h-3 w-3 text-red-600" />

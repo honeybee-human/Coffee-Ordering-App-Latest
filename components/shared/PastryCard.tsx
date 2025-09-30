@@ -84,7 +84,7 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   
   return (
     <Card 
-className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
+className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
       onClick={() => {
         setCurrentItem('pastry', pastry);
         onSelect(pastry.id);
@@ -151,7 +151,7 @@ className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[
               />
             </Button>
           </div>
-          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
+          <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-[1px] text-sm font-semibold shadow-md">
             ${pastry.price.toFixed(2)}
           </div>
         </div>

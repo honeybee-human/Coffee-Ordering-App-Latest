@@ -116,11 +116,11 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
             />
             
             {filteredMembers.length > 0 && (
-              <div className="mt-2 border rounded-md divide-y max-h-48 overflow-y-auto">
+              <div className="mt-2 border rounded-[1px] divide-y max-h-48 overflow-y-auto">
                 {filteredMembers.map((member) => (
                   <div 
                     key={member.name}
-                    className="flex items-center justify-between p-2 hover:bg-muted"
+                    className="flex items-center justify-between p-2 cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200"
                   >
                     <div>
                       <p className="font-medium">{member.name}</p>

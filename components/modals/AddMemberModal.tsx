@@ -226,12 +226,12 @@ useEffect(() => {
               {showSuggestions && suggestions.length > 0 && (
                 <div
                   ref={suggestionsRef}
-                  className="absolute z-10 w-full mt-1 bg-background border rounded-md shadow-lg max-h-48 overflow-auto"
+                  className="absolute z-10 w-full mt-1 bg-background border rounded-[1px] shadow-lg max-h-48 overflow-auto"
                 >
                   {suggestions.map((suggestion, index) => (
                     <div
                       key={suggestion}
-                      className={`px-3 py-2 cursor-pointer hover:bg-muted ${
+                      className={`px-3 py-2 cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 ${
                         index === selectedIndex ? 'bg-muted' : ''
                       }`}
                       onClick={() => handleSuggestionClick(suggestion)}
@@ -254,7 +254,7 @@ useEffect(() => {
                     {allergen}
                     <button
                       onClick={() => handleRemoveAllergen(allergen)}
-                      className="hover:text-destructive"
+                      className=""
                     >
                       <X className="h-3 w-3" />
                     </button>

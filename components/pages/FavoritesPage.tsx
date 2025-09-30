@@ -410,7 +410,7 @@ export const FavoritesPage: React.FC = () => {
                                 {item.assignedTo && ` (${item.assignedTo})`}
                               </p>
                               {customizationCount > 0 && (
-                                <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-full ml-2">
+                                <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded-[1px] ml-2">
                                   {customizationCount} customization {customizationCount > 1 ? 's' : ''}
                                 </span>
                               )}

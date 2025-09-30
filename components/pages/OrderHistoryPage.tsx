@@ -137,7 +137,7 @@ export const OrderHistoryPage: React.FC = () => {
               <Button
                 variant="outline"
                 size="sm"
-                className="text-destructive hover:text-destructive"
+                className="text-destructive"
               >
                 <RotateCcw className="h-4 w-4 mr-2" />
                 Clear History
@@ -157,7 +157,7 @@ export const OrderHistoryPage: React.FC = () => {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={handleClearOrderHistory}
-                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  className="bg-destructive text-destructive-foreground"
                 >
                   Clear History
                 </AlertDialogAction>

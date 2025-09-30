@@ -40,7 +40,7 @@ export const OrderHistoryCard: React.FC<OrderHistoryCardProps> = ({
   };
 
   return (
-    <Card className="border-none overflow-hidden shadow-lg">
+    <Card className=" bg-white border border-b-2 overflow-hidden shadow-lg">
       <CardHeader className="bg-muted/30 ">
         <div className="flex flex-wrap  w-full items-center justify-between">
           <div className="flex flex-wrap w-full items-center gap-3">

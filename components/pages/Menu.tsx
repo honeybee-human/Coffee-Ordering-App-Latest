@@ -8,6 +8,7 @@ import { CoffeeCard } from '@/components/shared/CoffeeCard';
 import { PastryCard } from '@/components/shared/PastryCard';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
+import { MovingTextBanner } from '@/components/shared/MovingTextBanner';
 import { coffeeMenu, pastryMenu } from '@/data/menu';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
@@ -89,7 +90,12 @@ export const Menu: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      
               <h1>Menu</h1>
+      
+      {/* Moving Text Banner */}
+ 
+      
       {/* Search and Filter Section */}
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         {/* Search Bar with Mode Toggle */}

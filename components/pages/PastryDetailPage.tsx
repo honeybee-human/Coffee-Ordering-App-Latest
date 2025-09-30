@@ -266,7 +266,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
 
   return (
     <div className="mx-auto space-y-6">
-      <Button onClick={onBack} variant="outline" className="flex items-center gap-2 hover:bg-primary hover:text-white transition-colors">
+      <Button onClick={onBack} variant="outline" className="flex items-center gap-2 transition-colors">
         <ArrowLeft className="h-4 w-4" />
         <span className="hidden md:inline"></span>
       </Button>
@@ -309,7 +309,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
         <section className="space-y-6" aria-label="Product information">
-          <div className="aspect-square rounded-2xl overflow-hidden max-w-xl mx-auto">
+          <div className="shadow-[5px_5px_0_0_#964B00] aspect-square rounded-[1px] overflow-hidden max-w-xl mx-auto">
             <ImageWithFallback
               src={imageUrl}
               alt={pastry.name}
@@ -363,7 +363,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       {pastry.ingredients && pastry.ingredients.length > 0 && (
         <section className="mt-8 pt-6 border-t border-border" aria-label="Ingredients list">
           <h2 className="text-xl font-semibold mb-4">Ingredients</h2>
-          <div className="bg-muted/50 rounded-lg p-4">
+          <div className="bg-muted/50 rounded-[1px] p-4">
 
             <div className="flex flex-wrap gap-2">
               {pastry.ingredients.map((ingredient, index) => (

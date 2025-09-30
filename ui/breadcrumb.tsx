@@ -43,7 +43,7 @@ function BreadcrumbLink({
   return (
     <Comp
       data-slot="breadcrumb-link"
-      className={cn("hover:text-foreground transition-colors", className)}
+      className={cn("rounded-lg border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200", className)}
       {...props}
     />
   );

@@ -171,7 +171,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
         <h2 className="text-lg font-semibold mb-3">Milk Type</h2>
         <div>
           <Select value={customizations.milk} onValueChange={setMilk}>
-            <SelectTrigger className="bg-muted">
+            <SelectTrigger className="bg-white">
               <SelectValue placeholder="Select milk type" />
             </SelectTrigger>
             <SelectContent>
@@ -183,7 +183,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
           
           {/* Show info message for milk-required coffees */}
           {requiresMilk && (
-            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+            <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-[1px]">
               <div className="text-sm text-red-600">
                 This coffee requires milk - 'No Milk' option is not available.
               </div>
@@ -213,7 +213,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
         <div className="space-y-4">
           <div className="flex gap-2">
             <Select value={selectedSyrup} onValueChange={setSelectedSyrup}>
-              <SelectTrigger className="flex-1 bg-muted">
+              <SelectTrigger className="flex-1 bg-white">
                 <SelectValue placeholder="Add syrup flavor" />
               </SelectTrigger>
               <SelectContent>
@@ -258,7 +258,7 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
                     
                     {/* Persistent allergen warning for selected syrup */}
                     {syrupAffectedMembers.length > 0 && (
-                      <div className="ml-3 flex items-start gap-2 p-3 bg-destructive/10 rounded-lg">
+                      <div className="ml-3 flex items-start gap-2 p-3 bg-destructive/10 rounded-[1px]">
                         <AlertTriangle className="h-4 w-4 text-destructive flex-shrink-0 mt-0.5" />
                         <div className="space-y-1">
                           <p className="text-sm font-medium text-destructive">

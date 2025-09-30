@@ -29,7 +29,7 @@ export const MemberCard: React.FC<MemberCardProps> = ({
   isDisabled = false,
 }) => {
   return (
-    <div className="flex items-center justify-between p-3">
+    <div className="flex items-center justify-between p-3 bg-white border border-b-2">
       <div className="space-y-2 flex-1">
         <div className="flex items-center gap-2">
           <span className="font-medium">{member.name}</span>
@@ -77,8 +77,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
           variant="ghost"
           onClick={() => onEditMember(member)}
         >
-          <Edit2 className="h-3 w-3 md:mr-1" />
-          <span className="hidden md:inline">Edit</span>
+          <Edit2 className="h-3 w-3 mr-1" />
+          Edit
         </Button>
         
         {onChangeGroups && (
@@ -88,23 +88,24 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             onClick={() => onChangeGroups(member)}
             disabled={isDisabled}
           >
-            <Users className="h-3 w-3 md:mr-1" />
-            <span className="hidden md:inline">Change Groups</span>
+            <Users className="h-3 w-3 mr-1" />
+            Change Groups
           </Button>
         )}
         
         {onDeleteMember && groups && (
           <Button
             size="sm"
-            variant="ghost"
+        variant="ghost"
             className='text-destructive'
             onClick={() => onDeleteMember(member, groups)}
             disabled={isDisabled || member.name== 'You'}
           >
-            <Trash2 className="h-3 w-3 md:mr-1" />
-            <span className="hidden md:inline">Delete</span>
+            <Trash2 className="h-3 w-3 mr-1" />
+            Delete
           </Button>
         )}
+        
         
         {onRemoveMember && groupId && (
           <Button
@@ -114,8 +115,8 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             onClick={() => onRemoveMember(groupId, member.name)}
             disabled={isDisabled}
           >
-            <UserMinus className="h-3 w-3 md:mr-1" />
-            <span className="hidden md:inline">Remove</span>
+            <UserMinus className="h-3 w-3" />
+            Remove
           </Button>
         )}
       </div>

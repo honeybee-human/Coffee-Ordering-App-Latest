@@ -177,8 +177,8 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
               </DialogContent>
             </Dialog>
           )}
-          <Button variant="outline" onClick={handleClearCart}>
-            <Trash2 className="h-5 w-5 md:mr-2" />
+          <Button className="rounded-lg" variant="outline" onClick={handleClearCart}>
+            <Trash2 className=" h-5 w-5 md:mr-2" />
             <span className="hidden md:inline">Clear Cart</span>
           </Button>
         </div>
@@ -202,13 +202,13 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                 return (
                   <React.Fragment key={item.id}>
                     <div 
-className="cursor-pointer rounded-lg border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
                       onClick={() => handleEditCartItem(item)}
+                      className="border border-b-2 border-r-2 rounded-lg p-4 cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all duration-200"
                     >
                       <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2">
                           <div className="flex items-start gap-4">
-                            <div className="w-24 h-24 rounded-md overflow-hidden flex-shrink-0">
+                            <div className="w-24 h-24 rounded-[1px] overflow-hidden flex-shrink-0">
                               <ImageWithFallback
                                 src={item.item.image || '/coffee-icon.svg'}
                                 alt={item.item.name}

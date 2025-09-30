@@ -21,7 +21,6 @@
   --popover: #ffffff;
   --popover-foreground: #0d0703;
   --primary: #2d1505;
-  --primary-hover: #4a2a0f;
   --primary-foreground: #ffffff;
   --secondary: #f5f1eb;
   --secondary-foreground: #2d1505;
@@ -236,4 +235,18 @@
 
 html {
   font-size: var(--font-size);
+}
+
+/* Marquee animation for moving text banner */
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 20s linear infinite;
 }

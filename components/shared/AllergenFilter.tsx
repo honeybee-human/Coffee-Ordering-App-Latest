@@ -214,7 +214,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                         variant="ghost"
                         size="sm"
                         onClick={() => handleRemoveCustomAllergen(allergen)}
-                        className="h-4 w-4 p-0 text-gray-400 hover:text-gray-600 ml-1"
+                        className="h-4 w-4 p-0 text-gray-400 ml-1"
                       >
                         <X className="h-3 w-3" />
                       </Button>

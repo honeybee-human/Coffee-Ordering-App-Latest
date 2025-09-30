@@ -104,7 +104,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
               value={selectedPerson || "unassigned"} 
               onValueChange={handlePersonChange}
             >
-              <SelectTrigger id="person-select" className="bg-muted p-4">
+              <SelectTrigger id="person-select" className="bg-white p-4">
                 <SelectValue placeholder="Select a person or leave unassigned" />
               </SelectTrigger>
               <SelectContent>
@@ -149,7 +149,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
             
             if (membersWithConflicts.length > 0) {
               return (
-                <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div className="flex items-start gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-[1px]">
                   <AlertTriangle className="h-4 w-4 text-yellow-600 flex-shrink-0 mt-0.5" />
                   <div className="space-y-1">
                     <p className="text-sm font-medium text-yellow-800">

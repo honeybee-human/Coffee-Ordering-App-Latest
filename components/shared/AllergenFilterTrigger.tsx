@@ -17,7 +17,7 @@ export const AllergenFilterTrigger: React.FC<AllergenFilterTriggerProps> = ({
   return (
     <Button 
       variant="outline" 
-      className="justify-between bg-muted hover:bg-gray-50 transition-all min-w-60"
+      className="justify-between bg-white transition-all min-w-60"
       onClick={onClick}
     >
       <div className="flex items-center gap-2">
@@ -29,7 +29,7 @@ export const AllergenFilterTrigger: React.FC<AllergenFilterTriggerProps> = ({
           </Badge>
         )}
         {hiddenCount > 0 && (
-          <Badge variant="secondary" className="bg-muted">
+          <Badge variant="secondary" className="bg-white">
             {hiddenCount} hidden
           </Badge>
         )}

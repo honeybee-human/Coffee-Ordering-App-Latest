@@ -35,12 +35,12 @@ export const AllergenSearchBar: React.FC<AllergenSearchBarProps> = ({
       </div>
       
       {showSearchSuggestions && searchSuggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-50 max-h-48 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-[1px] shadow-lg z-50 max-h-48 overflow-y-auto">
           {searchSuggestions.map(allergen => (
             <button
               key={allergen}
               onClick={() => onAddAllergen(allergen)}
-              className="w-full text-left px-3 py-2 hover:bg-muted flex items-center gap-2 text-sm"
+              className="w-full text-left px-3 py-2 cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 flex items-center gap-2 text-sm"
             >
               <Plus className="h-3 w-3" />
               {allergen}

@@ -12,7 +12,7 @@ interface CoffeeCustomizationStore {
 
 export const useCoffeeCustomizationStore = create<CoffeeCustomizationStore>((set) => ({
   customization: {
-    milk: 'No Milk',
+    milk: 'Whole Milk',
     syrups: []
   },
 
@@ -71,8 +71,8 @@ export const useCoffeeCustomizationStore = create<CoffeeCustomizationStore>((set
 
   resetCustomization: () => set({
     customization: {
-      milk: 'No Milk',
+      milk: 'Whole Milk',
       syrups: []
     }
   })
-}));
+})); 

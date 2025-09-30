@@ -23,7 +23,7 @@ export const GroupSearchBar: React.FC<GroupSearchBarProps> = ({
         placeholder={placeholder}
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="pl-10 bg-muted w-full"
+        className="pl-10 bg-white w-full"
       />
     </div>
   );

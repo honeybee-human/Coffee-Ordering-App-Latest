@@ -80,7 +80,7 @@ const OnboardingModal: React.FC<OnboardingModalProps> = ({ open, onClose }) => {
       {showHelpButton && (
         <button 
           onClick={handleOpenModal}
-          className="fixed bottom-4 right-4 bg-primary text-white rounded-full p-2 shadow-lg hover:bg-primary/90 transition-colors z-[9999] pointer-events-auto"
+          className="fixed bottom-4 right-4 bg-primary text-white rounded-[1px] p-2 shadow-lg transition-colors z-[9999] pointer-events-auto"
           aria-label="Help"
         >
           <HelpCircle className="h-6 w-6" />

@@ -63,7 +63,7 @@ export const ChangeGroupsModal: React.FC<ChangeGroupsModalProps> = ({
                     );
                     
                     return (
-                      <div key={group.id} className="flex items-center justify-between p-3 shadow-md rounded-lg bg-white">
+                      <div key={group.id} className="flex items-center justify-between p-3 shadow-md rounded-[1px] bg-white">
                         <div className="flex items-center gap-2">
                           <span className="font-medium">{group.name}</span>
                           {isMember ? (

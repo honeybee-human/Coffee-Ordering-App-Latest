@@ -108,7 +108,7 @@ export const CartSetPreviewModal: React.FC<CartSetPreviewModalProps> = ({
                           {item.quantity}x {item.item.name}
                         </h4>
                         {customizationCount > 0 && (
-                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-[1px]">
                             {customizationCount} customization{customizationCount !== 1 ? 's' : ''}
                           </span>
                         )}

@@ -48,7 +48,7 @@ export const PaymentCompleteModal: React.FC = () => {
             </div>
           </div>
           
-          <div className="bg-muted/50 rounded-lg p-4">
+          <div className="bg-muted/50 rounded-[1px] p-4">
             <div className="flex items-center justify-center gap-2 mb-2">
               <Coffee className="h-5 w-5 text-primary" />
               <span className="font-medium">Your order is being prepared</span>

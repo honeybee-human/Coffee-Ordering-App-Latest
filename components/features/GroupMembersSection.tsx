@@ -39,14 +39,14 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
     <>
       <Separator />
   {hasAllergies ? (
-        <div className="bg-destructive/10 border border-destructive text-destructive rounded-md p-3 flex items-center gap-2 mb-3">
+        <div className="bg-destructive/10 border border-destructive text-destructive rounded-[1px] p-3 flex items-center gap-2 mb-3">
           <AlertTriangle className="h-5 w-5" />
           <span>
             Warning: Some members in this group have allergies! Please review their allergens before placing an order.
           </span>
         </div>
       ) : (
-        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-md p-3 flex items-center gap-2 mb-3">
+        <div className="bg-amber-50 border border-amber-200 text-amber-800 rounded-[1px] p-3 flex items-center gap-2 mb-3">
           <AlertTriangle className="h-5 w-5" />
           <span>
             Currently no allergies recorded for members in this group. Double check if this is correct!

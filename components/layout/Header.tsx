@@ -75,10 +75,10 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="flex items-center justify-between min-h-[60px]">
           {/* Logo */}
           <div 
-            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200"
             onClick={onNavigateToMenu}
           >
-            <div className="p-2 sm:p-3 rounded-xl">
+            <div className="p-2 sm:p-3 rounded-[1px]">
               <Coffee className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
             </div>
           </div>
@@ -99,12 +99,12 @@ export const Header: React.FC<HeaderProps> = ({
                         <span className="text-white font-medium">{activeGroup.name}</span>
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-white/90 backdrop-blur-sm border-white/20 z-50">
+                    <SelectContent className="border border-b-2 border-r-2 bg-white backdrop-blur-sm z-50">
                       {appState.groups.map(group => (
                         <SelectItem 
                           key={group.id} 
                           value={group.id}
-                          className="hover:bg-accent/10"
+                          className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200"
                         >
                           {group.name}
                         </SelectItem>
@@ -113,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
                   </Select>
                 ) : (
                   <div 
-                    className="flex items-center gap-1 cursor-pointer hover:opacity-80 transition-opacity"
+                    className="flex items-center gap-1 cursor-pointer rounded-[1px] border border-r-2 border-b-2 border-transparent hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200"
                     onClick={onNavigateToGroups}
                   >
                     <span className="text-white font-medium">{activeGroup.name}</span>
@@ -134,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
                   key={item.page}
                   variant="ghost"
                   onClick={item.action}
-                  className={`nav-button text-white hover:bg-white/20 hover:text-white px-3 xl:px-4 py-2 text-sm ${
+                  className={`nav-button text-white px-3 xl:px-4 py-2 text-sm ${
                     appState.currentPage === item.page ? 'bg-[#2d1505] text-white' : ''
                   }`}
                 >
@@ -164,7 +164,7 @@ export const Header: React.FC<HeaderProps> = ({
                   variant="ghost"
                   size="sm"
                   onClick={item.action}
-                  className={`relative nav-button text-white hover:bg-white/20 hover:text-white p-2 ${
+                  className={`relative nav-button text-white p-2 ${
                     appState.currentPage === item.page ? 'bg-[#2d1505] text-white' : ''
                   }`}
                 >
@@ -192,7 +192,7 @@ export const Header: React.FC<HeaderProps> = ({
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-white hover:bg-white/20 hover:text-white p-2"
+                    className="text-white p-2"
                   >
                     <MenuIcon className="h-6 w-6" />
                   </Button>
@@ -224,7 +224,7 @@ export const Header: React.FC<HeaderProps> = ({
                         className={`w-full justify-start gap-3 p-4 h-auto ${
                           appState.currentPage === item.page 
                             ? 'bg-primary/10 text-primary border border-primary/20' 
-                            : 'hover:bg-muted'
+                            : ''
                         }`}
                       >
                         <item.icon className="h-5 w-5" />

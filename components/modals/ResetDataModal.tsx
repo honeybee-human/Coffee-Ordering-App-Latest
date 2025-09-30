@@ -14,7 +14,7 @@ export const ResetDataModal: React.FC<ResetDataModalProps> = ({ onResetData }) =
         <Button
           variant="outline"
           size="sm"
-          className="text-destructive hover:text-destructive"
+          className="text-destructive"
         >
           <RotateCcw className="h-4 w-4 mr-2" />
           Reset All Data
@@ -34,7 +34,7 @@ export const ResetDataModal: React.FC<ResetDataModalProps> = ({ onResetData }) =
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onResetData}
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            className="bg-destructive text-destructive-foreground"
           >
             Reset All Data
           </AlertDialogAction>
