@@ -53,14 +53,31 @@ function AccordionContent({
   ...props
 }: React.ComponentProps<typeof AccordionPrimitive.Content>) {
   return (
-    <AccordionPrimitive.Content
-      data-slot="accordion-content"
-      className="data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down overflow-hidden text-sm"
-      {...props}
-    >
-      <div className={cn("pt-0 pb-4", className)}>{children}</div>
-    </AccordionPrimitive.Content>
+    <>
+      <style>{`
+        @keyframes accordion-down {
+          from { height: 0; opacity: 0; }
+          to { height: var(--radix-accordion-content-height); opacity: 1; }
+        }
+        @keyframes accordion-up {
+          from { height: var(--radix-accordion-content-height); opacity: 1; }
+          to { height: 0; opacity: 0; }
+        }
+        [data-state="open"] [data-slot="accordion-content"] {
+          animation: accordion-down 0.3s ease-out;
+        }
+        [data-state="closed"] [data-slot="accordion-content"] {
+          animation: accordion-up 0.2s ease-in;
+        }
+      `}</style>
+      <AccordionPrimitive.Content
+        data-slot="accordion-content"
+        className="overflow-hidden text-sm transition-all"
+        {...props}
+      >
+        <div className={cn("px-4 pt-0 pb-4", className)}>{children}</div>
+      </AccordionPrimitive.Content>
+    </>
   );
 }
-
 export { Accordion, AccordionItem, AccordionTrigger, AccordionContent };
