@@ -126,7 +126,7 @@ export const GroupSettingsModal: React.FC<GroupSettingsModalProps> = ({
                       <p className="font-medium">{member.name}</p>
                       {member.allergens && member.allergens.length > 0 && (
                         <p className="text-xs text-destructive">
-                          Allergies: {member.allergens.join(', ')}
+                          {member.allergens.join(', ')}
                         </p>
                       )}
                     </div>

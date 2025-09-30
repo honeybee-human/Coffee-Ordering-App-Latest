@@ -24,7 +24,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   const activeGroup = useActiveGroup();
   const cartTotal = useCartTotal();
   const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
-  const { navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
+  const { navigateToCoffeeDetail, navigateToPastryDetail, navigateToMenu } = useNavigationStore();
   const { addCartSetToFavorites } = useFavoritesStore();
   const [saveSetDialogOpen, setSaveSetDialogOpen] = useState(false);
   const [cartSetName, setCartSetName] = useState('');
@@ -122,67 +122,66 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
     // Show success message
   };
 
-  if (cartItems.length === 0) {
-    return (
-      <div className="space-y-6">
-        <h1 className="space-y-6 container mx-auto px-4 py-8">Cart</h1>
-
-                <p className="text-muted-foreground text-center">Your cart is empty.</p>
-      </div>
-    );
-  }
+  // Render full layout even when empty to keep UI consistent
 
   return (
     <div className="space-y-6 container mx-auto px-4 py-8">
       <div className="flex items-center justify-between">
         <h1 className="">Cart</h1>
         <div className="flex gap-2">
-          {cartItems.length > 0 && (
-            <Dialog open={saveSetDialogOpen} onOpenChange={setSaveSetDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <Save className="h-4 w-4 md:mr-2" />
-                  <span className="hidden md:inline">Save as Set</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Save Cart as Favorite Set</DialogTitle>
-                  <DialogDescription>
-                    Give your cart set a personalized name (e.g., "My Workday Latte Set")
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="set-name" className="text-right">
-                      Name
-                    </Label>
-                    <Input
-                      id="set-name"
-                      value={cartSetName}
-                      onChange={(e) => setCartSetName(e.target.value)}
-                      className="col-span-3"
-                      placeholder="e.g., My Workday Latte Set"
-                    />
-                  </div>
+          <Dialog open={saveSetDialogOpen} onOpenChange={setSaveSetDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" disabled={cartItems.length === 0}>
+                <Save className="h-4 w-4 md:mr-2" />
+                <span className="hidden md:inline">Save as Set</span>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Save Cart as Favorite Set</DialogTitle>
+                <DialogDescription>
+                  Give your cart set a personalized name (e.g., "My Workday Latte Set")
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="set-name" className="text-right">
+                    Name
+                  </Label>
+                  <Input
+                    id="set-name"
+                    value={cartSetName}
+                    onChange={(e) => setCartSetName(e.target.value)}
+                    className="col-span-3"
+                    placeholder="e.g., My Workday Latte Set"
+                  />
                 </div>
-                <DialogFooter>
-                  <Button 
-                    onClick={handleSaveCartSet}
-                    disabled={!cartSetName.trim()}
-                  >
-                    Save Set
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          )}
-          <Button className="rounded-lg" variant="outline" onClick={handleClearCart}>
+              </div>
+              <DialogFooter>
+                <Button 
+                  onClick={handleSaveCartSet}
+                  disabled={!cartSetName.trim()}
+                >
+                  Save Set
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button className="rounded-lg" variant="outline" onClick={handleClearCart} disabled={cartItems.length === 0}>
             <Trash2 className=" h-5 w-5 md:mr-2" />
             <span className="hidden md:inline">Clear Cart</span>
           </Button>
         </div>
       </div>
+
+      {cartItems.length === 0 && (
+        <div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white text-center">
+          <ShoppingCart className="h-12 w-12 mx-auto opacity-50 mb-4" />
+          <h3 className="mb-2 text-muted-foreground">Your cart is empty</h3>
+          <p className="text-muted-foreground mb-4">Add items from the menu to see them here.</p>
+          <Button onClick={navigateToMenu} variant="outline">Browse Menu</Button>
+        </div>
+      )}
 
       {Object.entries(groupedItems).map(([personName, items]) => {
         if (items.length === 0) return null;

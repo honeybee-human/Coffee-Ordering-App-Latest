@@ -313,10 +313,11 @@ export const FavoritesPage: React.FC = () => {
         {/* Favorites Tab - Redesigned without Cards */}
         <TabsContent value="favorites" className="space-y-6">
           {favoritesByPerson.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">
+            <div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white text-center">
               <Heart className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg mb-2">No Favorite Items</h3>
-              <p>Items you favorite will appear here for quick access.</p>
+              <p className="text-muted-foreground mb-4">Items you favorite will appear here for quick access.</p>
+              <Button onClick={navigateToMenu} variant="outline">Browse Menu</Button>
             </div>
           ) : (
             <div className="space-y-8">
@@ -380,10 +381,11 @@ export const FavoritesPage: React.FC = () => {
         {/* Cart Sets Tab */}
         <TabsContent value="cart-sets" className="space-y-6">
           {cartSetFavorites.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">
+            <div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white text-center">
               <ShoppingCartIcon className="h-12 w-12 mx-auto mb-4 opacity-50" />
               <h3 className="text-lg mb-2">No Saved Cart Sets</h3>
-              <p>Save your cart as a set for quick reordering.</p>
+              <p className="text-muted-foreground mb-4">Save your cart as a set for quick reordering.</p>
+              <Button onClick={navigateToMenu} variant="outline">Browse Menu</Button>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -459,27 +461,29 @@ export const FavoritesPage: React.FC = () => {
 
         {/* Bookmarked Orders Tab - Using OrderHistoryCard component */}
         <TabsContent value="bookmarked" className="space-y-6">
-          {bookmarkedOrders.length === 0 ? (
-            <div className="text-center py-10 text-muted-foreground">
-              <Bookmark className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <h3 className="text-lg mb-2">No Bookmarked Orders</h3>
-              <p>Bookmark orders from your order history for quick reordering.</p>
-            </div>
-          ) : (
-            <div className="space-y-6">
-              {bookmarkedOrders.map((order: Order) => (
-                <OrderHistoryCard
-                  key={order.id}
-                  order={order}
-                  onToggleBookmark={handleToggleBookmark}
-                  onReorderToActiveGroup={handleReorderBookmarkedOrder}
-                  onReorderToOriginalGroup={handleReorderToOriginalGroup}
-                  activeGroup={activeGroup}
-                  hideOriginalButton={true}
-                />
-              ))}
-            </div>
-          )}
+          <div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white">
+            {bookmarkedOrders.length === 0 ? (
+              <div className="text-center text-muted-foreground">
+                <Bookmark className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <h3 className="text-lg mb-2">No Bookmarked Orders</h3>
+                <p>Bookmark orders from your order history for quick reordering.</p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {bookmarkedOrders.map((order: Order) => (
+                  <OrderHistoryCard
+                    key={order.id}
+                    order={order}
+                    onToggleBookmark={handleToggleBookmark}
+                    onReorderToActiveGroup={handleReorderBookmarkedOrder}
+                    onReorderToOriginalGroup={handleReorderToOriginalGroup}
+                    activeGroup={activeGroup}
+                    hideOriginalButton={true}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </TabsContent>
       </Tabs>
 

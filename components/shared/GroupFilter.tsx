@@ -1,3 +1,4 @@
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/ui/select";
 import React from "react";
 
 interface GroupFilterProps {
@@ -17,17 +18,17 @@ export const GroupFilter: React.FC<GroupFilterProps> = ({
   return (
     <div className="mt-2">
       <label htmlFor="group-filter" className="mr-2 text-sm">{label}</label>
-      <select
-        id="group-filter"
-        value={selectedGroup}
-        onChange={e => onChange(e.target.value)}
-        className="border rounded px-2 py-1 text-sm"
-      >
-        <option value="all">All Groups</option>
-        {groupNames.map(name => (
-          <option key={name} value={name}>{name}</option>
-        ))}
-      </select>
+      <Select value={selectedGroup} onValueChange={onChange}>
+        <SelectTrigger id="group-filter" className="bg-white">
+          <SelectValue placeholder="Select group" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Groups</SelectItem>
+          {groupNames.map((name) => (
+            <SelectItem key={name} value={name}>{name}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 };

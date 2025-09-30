@@ -40,7 +40,6 @@ export const MemberCard: React.FC<MemberCardProps> = ({
         
         {member.allergens && member.allergens.length > 0 ? (
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">Allergies:</p>
             <div className="flex flex-wrap gap-2">
               {member.allergens.map((allergen, allergenIndex) => (
                 <span key={`${allergen}-${allergenIndex}`} className="flex items-center gap-1 text-sm text-destructive">

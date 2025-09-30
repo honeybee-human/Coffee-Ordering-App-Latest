@@ -245,7 +245,7 @@ export const GroupManagement: React.FC = () => {
                 
                 {/* Mobile: Active group selector on its own line */}
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
-                  <div className="w-full md:flex-1">
+                  <div className="w-full md:flex-1 border border-r-2 border-b-2">
                     <Select
                       value={activeGroup?.id || ''}
                       onValueChange={selectGroup}
@@ -277,11 +277,11 @@ export const GroupManagement: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                   <Toggle
+<Toggle
   pressed={autoFilterEnabled}
   onPressedChange={handleAutoFilterToggle}
   variant="default"
-  className="border-2 rounded-lg bg-white border-gray-300 data-[state=on]:border-green-600 data-[state=off]:border-red-600 data-[state=on]:text-green-700 data-[state=off]:text-red-700 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 shrink-0"
+  className="border-2 rounded-lg bg-white border-gray-300 data-[state=on]:bg-white data-[state=on]:border-green-600 data-[state=off]:bg-white data-[state=off]:border-red-600 data-[state=on]:text-green-700 data-[state=off]:text-red-700 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 shrink-0"
 >
   <Shield className="h-4 w-4" />
   <span className="hidden md:inline ml-1">{autoFilterEnabled ? 'Enabled' : 'Disabled'}</span>
@@ -337,9 +337,7 @@ export const GroupManagement: React.FC = () => {
                   {sortedGroups.map((group: Group) => (
                     <div 
                       key={group.id} 
-                      className={`flex items-center justify-between p-3 rounded-[1px] border ${
-                        group.id === activeGroupId ? ' shadow-md border-border' : 'border-none'
-                      }`}
+                      className={`relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white flex items-center justify-between`}
                     >
                       <div className="flex items-center gap-2 flex-1">
                         {editingGroupId === group.id ? (
@@ -390,7 +388,7 @@ export const GroupManagement: React.FC = () => {
                       <div className="flex items-center gap-1">
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="outline"
                           onClick={() => toggleFavoriteGroup(group.id)}
                           className={`${group.isFavorite ? "text-amber-500" : ""} md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2`}
                         >
@@ -399,7 +397,7 @@ export const GroupManagement: React.FC = () => {
                       
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="outline"
                           onClick={() => startEditingGroup(group)}
                           className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2"
                         >
@@ -408,10 +406,10 @@ export const GroupManagement: React.FC = () => {
                       
                         <Button
                           size="sm"
-                          variant="ghost"
+                          variant="outline"
                           onClick={() => deleteGroup(group.id)}
                           disabled={groups.length <= 1}
-                          className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2"
+                          className="md:px-3 md:py-2 h-8 w-8 md:w-auto p-0 md:p-2 text-destructive"
                         >
                           <Trash2 className="h-5 w-5" />
                         </Button>

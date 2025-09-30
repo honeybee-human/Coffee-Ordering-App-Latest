@@ -99,32 +99,13 @@ export const OrderHistoryPage: React.FC = () => {
     clearOrderHistory();
   };
 
-  if (orderHistory.length === 0) {
-    return (
-      <div className="space-y-4">
-        <Button onClick={navigateToMenu} variant="outline">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          
-        </Button>
-        
-            <div className="text-center py-8">
-              <Package className="h-12 w-12 mx-auto opacity-50 mb-4" />
-              <h3 className="mb-2 text-muted-foreground">No Orders Yet</h3>
-              <p className="text-muted-foreground mb-4">
-                Your order history will appear here once you place your first order.
-              </p>
-              <Button onClick={navigateToMenu}>Start Ordering</Button>
-            </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="space-y-6 px-4 pb-16 container mx-auto px-4 py-8">
+    <div className="space-y-6 container mx-auto px-4 py-8">
       <div>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="">Order History</h1>
+            <h1>Order History</h1>
             <p className="text-muted-foreground">
               {filteredOrders.length} order{filteredOrders.length !== 1 ? 's' : ''}
               {showBookmarkedOnly && ' (bookmarked only)'}
@@ -183,8 +164,24 @@ export const OrderHistoryPage: React.FC = () => {
         />
       </div>
 
-      <div className="space-y-6">
-        {filteredOrders.map((order: Order) => (
+    <div className="space-y-6">
+      {orderHistory.length === 0 || filteredOrders.length === 0 ? (
+        <div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white text-center">
+          <Package className="h-12 w-12 mx-auto opacity-50 mb-4" />
+          <h3 className="mb-2 text-muted-foreground">
+            {orderHistory.length === 0 ? 'No Orders Yet' : 'No matching orders'}
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {orderHistory.length === 0 
+              ? 'Your order history will appear here once you place your first order.'
+              : 'Try adjusting your filters to see more orders.'}
+          </p>
+          {orderHistory.length === 0 && (
+            <Button onClick={navigateToMenu} variant="outline">Start Ordering</Button>
+          )}
+        </div>
+      ) : (
+        filteredOrders.map((order: Order) => (
           <OrderHistoryCard
             key={order.id}
             order={order}
@@ -193,8 +190,9 @@ export const OrderHistoryPage: React.FC = () => {
             onReorderToOriginalGroup={handleReorderToOriginalGroup}
             activeGroup={activeGroup}
           />
-        ))}
-      </div>
+        ))
+      )}
+    </div>
     </div>
   );
 };

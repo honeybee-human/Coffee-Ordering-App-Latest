@@ -14,6 +14,7 @@ import { AllergenWarning } from '@/components/shared/AllergenWarning';
 import { useFavorites } from '@/store/useFavoritesStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { useGroupsStore, useActiveGroup, useCartCount, useGroups } from './store/useGroupsStore';
+import { DecorativeBackground } from './components/shared/MovingBGDecor';
 
 export function AppContent() {
   // Navigation state from store
@@ -59,8 +60,9 @@ export function AppContent() {
 
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header 
+    <div className="flex flex-col min-h-screen  ">
+         {/* <DecorativeBackground /> */}
+         <Header 
         activeGroup={activeGroup || undefined}
         appState={{
           ...appState,

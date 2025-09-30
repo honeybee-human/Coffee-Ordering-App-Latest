@@ -97,7 +97,7 @@ const GroupsPage: React.FC = () => {
           
           <div className="grid gap-6">
             {sortedGroups.map((group: Group) => (
-              <Card key={group.id} className="p-4 bg-white border border-b-2 border-r-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200">
+              <Card key={group.id} className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-2">
                     {group.id === activeGroupId && (
@@ -139,9 +139,10 @@ const GroupsPage: React.FC = () => {
                       Edit
                     </Button>
                     <Button
-                      variant="destructive"
+                      variant="outline"
                       size="sm"
                       onClick={() => handleDeleteGroup(group.id)}
+                      className="text-destructive"
                     >
                       Delete
                     </Button>

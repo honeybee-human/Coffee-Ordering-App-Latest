@@ -169,7 +169,7 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-    <div className="border border-b-2 border-r-2 rounded-[1px] p-6 bg-white">
+<div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-gradient-to-br from-red-50 to-orange-50">
       <p className="font-bold text-xl mb-3">🏥 The Problem</p>
       <p className="text-muted-foreground">
         Over 200,000 people require emergency care for food allergies annually in the US. 
@@ -178,7 +178,7 @@ export const LandingPage: React.FC = () => {
       </p>
     </div>
     
-    <div className="border border-b-2 border-r-2 rounded-[1px] p-6 bg-white">
+<div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white">
       <p className="font-bold text-xl mb-3">💡 Our Solution</p>
       <p className="text-muted-foreground">
         SafePlate digitizes the entire process. Set your allergens once, and the system 
@@ -187,7 +187,7 @@ export const LandingPage: React.FC = () => {
       </p>
     </div>
     
-    <div className="border border-b-2 border-r-2 rounded-[1px] p-6 bg-white">
+<div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-white">
       <p className="font-bold text-xl mb-3">🎯 Smart Filtering</p>
       <p className="text-muted-foreground">
         Instead of reading every ingredient list, SafePlate filters the menu for you. 
@@ -196,7 +196,7 @@ export const LandingPage: React.FC = () => {
       </p>
     </div>
     
-    <div className="border border-b-2 border-r-2 rounded-[1px] p-6 bg-white">
+<div className="relative border border-b-2 border-r-2 rounded-[1px] p-8 bg-gradient-to-br from-red-50 to-orange-50">
       <p className="font-bold text-xl mb-3">📊 Consistency Guaranteed</p>
       <p className="text-muted-foreground">
         Every order gets the same thorough safety check. No more worrying if the server 

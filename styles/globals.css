@@ -110,7 +110,17 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    background: var(--warm-gradient);
+    /* App-wide background matching Safety First Enhanced card */
+    background:
+      /* larger, offset accents to avoid navbar/footer coverage */
+      radial-gradient(200px 200px at 95% 12%, rgba(45, 21, 5, 0.10) 0%, rgba(45, 21, 5, 0.10) 48%, transparent 49%),
+      radial-gradient(240px 240px at 5% 88%, rgba(45, 21, 5, 0.08) 0%, rgba(45, 21, 5, 0.08) 48%, transparent 49%),
+      /* additional subtle circles for frequency */
+      radial-gradient(140px 140px at 90% 35%, rgba(45, 21, 5, 0.06) 0%, rgba(45, 21, 5, 0.06) 44%, transparent 45%),
+      radial-gradient(120px 120px at 10% 65%, rgba(45, 21, 5, 0.05) 0%, rgba(45, 21, 5, 0.05) 44%, transparent 45%),
+      /* primary gradient background matching from-red-50 to-orange-50 */
+      linear-gradient(135deg, #fef2f2 0%, #fff7ed 100%);
+    background-attachment: fixed;
     min-height: 100vh;
   }
 
