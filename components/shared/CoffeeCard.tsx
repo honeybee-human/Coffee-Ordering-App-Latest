@@ -97,7 +97,7 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
     <ImageWithFallback
       src={coffee.image || '/coffee-icon.svg'}
       alt={coffee.name}
-      className="w-full h-full rounded-lg object-cover group-hover:scale-105 transition-transform duration-300"
+      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
     />
   </div>
 
