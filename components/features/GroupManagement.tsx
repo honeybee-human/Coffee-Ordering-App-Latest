@@ -277,15 +277,15 @@ export const GroupManagement: React.FC = () => {
                         </p>
                       </div>
                     </div>
-                    <Toggle
-                      pressed={autoFilterEnabled}
-                      onPressedChange={handleAutoFilterToggle}
-                      variant="default"
-                      className="border border-r-2 border-b-2 data-[state=on]:bg-transparent data-[state=off]:bg-transparent data-[state=on]:text-green-600 data-[state=off]:text-red-600 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 shrink-0"
-                    >
-                      <Shield className="h-4 w-4" />
-                      <span className="hidden md:inline ml-1">{autoFilterEnabled ? 'Enabled' : 'Disabled'}</span>
-                    </Toggle>
+                   <Toggle
+  pressed={autoFilterEnabled}
+  onPressedChange={handleAutoFilterToggle}
+  variant="default"
+  className="border-2 rounded-lg bg-white border-gray-300 data-[state=on]:border-green-600 data-[state=off]:border-red-600 data-[state=on]:text-green-700 data-[state=off]:text-red-700 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200 shrink-0"
+>
+  <Shield className="h-4 w-4" />
+  <span className="hidden md:inline ml-1">{autoFilterEnabled ? 'Enabled' : 'Disabled'}</span>
+</Toggle>
                   </div>
                 </div>
               </div>

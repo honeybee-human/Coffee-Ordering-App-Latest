@@ -250,3 +250,65 @@ html {
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
+
+/* Slow rotating asterisk animation */
+@keyframes rotate360 {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-slow-rotate {
+  animation: rotate360 20s linear infinite;
+}
+
+/* Title entrance animation */
+@keyframes title-pop {
+  0% { opacity: 0; transform: translateY(8px) scale(0.98); }
+  60% { opacity: 1; transform: translateY(0) scale(1.02); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-title-pop {
+  animation: title-pop 700ms ease-out both;
+}
+
+/* Custom scrollbar styling */
+html {
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: var(--primary) transparent; /* thumb color, transparent track */
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent; /* remove track background */
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: var(--primary);
+  border-radius: 10px;
+  border: 2px solid transparent; /* spacing without visible bg */
+  background-clip: content-box;
+}
+
+/* Accordion open/close animations (uses Radix content height var) */
+@keyframes accordion-down {
+  from { height: 0; opacity: 0; transform: translateY(-4px); }
+  to { height: var(--radix-accordion-content-height); opacity: 1; transform: translateY(0); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); opacity: 1; transform: translateY(0); }
+  to { height: 0; opacity: 0; transform: translateY(-4px); }
+}
+
+.animate-accordion-down {
+  animation: accordion-down 250ms ease-out;
+}
+
+.animate-accordion-up {
+  animation: accordion-up 200ms ease-in;
+}

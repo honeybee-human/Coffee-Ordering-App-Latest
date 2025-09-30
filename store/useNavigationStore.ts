@@ -11,6 +11,7 @@ interface NavigationStore {
   setAppState: (state: AppState) => void;
   setIsMobileMenuOpen: (isOpen: boolean) => void;
   setReturnToPage: (page: 'cart' | 'favorites' | undefined) => void;
+  navigateToLanding: () => void;
   navigateToMenu: () => void;
   navigateToCart: () => void;
   navigateToGroups: () => void;
@@ -35,7 +36,7 @@ interface NavigationStore {
 
 export const useNavigationStore = create<NavigationStore>((set, get) => ({
   // Initial state
-  appState: { currentPage: 'menu' },
+  appState: { currentPage: 'landing' },
   isMobileMenuOpen: false,
   returnToPage: undefined,
   
@@ -45,6 +46,14 @@ export const useNavigationStore = create<NavigationStore>((set, get) => ({
   setReturnToPage: (page: 'cart' | 'favorites' | undefined) => set({ returnToPage: page }),
   
   // Navigation functions
+  navigateToLanding: () => {
+    set({ 
+      appState: { currentPage: 'landing' },
+      isMobileMenuOpen: false,
+      returnToPage: undefined
+    });
+  },
+
   navigateToMenu: () => {
     set({ 
       appState: { currentPage: 'menu' },

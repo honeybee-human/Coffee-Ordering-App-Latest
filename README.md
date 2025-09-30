@@ -1,4 +1,4 @@
-# Bean Bite - Coffee Ordering App
+# SafePlate - Coffee Ordering App
 
 A React-based coffee ordering application with group ordering capabilities, allergen tracking, and a modern UI.
 

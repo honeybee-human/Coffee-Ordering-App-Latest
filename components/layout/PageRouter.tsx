@@ -5,6 +5,7 @@ import { useGroupsStore } from '@/store/useGroupsStore';
 import { useOrdersStore } from '@/store/useOrdersStore';
 import { Order } from '@/types';
 import { MenuPage } from '@/components/pages/MenuPage';
+import { LandingPage } from '@/components/pages/LandingPage';
 import { CoffeeDetailPage } from '@/components/pages/CoffeeDetailPage';
 import { PastryDetailPage } from '@/components/pages/PastryDetailPage';
 import { CheckoutPage } from '@/components/pages/CheckoutPage';
@@ -37,6 +38,8 @@ export const PageRouter: React.FC = () => {
 
   const renderPage = () => {
     switch (appState.currentPage) {
+      case 'landing':
+        return <LandingPage />;
       case 'menu':
         return <MenuPage />;
       case 'cart':
@@ -78,7 +81,7 @@ export const PageRouter: React.FC = () => {
       case 'favorites':
         return <FavoritesPage />;
       default:
-        return <MenuPage />;
+        return <LandingPage />;
     }
   };
 

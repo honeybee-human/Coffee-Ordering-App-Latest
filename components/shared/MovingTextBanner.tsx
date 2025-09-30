@@ -1,51 +1,40 @@
-import React from "react";
+import React, { useMemo } from "react";
 
-export const MovingTextBanner: React.FC = () => {
+type MovingTextBannerProps = {
+  items: string[];
+  className?: string;
+  speedMs?: number; // duration for one marquee loop
+};
+
+export const MovingTextBanner: React.FC<MovingTextBannerProps> = ({ items, className = "", speedMs = 20000 }) => {
+  // Inline style to control speed dynamically
+  const marqueeStyle = useMemo(() => ({
+    animationDuration: `${Math.max(8000, speedMs)}ms`,
+  }), [speedMs]);
+
   return (
-    <div className="absolute left-0 right-0 bg-primary text-white overflow-hidden whitespace-nowrap py-2">
-      <div className="flex animate-marquee">
+    <div className={`absolute left-0 right-0 bg-primary text-white overflow-hidden whitespace-nowrap py-2 ${className}`}>
+      <div className="flex animate-marquee" style={marqueeStyle as React.CSSProperties}>
         <div className="flex shrink-0">
-          <span className="font-bold mr-8">⚠️ BE CAREFUL</span>
-          <span className="mr-8">STAY SAFE</span>
-          <span className="mr-8">WATCH FOR CROSS CONTAMINATION</span>
-          <span className="font-bold mr-8">BEAN BITE CARES</span>
-          <span className="mr-8">ALLERGEN AWARENESS MATTERS</span>
-          <span className="font-bold mr-8">PROTECT YOUR FRIENDS</span>
-          <span className="mr-8">CHECK INGREDIENTS TWICE</span>
-          <span className="font-bold mr-8">SAFETY FIRST</span>
-          <span className="mr-8">BE CAREFUL</span>
-          <span className="mr-8">STAY SAFE</span>
-          <span className="mr-8">CROSS CONTAMINATION CAN HURT</span>
-          <span className="font-bold mr-8">BEAN BITE</span>
+          {items.map((text, idx) => (
+            <span key={`a-${idx}-${text}`} className={`mr-8 ${idx % 3 === 0 ? "font-bold" : ""}`}>{text}</span>
+          ))}
         </div>
         <div className="flex shrink-0">
-          <span className="font-bold mr-8">⚠️ BE CAREFUL</span>
-          <span className="mr-8">STAY SAFE</span>
-          <span className="mr-8">WATCH FOR CROSS CONTAMINATION</span>
-          <span className="font-bold mr-8">BEAN BITE CARES</span>
-          <span className="mr-8">ALLERGEN AWARENESS MATTERS</span>
-          <span className="font-bold mr-8">PROTECT YOUR FRIENDS</span>
-          <span className="mr-8">CHECK INGREDIENTS TWICE</span>
-          <span className="font-bold mr-8">SAFETY FIRST</span>
-          <span className="mr-8">BE CAREFUL</span>
-          <span className="mr-8">STAY SAFE</span>
-          <span className="mr-8">CROSS CONTAMINATION CAN HURT</span>
-          <span className="font-bold mr-8">BEAN BITE</span>
+          {items.map((text, idx) => (
+            <span key={`b-${idx}-${text}`} className={`mr-8 ${idx % 3 === 0 ? "font-bold" : ""}`}>{text}</span>
+          ))}
         </div>
       </div>
 
-      {/* Inline CSS */}
-      <style jsx>{`
+      {/* Inline CSS to halve translation to match duplicated content */}
+      <style>{`
         @keyframes marquee {
-          0% {
-            transform: translateX(0%);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 20s linear infinite; /* slow + smooth */
+          animation: marquee linear infinite;
         }
       `}</style>
     </div>

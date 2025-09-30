@@ -203,7 +203,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                   <React.Fragment key={item.id}>
                     <div 
                       onClick={() => handleEditCartItem(item)}
-                      className="border border-b-2 border-r-2 rounded-lg p-4 cursor-pointer hover:shadow-md hover:bg-gray-50 transition-all duration-200"
+                      className="border border-b-2 border-r-2 rounded-[1px] p-4 cursor-pointer hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00]  transition-all duration-200"
                     >
                       <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2">

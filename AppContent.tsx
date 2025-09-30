@@ -21,6 +21,7 @@ export function AppContent() {
     appState, 
     isMobileMenuOpen, 
     setIsMobileMenuOpen,
+    navigateToLanding,
     navigateToMenu,
     navigateToCart,
     navigateToCheckout,
@@ -67,6 +68,7 @@ export function AppContent() {
         }}
         isMobileMenuOpen={isMobileMenuOpen}
         setIsMobileMenuOpen={setIsMobileMenuOpen}
+        onNavigateToLanding={navigateToLanding}
         onNavigateToMenu={navigateToMenu}
         onNavigateToCart={navigateToCart}
         onNavigateToGroups={navigateToGroups}

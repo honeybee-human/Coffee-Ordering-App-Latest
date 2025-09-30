@@ -110,10 +110,10 @@ export interface AppData {
   favorites: FavoriteItem[];
 }
 
-export type PageType = 'menu' | 'coffee-detail' | 'pastry-detail' | 'cart' | 'checkout' | 'order-history' | 'favorites' | 'groups';
+export type PageType = 'landing' | 'menu' | 'coffee-detail' | 'pastry-detail' | 'cart' | 'checkout' | 'order-history' | 'favorites' | 'groups';
 
 export interface AppState {
-  currentPage: 'menu' | 'cart' | 'groups' | 'coffee-detail' | 'pastry-detail' | 'checkout' | 'order-history' | 'favorites';
+  currentPage: 'landing' | 'menu' | 'cart' | 'groups' | 'coffee-detail' | 'pastry-detail' | 'checkout' | 'order-history' | 'favorites';
   selectedItemId?: string;
   initialCoffeeCustomizations?: CoffeeCustomization;
   initialPastryCustomizations?: PastryCustomization;
