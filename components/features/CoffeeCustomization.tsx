@@ -27,7 +27,6 @@ export const CoffeeCustomizationComponent: React.FC<CoffeeCustomizationComponent
   const activeGroup = groups.find(g => g.id === activeGroupId);
   const groupMembers = activeGroup?.members || [];
 
-  // Determine if coffee requires milk (has Milk in allergens)
   const requiresMilk = coffee?.allergens?.includes('Milk') || false;
   
   // Filter milk options based on coffee requirements

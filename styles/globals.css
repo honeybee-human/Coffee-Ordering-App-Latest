@@ -1,6 +1,6 @@
 @tailwind base;
-@tailwind components;
 @import './utilities.css';
+@tailwind components;
 @tailwind utilities;
 :root {
   --font-size: 15px;

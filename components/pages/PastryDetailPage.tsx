@@ -310,7 +310,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       <div className="grid lg:grid-cols-3 gap-8">
         {/* Product Image & Basic Info */}
         <section className="space-y-6" aria-label="Product information">
-          <div className="shadow-[5px_5px_0_0_#964B00] aspect-square rounded-[1px] overflow-hidden max-w-xl mx-auto">
+          <div className="shadow-[5px_5px_0_0_#964B00] aspect-square rounded-[1px] overflow-hidden max-w-[12rem] sm:max-w-[16rem] md:max-w-xl mx-auto">
             <ImageWithFallback
               src={imageUrl}
               alt={pastry.name}

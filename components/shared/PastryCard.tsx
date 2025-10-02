@@ -90,40 +90,61 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
         onSelect(pastry.id);
       }}
     >
-      {/* Mobile Layout: Horizontal split */}
-     <div className="flex md:hidden min-h-40">
-  {/* Image */}
-  <div className="relative w-2/5 overflow-hidden">
-    <ImageWithFallback
-      src={pastry.image || '/coffee-icon.svg'}
-      alt={pastry.name}
-      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-    />
-    <div className="absolute top-2 right-2 bg-white/90 rounded-full p-1">
-      <Button variant="ghost" size="sm" onClick={handleToggleFavorite}>
-        <Star className={`h-3 w-3 ${isFavorited ? 'fill-accent text-accent' : 'text-muted-foreground'}`} />
-      </Button>
-    </div>
-    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
-      ${pastry.price.toFixed(2)}
-    </div>
-  </div>
+      {/* Mobile Layout: Horizontal split (match CoffeeCard) */}
+      <div className="flex md:hidden h-40">
+        {/* Image (Left 1/3) */}
+        <div className="relative w-1/3 overflow-hidden">
+          <ImageWithFallback
+            src={pastry.image || '/coffee-icon.svg'}
+            alt={pastry.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        </div>
 
-  {/* Content */}
-  <div className="w-3/5 p-3 flex flex-col justify-between">
-    <h3 className="font-bold text-primary line-clamp-1">{pastry.name}</h3>
-    <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
-    {comprehensiveAllergens.length > 0 && <AllergenTag item={pastry} groupAllergens={groupAllergens} />}
-    {pastry.removableIngredients.length > 0 && (
-      <div className="flex flex-wrap gap-1 mt-1">
-        {pastry.removableIngredients.slice(0, 2).map(i => (
-          <Badge key={i} variant="secondary" className="text-xs px-1 py-0">{i}</Badge>
-        ))}
-        {pastry.removableIngredients.length > 2 && <span className="text-xs text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>}
+        {/* Text (Middle) */}
+        <div className="flex-1 p-3 flex flex-col justify-between">
+          <div>
+            <h3 className="font-bold text-primary line-clamp-1">{pastry.name}</h3>
+            <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
+            {comprehensiveAllergens.length > 0 && (
+              <div className="mt-2">
+                <AllergenTag item={pastry} groupAllergens={groupAllergens} />
+              </div>
+            )}
+          </div>
+          {pastry.removableIngredients.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-1">
+              {pastry.removableIngredients.slice(0, 2).map(i => (
+                <Badge key={i} variant="secondary" className="text-xs px-1 py-0">{i}</Badge>
+              ))}
+              {pastry.removableIngredients.length > 2 && (
+                <span className="text-xs text-muted-foreground">+{pastry.removableIngredients.length - 2} more</span>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Price + Favorite (Right) */}
+        <div className="flex flex-col justify-between items-end p-3 w-24">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0 hover:bg-accent/20"
+            onClick={handleToggleFavorite}
+          >
+            <Star
+              className={`h-3 w-3 transition-colors ${
+                isFavorited
+                  ? 'fill-accent text-accent'
+                  : 'text-muted-foreground hover:text-accent'
+              }`}
+            />
+          </Button>
+          <div className="bg-black/70 backdrop-blur-sm text-white px-2 py-1 rounded-full text-sm font-semibold shadow-md">
+            ${pastry.price.toFixed(2)}
+          </div>
+        </div>
       </div>
-    )}
-  </div>
-</div>
 
 {/* Tablet/Desktop */}
 

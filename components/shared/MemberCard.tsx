@@ -75,9 +75,9 @@ export const MemberCard: React.FC<MemberCardProps> = ({
           size="sm"
           variant="ghost"
           onClick={() => onEditMember(member)}
+          aria-label="Edit member"
         >
-          <Edit2 className="h-3 w-3 mr-1" />
-          Edit
+          <Edit2 className="h-3 w-3" />
         </Button>
         
         {onChangeGroups && (
@@ -86,22 +86,22 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             variant="ghost"
             onClick={() => onChangeGroups(member)}
             disabled={isDisabled}
+            aria-label="Change groups"
           >
-            <Users className="h-3 w-3 mr-1" />
-            Change Groups
+            <Users className="h-3 w-3" />
           </Button>
         )}
         
         {onDeleteMember && groups && (
           <Button
             size="sm"
-        variant="ghost"
+            variant="ghost"
             className='text-destructive'
             onClick={() => onDeleteMember(member, groups)}
             disabled={isDisabled || member.name== 'You'}
+            aria-label="Delete member"
           >
-            <Trash2 className="h-3 w-3 mr-1" />
-            Delete
+            <Trash2 className="h-3 w-3" />
           </Button>
         )}
         
@@ -113,9 +113,9 @@ export const MemberCard: React.FC<MemberCardProps> = ({
             className='text-destructive'
             onClick={() => onRemoveMember(groupId, member.name)}
             disabled={isDisabled}
+            aria-label="Remove from group"
           >
             <UserMinus className="h-3 w-3" />
-            Remove
           </Button>
         )}
       </div>

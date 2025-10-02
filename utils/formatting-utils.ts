@@ -7,7 +7,9 @@ const extractCustomizations = (customizations: any): string[] => {
   const parts: string[] = [];
 
   if (customizations.milk && customizations.milk !== 'Whole Milk') {
-    parts.push(`• ${customizations.milk} milk`);
+    // Milk option strings already include "Milk" (e.g., "Oat Milk"),
+    // so avoid appending an extra "milk" to prevent duplication.
+    parts.push(`• ${customizations.milk}`);
   }
 
   if (customizations.syrups && Array.isArray(customizations.syrups)) {

@@ -1,4 +1,3 @@
-// Change the import
 import AppProviders from '@/components/shared/AppProviders';
 import { AppContent } from './AppContent';
 

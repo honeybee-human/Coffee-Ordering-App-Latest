@@ -13,6 +13,7 @@ interface SavedSearchBarProps {
   modes?: SearchMode[]; // Optional list of modes to show; defaults to ['item','person']
   placeholder?: string;
   className?: string;
+  afterSelectAddon?: React.ReactNode;
 }
 
 export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
@@ -22,7 +23,8 @@ export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
   onModeChange,
   modes = ['item', 'person'],
   placeholder,
-  className = ''
+  className = '',
+  afterSelectAddon
 }) => {
   const placeholderText = placeholder || (
     mode === 'person' ? 'Search by assigned person...' :
@@ -43,18 +45,21 @@ export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
           className="pl-10 bg-white"
         />
       </div>
-      <div className='border border-b-2 border-r-2'>
-        <Select value={mode} onValueChange={(value: SearchMode) => onModeChange(value)}>
-          <SelectTrigger className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] sm:w-48 bg-white">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {modes.includes('item') && (<SelectItem value="item">Item Name</SelectItem>)}
-            {modes.includes('person') && (<SelectItem value="person">Assigned Person</SelectItem>)}
-            {modes.includes('group') && (<SelectItem value="group">Group Name</SelectItem>)}
-            {modes.includes('month') && (<SelectItem value="month">Month Name</SelectItem>)}
-          </SelectContent>
-        </Select>
+      <div className="flex items-stretch gap-3">
+        <div className='border border-b-2 border-r-2'>
+          <Select value={mode} onValueChange={(value: SearchMode) => onModeChange(value)}>
+            <SelectTrigger className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] sm:w-48 bg-white">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {modes.includes('item') && (<SelectItem value="item">Item Name</SelectItem>)}
+              {modes.includes('person') && (<SelectItem value="person">Assigned Person</SelectItem>)}
+              {modes.includes('group') && (<SelectItem value="group">Group Name</SelectItem>)}
+              {modes.includes('month') && (<SelectItem value="month">Month Name</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        {afterSelectAddon}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React from 'react';
-import { Filter } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
+import { Filter } from 'lucide-react';
 
 interface AllergenFilterTriggerProps {
   excludedAllergens: string[];
@@ -17,12 +17,13 @@ export const AllergenFilterTrigger: React.FC<AllergenFilterTriggerProps> = ({
   return (
     <Button 
       variant="outline" 
-      className="justify-between bg-white transition-all min-w-60"
+      className="justify-between bg-white transition-all w-full max-w-full"
+      aria-label="Allergen Filters"
       onClick={onClick}
     >
       <div className="flex items-center gap-2">
         <Filter className="h-4 w-4" />
-        <span>Allergen Filters</span>
+        <span className="text-sm">Allergens</span>
         {excludedAllergens.length > 0 && (
           <Badge variant="secondary" className="bg-destructive/20 text-destructive">
             {excludedAllergens.length}

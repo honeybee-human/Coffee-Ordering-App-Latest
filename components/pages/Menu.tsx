@@ -8,6 +8,7 @@ import { CoffeeCard } from '@/components/shared/CoffeeCard';
 import { PastryCard } from '@/components/shared/PastryCard';
 import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
+import { AllergenFilterTrigger } from '@/components/shared/AllergenFilterTrigger';
 import { MovingTextBanner } from '@/components/shared/MovingTextBanner';
 import { coffeeMenu, pastryMenu } from '@/data/menu';
 import { getComprehensiveAllergens } from '@/utils/allergens';
@@ -87,6 +88,16 @@ export const Menu: React.FC = () => {
 
   // Count filtered items
   const filteredOutCount = (coffeeMenu.length - filteredCoffeeMenu.length) + (pastryMenu.length - filteredPastryMenu.length);
+  
+  // Hidden count for display on trigger
+  const menuAllergens = useMemo(() => {
+    const coffeeAllergens = coffeeMenu.flatMap(item => item.allergens || []);
+    const pastryAllergens = pastryMenu.flatMap(item => item.allergens || []);
+    return [...new Set([...coffeeAllergens, ...pastryAllergens])].sort();
+  }, []);
+  const hiddenCount = useMemo(() => {
+    return excludedAllergens.filter(allergen => menuAllergens.includes(allergen)).length;
+  }, [excludedAllergens, menuAllergens]);
 
   return (
     <div className="space-y-6">
@@ -104,6 +115,15 @@ export const Menu: React.FC = () => {
           onSearchChange={setSearchQuery}
           searchMode={searchMode}
           onSearchModeChange={setSearchMode}
+          afterSelectAddon={
+            <div className="flex items-center">
+              <AllergenFilterTrigger
+                excludedAllergens={excludedAllergens}
+                hiddenCount={hiddenCount}
+                onClick={() => setFiltersOpen(true)}
+              />
+            </div>
+          }
         />
 
         {/* Allergen Filter */}
@@ -116,6 +136,7 @@ export const Menu: React.FC = () => {
           allAllergens={allAllergens}
           groupBasedAllergens={groupBasedAllergens}
           filteredOutCount={filteredOutCount}
+          showTrigger={false}
         />
       </div>
 

@@ -24,7 +24,6 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
   const { groups, allMembers, removeGroupMember, removeMember } = useGroupsStore();
   const { favorites, removeFromFavorites, addToFavorites } = useFavoritesStore();
 
-  // Get the groups each member belongs to
   const membersWithGroups = useMemo(() => {
     return allMembers.map(member => {
       const memberGroups = groups.filter(group => 
@@ -46,28 +45,23 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
   }, [membersWithGroups, searchQuery]);
 
   const handleDeleteMember = (member: GroupMember, memberGroups: Group[]) => {
-    // Remove member from all groups using store action
     memberGroups.forEach(group => {
       removeGroupMember(group.id, member.name);
     });
 
-    // Remove from allMembers
     removeMember(member.name);
 
-    // Handle favorites cleanup using controller
     const memberFavorites = FavoritesController.getMemberFavorites(favorites, member.name);
     
     memberFavorites.forEach(favorite => {
-      // Move personal favorites to group-level for each group the member was in
       memberGroups.forEach(group => {
         addToFavorites({
           ...favorite,
           id: `${favorite.id}-${group.id}`,
           groupId: group.id,
-          assignedTo: undefined // Convert to group-level favorite
+          assignedTo: undefined
         });
       });
-      // Remove original personal favorite
       removeFromFavorites(favorite.id);
     });
   };
@@ -80,9 +74,11 @@ export const AllMembersTab: React.FC<AllMembersTabProps> = ({
           <Button
             onClick={onAddNewMember}
             className="mb-4"
+            size="icon"
+            aria-label="Add member"
+            variant="outline"
           >
-            <Plus className="h-4 w-4 md:mr-2" />
-            <span className="hidden md:inline">New Member</span>
+            <Plus className="h-4 w-4" />
           </Button>
         </div>
       </div>

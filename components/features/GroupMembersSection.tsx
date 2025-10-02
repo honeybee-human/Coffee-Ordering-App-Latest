@@ -63,18 +63,18 @@ export const GroupMembersSection: React.FC<GroupMembersSectionProps> = ({
               onClick={onAddNewMember}
               size="sm"
               className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
+              aria-label="New member"
             >
-              <Plus className="h-5 w-5 md:mr-2" />
-              <span className="hidden md:inline">New Member</span>
+              <Plus className="h-5 w-5" />
             </Button>
             <Button
               onClick={onAddExistingMember}
               variant="outline"
               size="sm"
               className="md:px-4 md:py-2 h-10 w-10 md:w-auto p-0 md:p-2"
+              aria-label="Add existing member"
             >
-              <UserPlus className="h-5 w-5 md:mr-2" />
-              <span className="hidden md:inline">Add Member</span>
+              <UserPlus className="h-5 w-5" />
             </Button>
           </div>
         </div>

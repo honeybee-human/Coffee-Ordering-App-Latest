@@ -23,6 +23,7 @@ interface AllergenFilterProps {
   groupBasedAllergens: string[];
   filteredOutCount: number;
   filterRef?: React.RefObject<HTMLDivElement>;
+  showTrigger?: boolean;
 }
 
 export const AllergenFilter: React.FC<AllergenFilterProps> = ({
@@ -35,6 +36,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
   groupBasedAllergens,
   filteredOutCount,
   filterRef: externalFilterRef,
+  showTrigger = true,
 }) => {
   const internalFilterRef = useRef<HTMLDivElement>(null);
   const filterRef = externalFilterRef || internalFilterRef;
@@ -292,11 +294,13 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
     <div className="relative" ref={filterRef}>
       {isMobile ? (
         <>
-          <AllergenFilterTrigger
-            excludedAllergens={excludedAllergens}
-            hiddenCount={hiddenCount}
-            onClick={() => setFiltersOpen(true)}
-          />
+          {showTrigger && (
+            <AllergenFilterTrigger
+              excludedAllergens={excludedAllergens}
+              hiddenCount={hiddenCount}
+              onClick={() => setFiltersOpen(true)}
+            />
+          )}
           <Dialog open={filtersOpen} onOpenChange={setFiltersOpen}>
             <DialogContent className="max-w-[95vw] w-[400px] p-4 max-h-[90vh] overflow-auto">
               <DialogHeader className="pb-4">
@@ -313,7 +317,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                       onClick={onClearAllergenFilters}
                       className="text-destructive hover:text-destructive/80"
                     >
-                      <X className="h-4 w-4 mr-1" />
                       Clear All
                     </Button>
                   )}
@@ -326,13 +329,15 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
         </>
       ) : (
         <Collapsible open={filtersOpen} onOpenChange={setFiltersOpen}>
-          <CollapsibleTrigger asChild>
-            <AllergenFilterTrigger
-              excludedAllergens={excludedAllergens}
-              hiddenCount={hiddenCount}
-              onClick={() => setFiltersOpen(true)}
-            />
-          </CollapsibleTrigger>
+          {showTrigger && (
+            <CollapsibleTrigger asChild>
+              <AllergenFilterTrigger
+                excludedAllergens={excludedAllergens}
+                hiddenCount={hiddenCount}
+                onClick={() => setFiltersOpen(true)}
+              />
+            </CollapsibleTrigger>
+          )}
           <CollapsibleContent className="absolute top-full right-0 mt-2 z-10">
             <Card className="w-[800px] bg-white border shadow-xl">
               <CardHeader>
@@ -348,7 +353,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
                       onClick={onClearAllergenFilters}
                       className="text-destructive hover:text-destructive/80"
                     >
-                      <X className="h-4 w-4 mr-1" />
                       Clear All
                     </Button>
                   )}

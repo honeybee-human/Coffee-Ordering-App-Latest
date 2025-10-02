@@ -105,10 +105,11 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
               onValueChange={handlePersonChange}
             >
               <SelectTrigger id="person-select" className="bg-white p-4">
+                {/* Show only selected name in the trigger */}
                 <SelectValue placeholder="Select a person or leave unassigned" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="unassigned">Unassigned</SelectItem>
+                <SelectItem value="unassigned" textValue="Unassigned">Unassigned</SelectItem>
                 {sortedMembers.map((member) => {
                   const hasConflict = hasAllergenConflict(member, comprehensiveAllergens);
                   
@@ -116,6 +117,7 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
                     <SelectItem 
                       key={member.name} 
                       value={member.name}
+                      textValue={member.name}
                       className={hasConflict ? 'bg-destructive/5' : ''}
                       disabled={hasConflict}
                     >
@@ -140,6 +142,24 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
           </div>
 
  
+
+          {/* Selected member allergy list below select */}
+          {(() => {
+            const selected = activeGroup.members.find(m => m.name === selectedPerson);
+            if (selected && selected.allergens && selected.allergens.length > 0) {
+              return (
+                <div className="mt-2 text-sm text-muted-foreground">
+                  Allergies: {selected.allergens.join(', ')}
+                </div>
+              );
+            }
+            if (selectedPerson && !selected) {
+              return (
+                <div className="mt-2 text-sm text-muted-foreground">No allergies</div>
+              );
+            }
+            return null;
+          })()}
 
           {/* Show blocking message for members with conflicts */}
           {(() => {

@@ -9,7 +9,7 @@ import { AllMembersTab } from './AllMembersTab';
 import { GroupMembersSection } from './GroupMembersSection';
 import { CardHeader, CardTitle, CardContent, Card } from '@/ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/ui/select';
-import { useGroupsStore } from '@/store/useGroupsStore';
+import { useGroupsStore, useAllMembers } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useOrdersStore } from '@/store/useOrdersStore';
 import { useAllergensStore, useAutoFilterEnabled } from '@/store/useAllergensStore';
@@ -35,7 +35,9 @@ export const GroupManagement: React.FC = () => {
     addGroupMember,
     removeGroupMember,
     resetAllData,
-    toggleFavoriteGroup
+    toggleFavoriteGroup,
+    addMember,
+    updateMember
   } = useGroupsStore();
 
   const { resetFavorites, cleanupMemberFavorites } = useFavoritesStore();
@@ -64,6 +66,7 @@ export const GroupManagement: React.FC = () => {
   const [editingMember, setEditingMember] = useState<GroupMember | null>(null);
   const activeGroup = useMemo(() => groups.find(group => group.id === activeGroupId), [groups, activeGroupId]);
   const [groupSearchQuery, setGroupSearchQuery] = useState('');
+  const storeAllMembers = useAllMembers();
 
   // Update filters when active group changes and auto-filter is enabled
   useEffect(() => {
@@ -101,16 +104,10 @@ export const GroupManagement: React.FC = () => {
   }, [editGroupName, renameGroup]);
 
   const handleAddMember = useCallback((member: GroupMember) => {
-    if (activeGroupId) {
-      addGroupMember(activeGroupId, member);
-      setIsAddMemberOpen(false);
-      
-      // Update filters if auto-filter is enabled
-      if (autoFilterEnabled) {
-        setTimeout(() => updateFiltersFromGroupMembers(), 0);
-      }
-    }
-  }, [activeGroupId, addGroupMember, autoFilterEnabled, updateFiltersFromGroupMembers]);
+    // Add to global members only; do not auto-add to any group
+    addMember(member);
+    setIsAddMemberOpen(false);
+  }, [addMember]);
 
   const handleEditMember = useCallback((member: GroupMember) => {
     setEditingMember(member);
@@ -446,12 +443,20 @@ export const GroupManagement: React.FC = () => {
         }}
         onAddMember={(member) => {
           if (editingMember) {
-            removeGroupMember(activeGroup!.id, editingMember.name);
+            // Update member details globally and across all groups
+            updateMember(editingMember.name, member);
+            // Refresh filters if needed based on active group members
+            if (autoFilterEnabled) {
+              setTimeout(() => updateFiltersFromGroupMembers(), 0);
+            }
+          } else {
+            // Create new member globally; do not add to any group automatically
+            addMember(member);
           }
-          handleAddMember(member);
+          setIsAddMemberOpen(false);
           setEditingMember(null);
         }}
-        existingMembers={allMembers.map(({ member }) => member)}
+        existingMembers={storeAllMembers}
         editingMember={editingMember}
         isEditing={!!editingMember}
       />
@@ -483,8 +488,17 @@ export const GroupManagement: React.FC = () => {
         }}
         group={selectedGroup}
         onRenameGroup={handleRenameGroup}
-        onAddMember={handleAddMember}
-        existingMembers={allMembers.map(({ member }) => member)}
+        onAddMember={(member) => {
+          if (selectedGroup) {
+            // Add existing member to the selected group explicitly
+            addGroupMember(selectedGroup.id, member);
+            // Update filters if auto-filter is enabled and this affects active group
+            if (autoFilterEnabled && selectedGroup.id === activeGroupId) {
+              setTimeout(() => updateFiltersFromGroupMembers(), 0);
+            }
+          }
+        }}
+        existingMembers={storeAllMembers}
         removeGroupMember={removeGroupMember}
       />
     </div>

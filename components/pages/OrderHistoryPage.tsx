@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Package, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookmarkCheck, Package, RotateCcw } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
 import { Switch } from '@/ui/switch';
@@ -173,7 +173,7 @@ export const OrderHistoryPage: React.FC = () => {
           </AlertDialog>
         </div>
         
-        {/* Search row under header with toggle and group filter */}
+        {/* Search row under header with inline bookmark toggle and group filter */}
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between mb-4">
           <SavedSearchBar
             query={searchQuery}
@@ -181,31 +181,32 @@ export const OrderHistoryPage: React.FC = () => {
             mode={searchMode}
             onModeChange={setSearchMode}
             modes={["item","person","group","month"]}
+            afterSelectAddon={
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="bg-white"
+                  aria-label="Toggle bookmarked only"
+                  onClick={() => setShowBookmarkedOnly(v => !v)}
+                >
+                  {showBookmarkedOnly ? (
+                    <BookmarkCheck className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Bookmark className="h-5 w-5" />
+                  )}
+                </Button>
+                <GroupFilter
+                  groupNames={groupNames.filter((name): name is string => name !== undefined)}
+                  selectedGroup={selectedGroup}
+                  onChange={setSelectedGroup}
+                />
+              </div>
+            }
           />
-          <div className="flex items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="bookmark-filter"
-                checked={showBookmarkedOnly}
-                onCheckedChange={setShowBookmarkedOnly}
-              />
-              <Label htmlFor="bookmark-filter">Show bookmarked only</Label>
-            </div>
-            <GroupFilter
-              groupNames={groupNames.filter((name): name is string => name !== undefined)}
-              selectedGroup={selectedGroup}
-              onChange={setSelectedGroup}
-            />
-          </div>
         </div>
         
-       
-        
-        <GroupFilter
-          groupNames={groupNames.filter((name): name is string => name !== undefined)}
-          selectedGroup={selectedGroup}
-          onChange={setSelectedGroup}
-        />
+        {/* Removed duplicate GroupFilter to keep single aligned row */}
       </div>
 
     <div className="space-y-6">
