@@ -5,6 +5,7 @@ import { Button } from '@/ui/button';
 import { Card } from '@/ui/card';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { AllergenTag } from '@/components/shared/AllergenTag';
+import { AllergenWarning } from '@/components/shared/AllergenWarning';
 import { Coffee } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
@@ -24,6 +25,9 @@ export const CoffeeCard: React.FC<CoffeeCardProps> = ({
   groupAllergens = []
 }) => {
   const comprehensiveAllergens = getComprehensiveAllergens(coffee);
+  const hasAllergenConflict = comprehensiveAllergens.some(allergen => 
+    groupAllergens.includes(allergen)
+  );
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const toggleFavorite = useFavoritesStore(state => state.toggleFavorite);
   const isItemFavorited = useFavoritesStore(state => state.isItemFavorited);
@@ -42,14 +46,16 @@ export const CoffeeCard: React.FC<CoffeeCardProps> = ({
 
   // Get all allergens for this coffee item (original + detected)
   const allItemAllergens = useMemo(() => {
-    return [...coffee.allergens, ...comprehensiveAllergens];
+    // Deduplicate for conflict checks
+    return Array.from(new Set([...coffee.allergens, ...comprehensiveAllergens]));
   }, [coffee.allergens, comprehensiveAllergens]);
 
   // Create a coffee object with comprehensive allergens for the toggle function
   const coffeeWithComprehensiveAllergens = useMemo(() => ({
     ...coffee,
-    allergens: allItemAllergens
-  }), [coffee, allItemAllergens]);
+    // Save deduplicated comprehensive allergens only
+    allergens: comprehensiveAllergens
+  }), [coffee, comprehensiveAllergens]);
 
   // Helper function to execute the favorite toggle
   const executeFavoriteToggle = useCallback(() => {
@@ -99,6 +105,11 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
       alt={coffee.name}
       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
     />
+    {hasAllergenConflict && (
+      <div className="absolute top-2 left-2">
+        <AllergenWarning />
+      </div>
+    )}
   </div>
 
   {/* Text (Middle) */}
@@ -108,7 +119,7 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
       <p className="text-sm text-muted-foreground line-clamp-2">{coffee.description}</p>
       {comprehensiveAllergens.length > 0 && (
         <div className="mt-2">
-          <AllergenTag item={coffee} groupAllergens={groupAllergens} />
+          <AllergenTag item={coffee} groupAllergens={groupAllergens} compact maxVisible={2} />
         </div>
       )}
     </div>
@@ -144,6 +155,11 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
             alt={coffee.name}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
+          {hasAllergenConflict && (
+            <div className="absolute top-2 left-2">
+              <AllergenWarning />
+            </div>
+          )}
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1">
             <Button
               variant="ghost"
@@ -169,7 +185,7 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
           <p className="text-sm text-muted-foreground line-clamp-2">{coffee.description}</p>
           {comprehensiveAllergens.length > 0 && (
             <div className="mt-2">
-              <AllergenTag item={coffee} groupAllergens={groupAllergens} />
+              <AllergenTag item={coffee} groupAllergens={groupAllergens} compact maxVisible={2} />
             </div>
           )}
         </div>

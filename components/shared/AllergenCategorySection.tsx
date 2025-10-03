@@ -51,7 +51,11 @@ export const AllergenCategorySection: React.FC<AllergenCategorySectionProps> = (
           const isFromGroupMember = groupBasedAllergens.includes(allergen);
           
           return (
-            <div key={allergen} className="flex items-center space-x-2">
+            <div 
+              key={allergen} 
+              className="flex items-center space-x-2 cursor-pointer"
+              onClick={() => onToggleAllergen(allergen)}
+            >
               <Checkbox
                 id={allergen}
                 checked={isExcluded}
@@ -59,8 +63,7 @@ export const AllergenCategorySection: React.FC<AllergenCategorySectionProps> = (
                 className={isFromGroupMember ? "data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600" : ""}
               />
               <label 
-                htmlFor={allergen} 
-                className={`text-sm cursor-pointer flex items-center gap-1 ${
+                className={`text-sm cursor-pointer flex items-center gap-1 w-[120px] ${
                   isFromGroupMember 
                     ? (isExcluded ? 'text-amber-700 font-medium' : 'text-amber-600')
                     : ''

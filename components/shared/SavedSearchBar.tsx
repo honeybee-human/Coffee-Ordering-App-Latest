@@ -34,7 +34,7 @@ export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
   );
 
   return (
-    <div className={`flex flex-col sm:flex-row gap-3 flex-1 max-w-2xl ${className}`}>
+    <div className={`flex flex-col lg:flex-row lg:items-center gap-3 w-full flex-2 ${className}`}>
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -42,13 +42,13 @@ export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
           placeholder={placeholderText}
           value={query}
           onChange={(e) => onQueryChange(e.target.value)}
-          className="pl-10 bg-white"
+          className="pl-10 bg-white h-10"
         />
       </div>
-      <div className="flex items-stretch gap-3">
-        <div className='border border-b-2 border-r-2'>
+      <div className="flex flex-row items-stretch lg:items-center gap-3 flex-shrink-0 flex-1">
+        <div className='flex-1 border border-b-2 border-r-2'>
           <Select value={mode} onValueChange={(value: SearchMode) => onModeChange(value)}>
-            <SelectTrigger className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] sm:w-48 bg-white">
+            <SelectTrigger className="w-full h-10 bg-white border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00]">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -59,7 +59,9 @@ export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
             </SelectContent>
           </Select>
         </div>
-        {afterSelectAddon}
+        <div className="flex-1">
+          {afterSelectAddon}
+        </div>
       </div>
     </div>
   );

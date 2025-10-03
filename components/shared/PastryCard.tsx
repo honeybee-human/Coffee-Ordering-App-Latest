@@ -43,7 +43,8 @@ export const PastryCard: React.FC<PastryCardProps> = ({
 
   // Get all allergens for this pastry item (original + detected)
   const allItemAllergens = useMemo(() => {
-    return [...pastry.allergens, ...comprehensiveAllergens];
+    // Deduplicate to prevent double-rendering on saved cards
+    return Array.from(new Set([...pastry.allergens, ...comprehensiveAllergens]));
   }, [pastry.allergens, comprehensiveAllergens]);
 
   // Helper function to execute the favorite toggle
@@ -52,7 +53,8 @@ export const PastryCard: React.FC<PastryCardProps> = ({
       // Create pastry object with comprehensive allergens
       const pastryWithComprehensiveAllergens = {
         ...pastry,
-        allergens: allItemAllergens
+        // Save deduplicated comprehensive allergens only
+        allergens: comprehensiveAllergens
       };
       toggleFavorite('pastry', pastryWithComprehensiveAllergens, activeGroup.id);
     }
@@ -84,7 +86,7 @@ export const PastryCard: React.FC<PastryCardProps> = ({
   
   return (
     <Card 
-className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
+className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group bg-white"
       onClick={() => {
         setCurrentItem('pastry', pastry);
         onSelect(pastry.id);
@@ -108,7 +110,7 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
             <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
             {comprehensiveAllergens.length > 0 && (
               <div className="mt-2">
-                <AllergenTag item={pastry} groupAllergens={groupAllergens} />
+                <AllergenTag item={pastry} groupAllergens={groupAllergens} compact maxVisible={2} />
               </div>
             )}
           </div>
@@ -181,7 +183,7 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
           <p className="text-sm text-muted-foreground line-clamp-2">{pastry.description}</p>
           {comprehensiveAllergens.length > 0 && (
             <div className="mt-2">
-              <AllergenTag item={pastry} groupAllergens={groupAllergens} />
+              <AllergenTag item={pastry} groupAllergens={groupAllergens} compact maxVisible={2} />
             </div>
           )}
           {pastry.removableIngredients.length > 0 && (

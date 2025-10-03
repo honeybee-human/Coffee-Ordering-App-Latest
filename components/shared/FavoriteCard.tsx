@@ -64,7 +64,7 @@ export const FavoriteCard: React.FC<FavoriteCardProps> = ({
 
   return (
     <Card 
-className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-transparent"
+className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-0.5 overflow-hidden group !bg-white"
       onClick={() => onNavigateToDetail(favorite)}
     >
       {/* Mobile Layout: Horizontal split */}
@@ -89,13 +89,13 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
             <h3 className="font-bold text-primary line-clamp-1">{favorite.item.name}</h3>
             <p className="text-sm text-muted-foreground mt-1">${favorite.item.price.toFixed(2)}</p>
             {customizationText && (
-              <div className="text-xs text-muted-foreground bg-gray-50 p-1 rounded mt-1">
+              <div className="text-xs text-muted-foreground p-1 mt-1">
                 <pre className="whitespace-pre-wrap font-sans line-clamp-2">{customizationText}</pre>
               </div>
             )}
             {comprehensiveAllergens.length > 0 && (
               <div className="mt-1">
-                <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />
+                <AllergenTag item={favorite.item} groupAllergens={groupAllergens} compact maxVisible={2} />
               </div>
             )}
           </div>
@@ -184,13 +184,13 @@ className="cursor-pointer rounded-[1px] border border-r-2 border-b-2 hover:borde
         <div className="p-3 flex flex-col gap-2">
           <h3 className="text-lg font-bold text-primary line-clamp-1">{favorite.item.name}</h3>
           {customizationText && (
-            <div className="text-xs text-muted-foreground bg-gray-50 p-2 rounded">
+            <div className="text-xs text-muted-foreground">
               <pre className="whitespace-pre-wrap font-sans">{customizationText}</pre>
             </div>
           )}
           {comprehensiveAllergens.length > 0 && (
             <div className="mt-1">
-              <AllergenTag item={favorite.item} groupAllergens={groupAllergens} />
+              <AllergenTag item={favorite.item} groupAllergens={groupAllergens} compact maxVisible={2} />
             </div>
           )}
         </div>

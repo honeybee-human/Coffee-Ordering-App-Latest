@@ -89,15 +89,7 @@ export const Menu: React.FC = () => {
   // Count filtered items
   const filteredOutCount = (coffeeMenu.length - filteredCoffeeMenu.length) + (pastryMenu.length - filteredPastryMenu.length);
   
-  // Hidden count for display on trigger
-  const menuAllergens = useMemo(() => {
-    const coffeeAllergens = coffeeMenu.flatMap(item => item.allergens || []);
-    const pastryAllergens = pastryMenu.flatMap(item => item.allergens || []);
-    return [...new Set([...coffeeAllergens, ...pastryAllergens])].sort();
-  }, []);
-  const hiddenCount = useMemo(() => {
-    return excludedAllergens.filter(allergen => menuAllergens.includes(allergen)).length;
-  }, [excludedAllergens, menuAllergens]);
+  // Hidden count removed from trigger UI; retain filtering logic above only
 
   return (
     <div className="space-y-6">
@@ -116,10 +108,9 @@ export const Menu: React.FC = () => {
           searchMode={searchMode}
           onSearchModeChange={setSearchMode}
           afterSelectAddon={
-            <div className="flex items-center">
+            <div className="flex items-center w-full">
               <AllergenFilterTrigger
                 excludedAllergens={excludedAllergens}
-                hiddenCount={hiddenCount}
                 onClick={() => setFiltersOpen(true)}
               />
             </div>

@@ -142,9 +142,17 @@ export const useNavigationStore = create<NavigationStore>((set, get) => ({
     const { navigateToCoffeeDetail, navigateToPastryDetail } = get();
     
     if (favorite.type === 'coffee') {
-      navigateToCoffeeDetail(favorite.item.id, favorite.customizations as CoffeeCustomization, undefined, 'favorites');
+      const initial: CoffeeCustomization = {
+        ...(favorite.customizations as CoffeeCustomization),
+        assignedTo: favorite.assignedTo
+      };
+      navigateToCoffeeDetail(favorite.item.id, initial, undefined, 'favorites');
     } else {
-      navigateToPastryDetail(favorite.item.id, favorite.customizations as PastryCustomization, undefined, 'favorites');
+      const initial: PastryCustomization = {
+        ...(favorite.customizations as PastryCustomization),
+        assignedTo: favorite.assignedTo
+      };
+      navigateToPastryDetail(favorite.item.id, initial, undefined, 'favorites');
     }
   },
   

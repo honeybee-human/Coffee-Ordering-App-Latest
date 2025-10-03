@@ -184,7 +184,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
   };
 
   const FilterContent = (
-    <div className="space-y-6">
+    <div className="space-y-6 flex-1">
       <AllergenSearchBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
@@ -297,7 +297,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
           {showTrigger && (
             <AllergenFilterTrigger
               excludedAllergens={excludedAllergens}
-              hiddenCount={hiddenCount}
               onClick={() => setFiltersOpen(true)}
             />
           )}
@@ -333,7 +332,6 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
             <CollapsibleTrigger asChild>
               <AllergenFilterTrigger
                 excludedAllergens={excludedAllergens}
-                hiddenCount={hiddenCount}
                 onClick={() => setFiltersOpen(true)}
               />
             </CollapsibleTrigger>

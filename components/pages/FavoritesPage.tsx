@@ -20,6 +20,7 @@ import { getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-ut
 import { calculateCartSubtotal } from '@/utils/cart-calculations';
 import { combineIdenticalItems } from '@/utils/cart-helpers';
 import { OrderHistoryCard } from '../shared/OrderHistoryCard';
+import { AllergenFilterTrigger } from '../shared/AllergenFilterTrigger';
 
 interface PersonFavoritesGroup {
   personName: string;
@@ -337,6 +338,14 @@ export const FavoritesPage: React.FC = () => {
           onQueryChange={setSavedSearchQuery}
           mode={savedSearchMode}
           onModeChange={(value) => setSavedSearchMode(value as "item" | "person")}
+          afterSelectAddon={
+            <div className="flex items-center w-full">
+              <AllergenFilterTrigger
+                excludedAllergens={excludedAllergens}
+                onClick={() => setFiltersOpen(true)}
+              />
+            </div>
+          }
         />
         <AllergenFilter 
           filtersOpen={filtersOpen}
@@ -347,6 +356,7 @@ export const FavoritesPage: React.FC = () => {
           allAllergens={allAllergens}
           groupBasedAllergens={groupBasedAllergens}
           filteredOutCount={filteredOutCount}
+          showTrigger={false}
         />
       </div>
 

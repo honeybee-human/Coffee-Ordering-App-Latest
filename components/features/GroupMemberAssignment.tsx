@@ -111,29 +111,13 @@ export const GroupMemberAssignment: React.FC<GroupMemberAssignmentProps> = ({
               <SelectContent>
                 <SelectItem value="unassigned" textValue="Unassigned">Unassigned</SelectItem>
                 {sortedMembers.map((member) => {
-                  const hasConflict = hasAllergenConflict(member, comprehensiveAllergens);
-                  
                   return (
                     <SelectItem 
                       key={member.name} 
                       value={member.name}
                       textValue={member.name}
-                      className={hasConflict ? 'bg-destructive/5' : ''}
-                      disabled={hasConflict}
                     >
-                      <div className="flex items-center gap-2 w-full">
-                        <span className={hasConflict ? 'text-destructive' : ''}>
-                          {member.name}
-                        </span>
-                        {hasConflict && (
-                          <AlertTriangle className="h-3 w-3 text-destructive flex-shrink-0" />
-                        )}
-                      </div>
-                      {member.allergens && member.allergens.length > 0 && (
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Allergic to: {member.allergens.join(', ')}
-                        </div>
-                      )}
+                      {member.name}
                     </SelectItem>
                   );
                 })}

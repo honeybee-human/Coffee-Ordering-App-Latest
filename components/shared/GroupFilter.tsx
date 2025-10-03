@@ -19,7 +19,7 @@ export const GroupFilter: React.FC<GroupFilterProps> = ({
     <div className="mt-2">
       <label htmlFor="group-filter" className="mr-2 text-sm">{label}</label>
       <Select value={selectedGroup} onValueChange={onChange}>
-        <SelectTrigger id="group-filter" className="bg-white">
+        <SelectTrigger id="group-filter" className="bg-white h-10 border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00]">
           <SelectValue placeholder="Select group" />
         </SelectTrigger>
         <SelectContent>

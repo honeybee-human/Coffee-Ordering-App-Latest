@@ -19,13 +19,13 @@ export const useGroupMemberAssignmentStore = create<GroupMemberAssignmentStore>(
   resetToUnassigned: () => set({ selectedPerson: '' }),
 
   resetForNewItem: (groupMembers) => {
-    // If there's only one person in the group, assign to them
+    // If a person is already preselected (e.g., from a saved favorite), don't override it
+    const { selectedPerson } = get();
+    if (selectedPerson && selectedPerson !== '') {
+      return;
+    }
     // Otherwise, reset to unassigned
-    // if (groupMembers.length === 1) {
-    //   set({ selectedPerson: groupMembers[0].name });
-    // } else {
-      set({ selectedPerson: '' });
-    //}
+    set({ selectedPerson: '' });
   },
 
   hasAllergenConflict: (member, itemAllergens) => {
