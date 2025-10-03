@@ -179,7 +179,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           <ShoppingCart className="h-12 w-12 mx-auto opacity-50 mb-4" />
           <h3 className="mb-2 text-muted-foreground">Your cart is empty</h3>
           <p className="text-muted-foreground mb-4">Add items from the menu to see them here.</p>
-          <Button onClick={navigateToMenu} variant="outline">Browse Menu</Button>
+          <Button onClick={navigateToMenu} className="rounded-lg">Browse Menu</Button>
         </div>
       )}
 
@@ -202,7 +202,7 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
                   <React.Fragment key={item.id}>
                     <div 
                       onClick={() => handleEditCartItem(item)}
-                      className="border border-b-2 border-r-2 rounded-[1px] p-4 cursor-pointer hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00]  transition-all duration-200"
+                      className="border border-b-2 border-r-2 rounded-[1px] p-4 bg-white cursor-pointer hover:border-[#964B00] hover:shadow-[2px_2px_0_0_#964B00] transition-all duration-200"
                     >
                       <div className="flex flex-wrap justify-between gap-4">
                         <div className="space-y-2">
