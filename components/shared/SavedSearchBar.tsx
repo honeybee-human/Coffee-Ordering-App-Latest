@@ -45,7 +45,7 @@ export const SavedSearchBar: React.FC<SavedSearchBarProps> = ({
           className="pl-10 bg-white h-10"
         />
       </div>
-      <div className="flex flex-row items-stretch lg:items-center gap-3 flex-shrink-0 flex-1">
+      <div className="flex flex-row items-center gap-3 flex-shrink-0 flex-1">
         <div className='flex-1 border border-b-2 border-r-2'>
           <Select value={mode} onValueChange={(value: SearchMode) => onModeChange(value)}>
             <SelectTrigger className="w-full h-10 bg-white border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00]">
