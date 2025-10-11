@@ -44,8 +44,7 @@ export const LandingPage: React.FC = () => {
 
       <div className="max-w-4xl mx-auto text-center space-y-10">
         <p className="text-muted-foreground">
-          Welcome to SafePlate - your streamlined coffee and pastry ordering app for groups.
-          Create a group, add members, personalize each order with customizations, and keep allergens in check.
+          Welcome to SafePlate - an application created to help improve safety in group orders by connecting restaurants and consumers through a unified system that remembers people's allergies.
         </p>
 
         {/* Quick Start */}
