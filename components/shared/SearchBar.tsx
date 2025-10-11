@@ -23,7 +23,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   afterSelectAddon
 }) => {
   return (
-    <div className={`flex flex-col lg:flex-row lg:items-center gap-3 w-full ${className}`}>
+    <div className={`flex flex-col lg:flex-row lg:items-center gap-3 w-full flex-1 ${className}`}>
       <div className="relative flex-1">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -34,7 +34,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           className="pl-10 bg-white h-10"
         />
       </div>
-      <div className="flex items-stretch lg:items-center gap-3 w-full">
+      <div className="flex flex-row items-stretch lg:items-center gap-3 flex-shrink-0 flex-1">
         <div className="flex-1 border border-b-2 border-r-2">
           <Select value={searchMode} onValueChange={(value: 'name' | 'description') => onSearchModeChange(value)}>
             <SelectTrigger className="w-full border border-b-2 border-r-2 hover:shadow-[2px_2px_0_0_#964B00] h-10 bg-white">
