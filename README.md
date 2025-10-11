@@ -18,7 +18,7 @@ A React-based coffee ordering application with group ordering capabilities, alle
 - Vite (build tool)
 - Tailwind CSS (styling)
 - Radix UI (UI components)
-- Context API (state management)
+- Zustand (state management)
 
 ## Getting Started
 
@@ -71,22 +71,26 @@ yarn preview
 ## Project Structure
 
 - `/components` - UI components
-- `/context` - React Context providers
 - `/data` - Static data (menu items)
 - `/hooks` - Custom React hooks
+- `/store` - Zustand stores
 - `/styles` - Global CSS and styling
 - `/types` - TypeScript type definitions
 - `/utils` - Utility functions
 
 ## State Management
 
-The application uses React Context API for state management with the following contexts:
+The application uses Zustand for lightweight, composable state management. Key stores include:
 
-- `AppContext` - Manages application data (groups, favorites, order history)
-- `NavigationContext` - Handles navigation between pages
-- `ModalsContext` - Controls modal dialogs
-- `AllergensContext` - Manages allergen filtering and warnings
+- `useNavigationStore` – current page, navigation actions
+- `useGroupsStore` – groups, members, cart per group, active group
+- `useModalsStore` – modal visibility and flows
+- `useOrdersStore` – completed orders and order actions
+- `useFavoritesStore` – item and cart-set favorites
+- `useAllergensStore` – excluded allergens and auto-filter settings
+
+Some stores use persistence via `zustand/persist` to `localStorage` for durability across sessions.
 
 ## Data Persistence
 
-Application data is stored in the browser's `sessionStorage` for temporary persistence between page refreshes.
+Application data is persisted in the browser's `localStorage` for durability across sessions. Persisted stores include groups, favorites, orders, and allergen settings.
