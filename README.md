@@ -1,16 +1,19 @@
 # SafePlate - Coffee Ordering App
 
-A React-based coffee ordering application with group ordering capabilities, allergen tracking, and a modern UI.
+SafePlate is a conceptual Business to Consumer (B2C) restaurant ordering app designed to manage group orders and provide real-time allergen warnings. If developed for public release, it would be offered free to promote accessibility and prevent severe allergy-related emergencies.
+
+The project currently reads JSON files to render restaurant menus and ordering options. A future enhancement will allow dynamic theming based on each restaurant’s brand colors and style. For demonstration purposes, the prototype uses a fictional café, Bean Bite, to showcase end-to-end functionality and UI design.
+
 https://coffee-ordering-app-latest-sux3.vercel.app/
 
 ## Features
 
 - Group ordering system
-- Allergen tracking and warnings
-- Customizable coffee and pastry orders
-- Favorites management
-- Order history
-- Mobile-responsive design
+- Allergen tracking and warnings, including not only base ingredients but also add-ons
+- Customizable coffee and pastry orders with blocked assignments if a member is allergic
+- Favorites management per group with memory of member allergies and addition/removal according to member joining or leaving groups
+- Order history with ability to save and reorder previous sets, ability to filter by group
+- Mobile-responsive design acknowledging the navigation, menu, filters, order summary, checkout page
 
 ## Tech Stack
 
