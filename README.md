@@ -1,6 +1,7 @@
 # SafePlate - Coffee Ordering App
 
 A React-based coffee ordering application with group ordering capabilities, allergen tracking, and a modern UI.
+https://coffee-ordering-app-latest-sux3.vercel.app/
 
 ## Features
 
