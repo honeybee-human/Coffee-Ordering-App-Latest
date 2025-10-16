@@ -3,7 +3,7 @@ import { Plus, Minus, AlertTriangle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/ui/select';
 import { Badge } from '@/ui/badge';
-import { syrupOptions, milkOptions } from '@/data/menu';
+import { syrupOptions, milkOptions } from '@/localDataArchive/menu';
 import { CoffeeCustomization, Coffee } from '@/types';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useGroupsStore } from '@/store/useGroupsStore';

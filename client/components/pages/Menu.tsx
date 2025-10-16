@@ -10,7 +10,7 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
 import { AllergenFilterTrigger } from '@/components/shared/AllergenFilterTrigger';
 import { MovingTextBanner } from '@/components/shared/MovingTextBanner';
-import { coffeeMenu, pastryMenu } from '@/data/menu';
+import { coffeeMenu, pastryMenu } from '@/localDataArchive/menu';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 import { useGroupsStore } from '@/store/useGroupsStore';

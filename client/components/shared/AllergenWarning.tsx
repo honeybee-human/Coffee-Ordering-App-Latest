@@ -5,7 +5,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/ui/alert';
 import { Button } from '@/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { useModalsStore } from '@/store/useModalsStore';
-import { allergenGroups } from '@/data/allergenGroups';
+import { allergenGroups } from '@/localDataArchive/allergenGroups';
 
 export const AllergenWarning: React.FC = () => {
   const { 

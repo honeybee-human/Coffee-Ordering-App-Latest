@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, PersistOptions } from 'zustand/middleware';
 import { Coffee, Pastry, GroupMember } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
-import { allergenGroups } from '@/data/allergenGroups';
+import { allergenGroups } from '@/localDataArchive/allergenGroups';
 
 interface GroupAllergensStore {
   // State

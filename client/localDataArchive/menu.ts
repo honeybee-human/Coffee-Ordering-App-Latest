@@ -1,5 +1,5 @@
 import { Coffee, Pastry } from '@/types';
-import { allergenCollection, allergenGroups, individualAllergens } from '@/data/allergenGroups';
+import { allergenCollection, allergenGroups, individualAllergens } from '@/localDataArchive/allergenGroups';
 
 export const coffeeMenu: Coffee[] = [
   {

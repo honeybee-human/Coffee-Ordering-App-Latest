@@ -12,7 +12,7 @@ import { CheckoutPage } from '@/components/pages/CheckoutPage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
 import { OrderHistoryPage } from '@/components/pages/OrderHistoryPage';
 import { GroupManagement } from '@/components/features/GroupManagement';
-import { coffeeMenu, pastryMenu } from '@/data/menu';
+import { coffeeMenu, pastryMenu } from '@/localDataArchive/menu';
 import { Cart } from '@/components/pages/Cart';
 
 export const PageRouter: React.FC = () => {

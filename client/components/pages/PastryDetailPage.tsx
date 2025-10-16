@@ -8,7 +8,7 @@ import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType, 
 import { getComprehensiveAllergens } from '@/utils/allergens';
 
 import { Group } from '@/types';
-import { pastryMenu } from '@/data/menu';
+import { pastryMenu } from '@/localDataArchive/menu';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { PastryCustomizationComponent } from '@/components/features/PastryCustomization';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';

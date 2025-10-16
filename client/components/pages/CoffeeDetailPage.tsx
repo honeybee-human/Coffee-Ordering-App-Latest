@@ -6,7 +6,7 @@ import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { AllergenTag } from '@/components/shared/AllergenTag';
-import { coffeeMenu } from '@/data/menu';
+import { coffeeMenu } from '@/localDataArchive/menu';
 import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType, Coffee } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useGroupsStore } from '@/store/useGroupsStore';
