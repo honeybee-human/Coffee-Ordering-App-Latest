@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from '@/lib/zustand';
 import { Order } from '@/types';
 
 interface OrderHistoryStore {
@@ -23,4 +23,4 @@ export const useOrderHistoryStore = create<OrderHistoryStore>((set, get) => ({
       // This should probably trigger a cart update or similar
     }
   }
-})); 
+}));

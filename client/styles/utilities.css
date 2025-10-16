@@ -80,7 +80,7 @@
 }
 
 .error-container {
-  @apply bg-destructive/10 border border-destructive text-destructive rounded-md p-3 flex items-center gap-2;
+  @apply bg-destructive bg-opacity-10 border border-destructive text-destructive rounded-md p-3 flex items-center gap-2;
 }
 
 .success-container {

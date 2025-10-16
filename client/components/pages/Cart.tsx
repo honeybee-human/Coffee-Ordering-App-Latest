@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ShoppingCart, Plus, Minus, Trash2, AlertTriangle, User, Save } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Card, CardContent } from '@/ui/card';
@@ -8,8 +8,7 @@ import { GroupMember, CartItem, CoffeeCustomization, PastryCustomization } from 
 import { combineIdenticalItems, getAllergenConflicts, groupAndCombineItems } from '@/utils/cart-helpers';
 import { calculateItemPrice } from '@/utils/cart-calculations';
 import CustomizationsList from '../shared/ListCustoms';
-import { useCartTotal, useActiveGroup } from '@/store/useGroupsStore';
-import { useGroupsStore } from '@/store/useGroupsStore';
+import { useCart, useCurrentGroup } from '@/context/AppContext';
 import { useNavigationStore } from '@/store/useNavigationStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/ui/dialog';
@@ -21,16 +20,19 @@ interface CartProps {
 }
 
 export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
-  const activeGroup = useActiveGroup();
-  const cartTotal = useCartTotal();
-  const { updateCartQuantity, removeFromCart, clearCart } = useGroupsStore();
+  const { currentGroup } = useCurrentGroup();
+  const { cart, addToCart, updateCartQuantity, removeFromCart, clearCart } = useCart();
   const { navigateToCoffeeDetail, navigateToPastryDetail, navigateToMenu } = useNavigationStore();
   const { addCartSetToFavorites } = useFavoritesStore();
   const [saveSetDialogOpen, setSaveSetDialogOpen] = useState(false);
   const [cartSetName, setCartSetName] = useState('');
 
-  const groupMembers = activeGroup?.members || [];
-  const cartItems = activeGroup?.cart || [];
+  const groupMembers = currentGroup?.members || [];
+  const cartItems = cart;
+
+  const cartTotal = useMemo(() => {
+    return cartItems.reduce((sum, item) => sum + calculateItemPrice(item) * item.quantity, 0);
+  }, [cartItems]);
 
   const groupedItems = React.useMemo(() => {
     if (cartItems.length === 0) return {};
@@ -38,25 +40,21 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
   }, [cartItems, groupMembers]);
 
   const handleQuantityUpdate = React.useCallback((itemId: string, newQuantity: number) => {
-    if (!activeGroup) return;
-
     if (newQuantity <= 0) {
-      removeFromCart(activeGroup.id, itemId);
+      removeFromCart(itemId);
     } else {
-      updateCartQuantity(activeGroup.id, itemId, newQuantity);
+      updateCartQuantity(itemId, newQuantity);
     }
-  }, [activeGroup, removeFromCart, updateCartQuantity]);
+  }, [removeFromCart, updateCartQuantity]);
 
   const handleRemoveItem = React.useCallback((itemId: string) => {
-    if (!activeGroup) return;
-    removeFromCart(activeGroup.id, itemId);
-  }, [activeGroup, removeFromCart]);
+    removeFromCart(itemId);
+  }, [removeFromCart]);
 
   const handleClearCart = React.useCallback(() => {
-    if (!activeGroup) return;
-    clearCart(activeGroup.id);
+    clearCart();
 
-  }, [activeGroup, clearCart]);
+  }, [clearCart]);
 
   const handleEditCartItem = React.useCallback((item: CartItem) => {
     if (item.type === 'coffee' && 'syrups' in item.customizations) {
@@ -67,7 +65,6 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           assignedTo: item.assignedTo
         },
         (newCustomizations: CoffeeCustomization) => {
-          if (!activeGroup) return;
           
           // Update the cart item with new customizations
           const updatedItem = {
@@ -80,8 +77,8 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           };
           
           // Remove old item and add updated one
-          removeFromCart(activeGroup.id, item.id);
-          useGroupsStore.getState().addToCart(activeGroup.id, updatedItem);
+          removeFromCart(item.id);
+          addToCart(updatedItem);
         },
         'cart' // Return to cart after saving
       );
@@ -93,7 +90,6 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           assignedTo: item.assignedTo
         },
         (newCustomizations: PastryCustomization) => {
-          if (!activeGroup) return;
           
           // Update the cart item with new customizations
           const updatedItem = {
@@ -105,13 +101,13 @@ export const Cart: React.FC<CartProps> = ({ onNavigateToCheckout }) => {
           };
           
           // Remove old item and add updated one
-          removeFromCart(activeGroup.id, item.id);
-          useGroupsStore.getState().addToCart(activeGroup.id, updatedItem);
+          removeFromCart(item.id);
+          addToCart(updatedItem);
         },
         'cart' // Return to cart after saving
       );
     }
-  }, [activeGroup, navigateToCoffeeDetail, navigateToPastryDetail, removeFromCart]);
+  }, [navigateToCoffeeDetail, navigateToPastryDetail, removeFromCart, addToCart]);
 
   const handleSaveCartSet = () => {
     if (!activeGroup || !cartSetName.trim() || cartItems.length === 0) return;

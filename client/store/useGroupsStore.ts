@@ -1,6 +1,6 @@
 // Remove direct imports of other stores
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from '@/lib/zustand';
+import { persist } from '@/lib/zustand/middleware';
 import { CartItem, Group, GroupMember } from '@/types';
 import { GroupController } from '@/controllers/GroupController';
 import { getApiBase, logAPI, logOptimistic, logGroup } from '@/utils/devLogger';
