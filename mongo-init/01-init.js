@@ -10,11 +10,13 @@
   const itemsCol = database.getCollection('items');
   const allergenGroupsCol = database.getCollection('allergen_groups');
   const individualAllergensCol = database.getCollection('individual_allergens');
+  const groupsCol = database.getCollection('groups');
+  const groupMembersCol = database.getCollection('groupmembers');
 
   // Optional reset flag: pass with mongosh --eval "var RESET_SEED=true"
   const shouldDrop = (typeof RESET_SEED !== 'undefined' && RESET_SEED === true);
   if (shouldDrop) {
-    [itemsCol, allergenGroupsCol, individualAllergensCol].forEach(col => {
+    [itemsCol, allergenGroupsCol, individualAllergensCol, groupsCol, groupMembersCol].forEach(col => {
       try {
         if (col.exists()) {
           col.drop();
@@ -333,5 +335,42 @@
     print(`Inserted ${individualAllergens.length} individual allergens into '${dbName}.individual_allergens'.`);
   } else {
     print(`Skipping individual allergens seed: '${dbName}.individual_allergens' already has data.`);
+  }
+
+  // Insert default group and member (moved from client defaults)
+  // Ensure a default group exists
+  let defaultGroup = groupsCol.findOne({ name: 'My First Group' });
+  if (!defaultGroup) {
+    const res = groupsCol.insertOne({
+      name: 'My First Group',
+      cart: [],
+      dateCreated: new Date(),
+      isFavorite: false,
+    });
+    defaultGroup = groupsCol.findOne({ _id: res.insertedId });
+    print(`Inserted default group into '${dbName}.groups' with _id=${res.insertedId}`);
+  } else {
+    print(`Skipping default group seed: 'My First Group' already exists.`);
+  }
+
+  // Ensure a default member exists and is linked to the default group
+  const existingMember = groupMembersCol.findOne({ name: 'You' });
+  if (!existingMember) {
+    groupMembersCol.insertOne({
+      name: 'You',
+      allergens: ['Blueberries', 'Hazelnuts'],
+      groups: defaultGroup ? [defaultGroup._id] : [],
+    });
+    print(`Inserted default member 'You' into '${dbName}.groupmembers' and linked to default group.`);
+  } else {
+    if (defaultGroup) {
+      groupMembersCol.updateOne(
+        { _id: existingMember._id },
+        { $addToSet: { groups: defaultGroup._id } }
+      );
+      print(`Ensured default member 'You' is linked to default group.`);
+    } else {
+      print(`Default group missing; skipped linking existing member 'You'.`);
+    }
   }
 })();

@@ -1,6 +1,7 @@
 export * from './item';
 export * from './group';
 export * from './order';
+export * from './allergens';
 export {
   CoffeeSchema,
   PastrySchema,

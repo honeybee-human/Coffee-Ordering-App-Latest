@@ -5,8 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collapsible';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { useIsMobile } from '@/ui/use-mobile';
-import { allergenGroups, individualAllergens } from '@/localDataArchive/allergenGroups';
-import { coffeeMenu, pastryMenu } from '@/localDataArchive/menu';
+import { useItemsStore } from '@/store/useItemsStore';
+import { useAllergenDataStore } from '@/store/useAllergenDataStore';
 import { AllergenFilterTrigger } from './AllergenFilterTrigger';
 import { AllergenSearchBar } from './AllergenSearchBar';
 import { AllergenCategorySection } from './AllergenCategorySection';
@@ -41,6 +41,9 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
   const internalFilterRef = useRef<HTMLDivElement>(null);
   const filterRef = externalFilterRef || internalFilterRef;
   const isMobile = useIsMobile();
+  const { coffees, pastries } = useItemsStore();
+  const { groups, individualAllergens, fetchAllergenData } = useAllergenDataStore();
+  useEffect(() => { fetchAllergenData(); }, [fetchAllergenData]);
   
   // Search state for adding allergens
   const [searchQuery, setSearchQuery] = useState('');
@@ -49,10 +52,10 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
 
   // Get all allergens from menu items
   const menuAllergens = useMemo(() => {
-    const coffeeAllergens = coffeeMenu.flatMap(item => item.allergens || []);
-    const pastryAllergens = pastryMenu.flatMap(item => item.allergens || []);
+    const coffeeAllergens = coffees.flatMap(item => item.allergens || []);
+    const pastryAllergens = pastries.flatMap(item => item.allergens || []);
     return [...new Set([...coffeeAllergens, ...pastryAllergens])].sort();
-  }, []);
+  }, [coffees, pastries]);
 
   // Calculate hidden count based on currently checked allergens that exist in menu
   const hiddenCount = useMemo(() => {
@@ -153,7 +156,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
     
     const query = searchQuery.toLowerCase();
     const allPossibleAllergens = [
-      ...allergenGroups.flatMap(group => group.allergens),
+      ...groups.flatMap(group => group.allergens),
       ...individualAllergens
     ];
     

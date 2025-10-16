@@ -27,7 +27,9 @@ Docker Compose sets:
 ## Routes
 Base path: `/api`
 - `GET /health` – service health check.
-- `GET /items` – list menu items (coffee and pastry).
+- `GET /items` – list items (coffee and pastry).
+- `GET /menu` – grouped menu: returns `{ coffee, pastry }`.
+- `GET /allergen-groups` – returns `{ groups, individualAllergens }`.
 - `GET /groups` – list groups.
 - `POST /groups` – create group `{ name }`.
 - `GET /orders` – list orders.
@@ -61,3 +63,4 @@ View logs:
 ## Notes
 - CORS defaults to `*` for simplicity; restrict in production.
 - If you edit `src/*`, rebuild container: `docker compose up -d --build`.
+ - Docker maps container port `5000` to host `5050` (`http://localhost:5050`). Ensure clients call `http://localhost:5050/api/...`.

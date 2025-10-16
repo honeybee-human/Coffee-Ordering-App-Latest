@@ -3,6 +3,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CartItem, Group, GroupMember } from '@/types';
 import { GroupController } from '@/controllers/GroupController';
+import { getApiBase, logAPI, logOptimistic, logGroup } from '@/utils/devLogger';
 
 interface GroupsStore {
   groups: Group[];
@@ -51,22 +52,27 @@ export const useGroupsStore = create<GroupsStore>()(persist(
 
     // Add initialization logic
     initialize: () => {
-      const { groups, allMembers } = get();
-      if (groups.length === 0) {
-        const defaultMember = { name: 'You', allergens: ["Blueberries", "Hazelnuts"] };
-        const defaultGroup = {
-          id: Date.now().toString(),
-          name: 'My First Group',
-          members: [defaultMember],
-          cart: [],
-          dateCreated: new Date()
-        };
-        set({
-          groups: [defaultGroup],
-          activeGroupId: defaultGroup.id,
-          allMembers: [defaultMember] // Initialize with default member
-        });
-      }
+      // Defaults moved to Mongo seed (mongo-init/01-init.js). No client-side default creation.
+      // const { groups, allMembers } = get();
+      // if (groups.length === 0) {
+      //   const defaultMember = { name: 'You', allergens: ["Blueberries", "Hazelnuts"] };
+      //   const defaultGroup = {
+      //     id: Date.now().toString(),
+      //     name: 'My First Group',
+      //     members: [defaultMember],
+      //     cart: [],
+      //     dateCreated: new Date()
+      //   };
+      //   set({
+      //     groups: [defaultGroup],
+      //     activeGroupId: defaultGroup.id,
+      //     allMembers: [defaultMember]
+      //   });
+      // }
+      try {
+        const groupCount = get().groups.length;
+        logOptimistic('groups.initialize', 'stored', { groupCount });
+      } catch {}
     },
   setCart: (groupId: string, items: CartItem[]) => {
     set(state => ({
@@ -153,6 +159,52 @@ export const useGroupsStore = create<GroupsStore>()(persist(
             : group
         )
       }));
+
+      // Optimistic UI log
+      logOptimistic('groups.addToCart', 'stored', { groupId, type: item.type, itemId: item.item.id, quantity: item.quantity });
+
+      // Attempt server persistence when IDs look like Mongo ObjectIds
+      (async () => {
+        const base = getApiBase();
+        const isMongoId = (s: string) => /^[a-fA-F0-9]{24}$/.test(s);
+        const baseItemId = item.item.id;
+        const canPersist = isMongoId(groupId) && isMongoId(baseItemId);
+
+        if (!canPersist) {
+          logAPI(`/groups/${groupId}/cart`, 'error', { reason: 'local_id_format', groupId, baseItemId });
+          logGroup('zustand stored item; mongodb persistence skipped due to local IDs', { groupId, baseItemId, item });
+          return;
+        }
+
+        const payload = {
+          progressItem: {
+            type: item.type,
+            baseItemId: baseItemId,
+            assignedTo: null,
+            groupId: groupId,
+          },
+          quantity: item.quantity,
+        };
+
+        try {
+          logAPI(`/groups/${groupId}/cart`, 'start', { type: item.type, baseItemId });
+          const res = await fetch(`${base}/groups/${groupId}/cart`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            logAPI(`/groups/${groupId}/cart`, 'success');
+            logGroup('zustand correctly stored item and mongodb successfully stored item', { groupId, baseItemId, item });
+          } else {
+            logAPI(`/groups/${groupId}/cart`, 'error', { status: res.status });
+            logGroup('zustand correctly stored item while mongodb failed to store', { groupId, baseItemId, item });
+          }
+        } catch (err) {
+          logAPI(`/groups/${groupId}/cart`, 'error', { error: String(err) });
+          logGroup('zustand correctly stored item while mongodb failed to store', { groupId, baseItemId, item });
+        }
+      })();
     },
 
     removeFromCart: (groupId: string, itemId: string) => {
@@ -194,18 +246,11 @@ export const useGroupsStore = create<GroupsStore>()(persist(
     },
 
     resetAllData: () => {
-      const defaultMember = { name: 'You', allergens: ["Blueberries", "Hazelnuts"] };
-      const defaultGroup = {
-        id: Date.now().toString(),
-        name: 'My First Group',
-        members: [defaultMember],
-        cart: [],
-        dateCreated: new Date()
-      };
+      // Defaults moved to Mongo seed (mongo-init/01-init.js). No client-side default recreation.
       set({
-        groups: [defaultGroup],
-        activeGroupId: defaultGroup.id,
-        allMembers: [defaultMember] // Reset all members too
+        groups: [],
+        activeGroupId: null,
+        allMembers: []
       });
     },
     

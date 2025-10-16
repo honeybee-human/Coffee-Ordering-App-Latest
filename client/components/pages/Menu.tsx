@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Coffee as CoffeeIcon, Cookie, AlertTriangle } from 'lucide-react';
 import { Button } from '@/ui/button';
 import { Badge } from '@/ui/badge';
@@ -10,7 +10,8 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
 import { AllergenFilterTrigger } from '@/components/shared/AllergenFilterTrigger';
 import { MovingTextBanner } from '@/components/shared/MovingTextBanner';
-import { coffeeMenu, pastryMenu } from '@/localDataArchive/menu';
+// Items now sourced from API-backed store with local fallback
+import { useItemsStore } from '@/store/useItemsStore';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 import { useGroupsStore } from '@/store/useGroupsStore';
@@ -22,6 +23,11 @@ export const Menu: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchMode, setSearchMode] = useState<'name' | 'description'>('name');
+  const { coffees, pastries, loading, error, fetchMenu } = useItemsStore();
+
+  useEffect(() => {
+    fetchMenu();
+  }, [fetchMenu]);
   
   const activeGroup = useGroupsStore(state => state.getActiveGroup());
   const groupMembers = useGroupsStore(state => {
@@ -54,10 +60,10 @@ export const Menu: React.FC = () => {
   
   const allAllergens = useMemo(() => {
     return getAllUniqueAllergens({
-      items: [...coffeeMenu, ...pastryMenu],
+      items: [...coffees, ...pastries],
       excludedFromManualFilter
     });
-  }, []);
+  }, [coffees, pastries]);
 
   // Group-based allergens (yellow filters) - allergens that group members have
   const groupBasedAllergens = useMemo(() => {
@@ -70,24 +76,24 @@ export const Menu: React.FC = () => {
   // Filter items based on search query and excluded allergens
   const filteredCoffeeMenu = useMemo(() => {
     return filterItems({
-      items: coffeeMenu,
+      items: coffees,
       searchQuery,
       searchMode,
       excludedAllergens
     });
-  }, [searchQuery, searchMode, excludedAllergens]);
+  }, [coffees, searchQuery, searchMode, excludedAllergens]);
 
   const filteredPastryMenu = useMemo(() => {
     return filterItems({
-      items: pastryMenu,
+      items: pastries,
       searchQuery,
       searchMode,
       excludedAllergens
     });
-  }, [searchQuery, searchMode, excludedAllergens]);
+  }, [pastries, searchQuery, searchMode, excludedAllergens]);
 
   // Count filtered items
-  const filteredOutCount = (coffeeMenu.length - filteredCoffeeMenu.length) + (pastryMenu.length - filteredPastryMenu.length);
+  const filteredOutCount = (coffees.length - filteredCoffeeMenu.length) + (pastries.length - filteredPastryMenu.length);
   
   // Hidden count removed from trigger UI; retain filtering logic above only
 
@@ -95,6 +101,12 @@ export const Menu: React.FC = () => {
     <div className="space-y-6">
       
               <h1>Menu</h1>
+      {loading && (
+        <div className="text-sm text-muted-foreground">Loading menu…</div>
+      )}
+      {error && (
+        <div className="text-sm text-yellow-600">Using local menu (network fallback)</div>
+      )}
       
       {/* Moving Text Banner */}
  

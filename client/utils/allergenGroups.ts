@@ -1,5 +1,5 @@
 import { optimizeAllergenSelection, getExpandedAllergens } from '@/localDataArchive/allergenGroups';
-import { allergenGroups } from '@/localDataArchive/menu';
+import { allergenGroups } from '@/localDataArchive/allergenGroups';
 import { AllergenGroup } from '@/types';
 
 export class AllergenGroupManager {

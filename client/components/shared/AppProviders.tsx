@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useGroupsStore } from '@/store/useGroupsStore';
+import { reportAPIs } from '@/utils/devLogger';
 
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Handle storage events for cross-tab synchronization
@@ -21,6 +22,11 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   useEffect(() => {
     // Initialize the groups store to create default group if none exist
     useGroupsStore.getState().initialize();
+  }, []);
+
+  // Report API availability and log results
+  useEffect(() => {
+    reportAPIs();
   }, []);
 
   return <>{children}</>;

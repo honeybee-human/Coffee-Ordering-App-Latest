@@ -22,7 +22,9 @@ Local dev (no Docker):
 
 Useful endpoints:
 - Health: `http://localhost:5050/api/health`
-- Menu items: `http://localhost:5050/api/items`
+- Items (legacy): `http://localhost:5050/api/items`
+- Menu: `http://localhost:5050/api/menu`
+- Allergen data: `http://localhost:5050/api/allergen-groups`
 - Groups: `http://localhost:5050/api/groups`
 - Orders: `http://localhost:5050/api/orders`
 
@@ -30,6 +32,22 @@ Notes:
 - When using Docker, the web app serves a production build via Nginx; use the log commands above to monitor.
 - Use Mongo Express at `http://localhost:8082` to inspect collections and documents.
 - If you change server code, rebuild with `docker compose up -d --build`.
+
+## Client Data Flow
+
+- The client fetches the live menu from `GET /api/menu` via `client/store/useItemsStore.ts`.
+- If the network call fails, it falls back to local data in `client/localDataArchive/menu.ts` and shows a small notice.
+- Allergen groups and individual allergens are loaded from `GET /api/allergen-groups` via `client/store/useAllergenDataStore.ts` with a similar local fallback to `client/localDataArchive/allergenGroups.ts`.
+- Existing client-side group allergen logic remains intact, so group-based filtering and selection continue to work.
+
+## Troubleshooting
+
+- “cannot GET /” at `http://localhost:5000/` on the host: the API is mapped to `http://localhost:5050` by Docker. Use `http://localhost:5050/api/...`.
+- UI shows “Using local menu (network fallback)”: typically indicates the API URL/path mismatch or the API isn’t reachable.
+  - Verify API is up: `curl http://localhost:5050/api/health` should return `200`.
+  - Ensure `VITE_API_URL` is set; recommended value: `http://localhost:5050/api`.
+  - If `VITE_API_URL` omits `/api`, the client auto-appends it — but prefer including `/api` explicitly.
+  - Confirm ports: API is `5050 -> 5000` via Docker; Web is `3001 -> 80`.
 
 # SafePlate - Coffee Ordering App
 

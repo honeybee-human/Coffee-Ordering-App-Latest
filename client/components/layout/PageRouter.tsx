@@ -47,27 +47,47 @@ export const PageRouter: React.FC = () => {
       case 'groups':
         return <GroupManagement />;
       case 'coffee-detail':
-        const coffee = coffeeMenu.find(c => c.id === appState.selectedItemId);
-        if (!coffee) return null;
-        return (
-          <CoffeeDetailPage
-            coffeeId={coffee.id}
-            onBack={navigateBack}
-            initialCustomizations={appState.initialCoffeeCustomizations}
-            onSave={appState.onSaveCoffeeCustomizations}
-          />
-        );
+        {
+          const coffeeId = appState.selectedItemId;
+          if (!coffeeId) {
+            return (
+              <div className="container mx-auto px-4 py-8">
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No coffee item selected</p>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <CoffeeDetailPage
+              coffeeId={coffeeId}
+              onBack={navigateBack}
+              initialCustomizations={appState.initialCoffeeCustomizations}
+              onSave={appState.onSaveCoffeeCustomizations}
+            />
+          );
+        }
       case 'pastry-detail':
-        const pastry = pastryMenu.find(p => p.id === appState.selectedItemId);
-        if (!pastry) return null;
-        return (
-          <PastryDetailPage
-            pastryId={pastry.id}
-            onBack={navigateBack}
-            initialCustomizations={appState.initialPastryCustomizations}
-            onSave={appState.onSavePastryCustomizations}
-          />
-        );
+        {
+          const pastryId = appState.selectedItemId;
+          if (!pastryId) {
+            return (
+              <div className="container mx-auto px-4 py-8">
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">No pastry item selected</p>
+                </div>
+              </div>
+            );
+          }
+          return (
+            <PastryDetailPage
+              pastryId={pastryId}
+              onBack={navigateBack}
+              initialCustomizations={appState.initialPastryCustomizations}
+              onSave={appState.onSavePastryCustomizations}
+            />
+          );
+        }
       case 'checkout':
         return (
           <CheckoutPage
