@@ -22,9 +22,10 @@
 
     /* Path aliases */
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["*"]
-    }
+  "paths": {
+      "@/*": ["*"],
+      "@server/*": ["../server/src/*"]
+  }
   },
   "include": ["**/*.ts", "**/*.tsx"],
   "exclude": ["node_modules"]

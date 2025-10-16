@@ -1,4 +1,4 @@
-export interface Coffee {
+export interface BaseItem {
   id: string;
   name: string;
   price: number;
@@ -7,15 +7,36 @@ export interface Coffee {
   image?: string;
 }
 
-export interface Pastry {
+// Server-derived types (from Mongoose schemas) for consistency.
+// These are available for gradual migration to DB-backed types.
+export type {
+  ItemDoc as DBItem,
+  ProgressItemDoc as DBProgressItem,
+  CartItemDoc as DBCartItem,
+  FavoriteItemDoc as DBFavoriteItem,
+  GroupDoc as DBGroup,
+  GroupMemberDoc as DBGroupMember,
+  OrderDoc as DBOrder,
+  CoffeeDoc as DBCoffeeDoc,
+  PastryDoc as DBPastryDoc,
+  CoffeeCustomizationAdditions as DBCoffeeCustomization,
+  PastryCustomizationAdditions as DBPastryCustomization,
+} from '@server/models';
+
+export interface CustomizedItem {
   id: string;
-  name: string;
-  price: number;
-  allergens: string[];
+  type: 'coffee' | 'pastry';
+  baseItemId: string;
+  customizations: CoffeeCustomization | PastryCustomization;
+}
+
+export interface Coffee extends BaseItem {
+  syrupOptions: string[];
+}
+
+export interface Pastry extends BaseItem {
   ingredients?: string[];
   removableIngredients: string[];
-  description?: string;
-  image?: string;
 }
 
 export interface CoffeeCustomization {

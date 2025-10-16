@@ -1,0 +1,21 @@
+# Root
+node_modules
+dist
+.git
+.gitignore
+README.md
+*.log
+.DS_Store
+
+# Client
+client/node_modules
+client/dist
+client/.vite
+client/.cache
+
+# Server
+server/node_modules
+server/dist
+
+# Docker & Compose
+docker-compose.yml

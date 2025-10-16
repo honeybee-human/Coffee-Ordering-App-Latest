@@ -1,0 +1,14 @@
+# Reduce Docker build context for server image
+node_modules/
+dist/
+build/
+coverage/
+*.log
+.git/
+.gitignore
+.env
+.env.*
+*.tsbuildinfo
+.DS_Store
+.vscode/
+.nyc_output/

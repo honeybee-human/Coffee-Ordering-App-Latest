@@ -1,0 +1,53 @@
+services:
+  mongo:
+    image: mongo:6
+    container_name: coffee_mongo
+    environment:
+      MONGO_INITDB_DATABASE: coffeeapp
+    volumes:
+      - mongo-data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d  # 👈 add this line
+    restart: unless-stopped
+
+
+  mongo-express:
+    image: mongo-express:1.0.0-alpha
+    container_name: coffee_mongo_express
+    depends_on:
+      - mongo
+    ports:
+      - '8082:8081'
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongo
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+      ME_CONFIG_BASICAUTH: 'false'
+    restart: unless-stopped
+
+  api:
+    build: ./server
+    container_name: coffee_api
+    depends_on:
+      - mongo
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      MONGO_URL: mongodb://mongo:27017/coffeeapp
+      CORS_ORIGIN: '*'
+    ports:
+      - '5050:5000'
+    restart: unless-stopped
+
+  web:
+    build: ./client
+    container_name: coffee_web
+    depends_on:
+      - api
+    ports:
+      - '3001:80'
+    environment:
+      VITE_API_URL: http://localhost:5050
+    restart: unless-stopped
+
+volumes:
+  mongo-data:
