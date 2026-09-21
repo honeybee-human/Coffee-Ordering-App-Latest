@@ -6,7 +6,6 @@ import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
 import { CoffeeCustomizationComponent } from '@/components/features/CoffeeCustomization';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { AllergenTag } from '@/components/shared/AllergenTag';
-import { coffeeMenu } from '@/data/menu';
 import { CartItem, GroupMember, CoffeeCustomization as CoffeeCustomizationType, Coffee } from '@/types';
 import { getComprehensiveAllergens } from '@/utils/allergens';
 import { useGroupsStore } from '@/store/useGroupsStore';
@@ -14,6 +13,7 @@ import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
 import { useCurrentItemStore } from '@/store/useCurrentItemStore';
+import { useMenuStore } from '@/store/useMenuStore';
 
 export const CoffeeDetailPage: React.FC<{ 
   coffeeId: string; 
@@ -21,6 +21,7 @@ export const CoffeeDetailPage: React.FC<{
   initialCustomizations?: CoffeeCustomizationType;
   onSave?: (customizations: CoffeeCustomizationType) => void;
 }> = ({ coffeeId, onBack, initialCustomizations, onSave }) => {
+  const coffeeMenu = useMenuStore(state => state.coffee);
   // Use currentItem if available, otherwise find from menu
   const currentItem = useCurrentItemStore(state => state.currentItem);
   const coffee = useMemo(() => {
@@ -28,7 +29,7 @@ export const CoffeeDetailPage: React.FC<{
       return currentItem.item as Coffee;
     }
     return coffeeMenu.find(c => c.id === coffeeId);
-  }, [coffeeId, currentItem]);
+  }, [coffeeId, currentItem, coffeeMenu]);
   const [customizations, setCustomizations] = useState<CoffeeCustomizationType>(
     initialCustomizations || {
       syrups: [],

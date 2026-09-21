@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage, PersistOptions } from 'zustand/middleware';
 import type { StateCreator } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
 import { 
@@ -8,7 +7,6 @@ import {
   Pastry, 
   CoffeeCustomization, 
   PastryCustomization,
-  GroupMember,
   CartItem,
   CartSetFavorite
 } from '@/types';
@@ -42,6 +40,7 @@ export interface FavoritesStore {
     assignedTo?: string
   ) => void;
   resetFavorites: () => void;
+  hydrate: (payload: { favorites: FavoriteItem[]; cartSetFavorites: CartSetFavorite[] }) => void;
   
   // New cart set actions
   addCartSetToFavorites: (name: string, cartItems: CartItem[], groupId: string) => void;
@@ -50,19 +49,13 @@ export interface FavoritesStore {
   updateCartSetName: (cartSetId: string, newName: string) => void;
 }
 
-type FavoritesPersist = {
-  favorites: FavoriteItem[];
-  cartSetFavorites: CartSetFavorite[];
-};
-
-const storeImplementation: StateCreator<
-  FavoritesStore,
-  [['zustand/persist', unknown]],
-  [],
-  FavoritesStore
-> = (set, get) => ({
+const storeImplementation: StateCreator<FavoritesStore> = (set, get) => ({
   favorites: [],
   cartSetFavorites: [],
+
+  hydrate: ({ favorites, cartSetFavorites }) => {
+    set({ favorites, cartSetFavorites });
+  },
 
   addToFavorites: (favorite: FavoriteItem) => {
     set((state) => ({
@@ -125,11 +118,8 @@ const storeImplementation: StateCreator<
     }));
   },
 
-  transferMemberFavorites: (memberName: string, fromGroupId: string, toGroupId: string) => {
-    // Personal favorites don't need to be transferred since they follow the member
-    // But we might want to update any group-specific data if needed
-    // For now, personal favorites will automatically appear in the new group
-    // because getGroupFavorites checks group membership
+  transferMemberFavorites: (_memberName: string, _fromGroupId: string, _toGroupId: string) => {
+    // Personal favorites follow the member via group membership checks.
   },
 
   isItemFavorited: (
@@ -196,7 +186,7 @@ const storeImplementation: StateCreator<
   },
 
   resetFavorites: () => {
-    set({ favorites: [] });
+    set({ favorites: [], cartSetFavorites: [] });
   },
 
   addCartSetToFavorites: (name: string, cartItems: CartItem[], groupId: string) => {
@@ -236,31 +226,7 @@ const storeImplementation: StateCreator<
   },
 });
 
-export const useFavoritesStore = create<FavoritesStore>()(
-  persist(
-    storeImplementation,
-    {
-      name: 'bean-bite-favorites',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        favorites: state.favorites,
-        cartSetFavorites: state.cartSetFavorites
-      }),
-      serialize: (state) => JSON.stringify(state, (key, value) => {
-        if (value instanceof Date) {
-          return { __type: 'Date', value: value.toISOString() };
-        }
-        return value;
-      }),
-      deserialize: (str) => JSON.parse(str, (key, value) => {
-        if (value && typeof value === 'object' && value.__type === 'Date') {
-          return new Date(value.value);
-        }
-        return value;
-      })
-    } as PersistOptions<FavoritesStore, FavoritesPersist>
-  )
-);
+export const useFavoritesStore = create<FavoritesStore>()(storeImplementation);
 
 // selector hooks
 export const useFavorites = (activeGroupId?: string) => {

@@ -1,6 +1,5 @@
 // Remove direct imports of other stores
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { CartItem, Group, GroupMember } from '@/types';
 import { GroupController } from '@/controllers/GroupController';
 
@@ -12,6 +11,7 @@ interface GroupsStore {
 
   // Add this
   initialize: () => void;
+  hydrate: (payload: { groups: Group[]; activeGroupId: string | null; allMembers: GroupMember[] }) => void;
   
   // Add the missing method
   getActiveGroup: () => Group | null;
@@ -43,11 +43,14 @@ interface GroupsStore {
   getMemberByName: (name: string) => GroupMember | undefined;
 }
 
-export const useGroupsStore = create<GroupsStore>()(persist(
-  (set, get) => ({
+export const useGroupsStore = create<GroupsStore>()((set, get) => ({
     groups: [],
     activeGroupId: null,
     allMembers: [], // Initialize empty array
+
+    hydrate: ({ groups, activeGroupId, allMembers }) => {
+      set({ groups, activeGroupId, allMembers });
+    },
 
     // Add initialization logic
     initialize: () => {
@@ -262,9 +265,7 @@ export const useGroupsStore = create<GroupsStore>()(persist(
       const { allMembers } = get();
       return allMembers.find(member => member.name === name);
     },
-  }),
-  { name: 'groups-store' }
-));
+}));
 
 // Custom hooks for convenience
 export const useActiveGroup = () => {

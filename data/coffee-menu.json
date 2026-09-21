@@ -1,0 +1,74 @@
+[
+  {
+    "id": "espresso",
+    "name": "Espresso",
+    "price": 2.5,
+    "allergens": [],
+    "description": "Rich, bold shot of pure coffee perfection",
+    "image": "/Espresso.png"
+  },
+  {
+    "id": "americano",
+    "name": "Americano",
+    "price": 3.0,
+    "allergens": [],
+    "description": "Espresso with hot water for a clean, strong flavor",
+    "image": "/Americano.png"
+  },
+  {
+    "id": "latte",
+    "name": "Latte",
+    "price": 4.5,
+    "allergens": ["Milk"],
+    "description": "Smooth espresso with steamed milk and a light foam layer",
+    "image": "/Latte.png"
+  },
+  {
+    "id": "cappuccino",
+    "name": "Cappuccino",
+    "price": 4.25,
+    "allergens": ["Milk"],
+    "description": "Equal parts espresso, steamed milk, and rich foam",
+    "image": "/Capuccino.png"
+  },
+  {
+    "id": "macchiato",
+    "name": "Macchiato",
+    "price": 4.75,
+    "allergens": ["Milk"],
+    "description": "Espresso \"marked\" with a dollop of foamed milk",
+    "image": "/Macchiato.png"
+  },
+  {
+    "id": "mocha",
+    "name": "Mocha",
+    "price": 5.0,
+    "allergens": ["Milk", "Soy"],
+    "description": "Rich chocolate and espresso blend with steamed milk",
+    "image": "/Mocha.png"
+  },
+  {
+    "id": "flat-white",
+    "name": "Flat White",
+    "price": 4.75,
+    "allergens": ["Milk"],
+    "description": "Strong espresso with microfoam steamed milk",
+    "image": "/Flat White.png"
+  },
+  {
+    "id": "cold-brew",
+    "name": "Cold Brew",
+    "price": 3.75,
+    "allergens": [],
+    "description": "Smooth, less acidic coffee steeped in cold water",
+    "image": "/Cold Brew.png"
+  },
+  {
+    "id": "frappuccino",
+    "name": "Frappuccino",
+    "price": 5.5,
+    "allergens": ["Soy"],
+    "description": "Blended coffee drink with ice, , and flavored syrups",
+    "image": "/Frappucino.png"
+  }
+]

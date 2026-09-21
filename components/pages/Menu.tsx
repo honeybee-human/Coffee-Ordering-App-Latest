@@ -10,13 +10,12 @@ import { SearchBar } from '@/components/shared/SearchBar';
 import { AllergenFilter } from '@/components/shared/AllergenFilter';
 import { AllergenFilterTrigger } from '@/components/shared/AllergenFilterTrigger';
 import { MovingTextBanner } from '@/components/shared/MovingTextBanner';
-import { coffeeMenu, pastryMenu } from '@/data/menu';
-import { getComprehensiveAllergens } from '@/utils/allergens';
 import { filterItems, getAllUniqueAllergens, getGroupBasedAllergens } from '@/utils/filter-utils';
 import { useGroupsStore } from '@/store/useGroupsStore';
 import { useAllergensStore } from '@/store/useAllergensStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useNavigationStore } from '@/store/useNavigationStore';
+import { useMenuStore } from '@/store/useMenuStore';
 
 export const Menu: React.FC = () => {
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -32,6 +31,8 @@ export const Menu: React.FC = () => {
   const { excludedAllergens, toggleAllergenFilter, clearAllergenFilters } = useAllergensStore();
   const { toggleFavorite, isItemFavorited } = useFavoritesStore();
   const { navigateToCoffeeDetail, navigateToPastryDetail } = useNavigationStore();
+  const coffeeMenu = useMenuStore(state => state.coffee);
+  const pastryMenu = useMenuStore(state => state.pastry);
 
   const handleFavoriteClick = (e: React.MouseEvent, type: 'coffee' | 'pastry', item: any) => {
     e.stopPropagation(); // Prevent card click
@@ -57,7 +58,7 @@ export const Menu: React.FC = () => {
       items: [...coffeeMenu, ...pastryMenu],
       excludedFromManualFilter
     });
-  }, []);
+  }, [coffeeMenu, pastryMenu]);
 
   // Group-based allergens (yellow filters) - allergens that group members have
   const groupBasedAllergens = useMemo(() => {
