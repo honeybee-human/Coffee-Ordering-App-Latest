@@ -1,12 +1,11 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage, PersistOptions } from 'zustand/middleware';
 import type { StateCreator } from 'zustand';
 import { Order, CartItem, CoffeeCustomization, PastryCustomization } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
-import { calculateItemPrice } from '@/utils/cart-calculations';
 
 export interface OrdersStore {
   orders: Order[];
+  hydrate: (payload: { orders: Order[] }) => void;
   
   // Actions
   completeOrder: (order: Order) => void;
@@ -18,10 +17,6 @@ export interface OrdersStore {
   toggleOrderBookmark: (orderId: string) => void;
   getBookmarkedOrders: () => Order[];
 }
-
-type OrdersPersist = {
-  orders: Order[];
-};
 
 const canCombineItems = (item1: CartItem, item2: CartItem): boolean => {
   if (item1.item.id !== item2.item.id) return false;
@@ -96,17 +91,27 @@ const generateItemId = (): string => {
   return Date.now().toString() + Math.random().toString(36).substr(2, 9);
 };
 
-const storeImplementation: StateCreator<
-  OrdersStore,
-  [['zustand/persist', unknown]],
-  [],
-  OrdersStore
-> = (set, get) => ({
+const storeImplementation: StateCreator<OrdersStore> = (set, get) => ({
   orders: [],
 
+  hydrate: ({ orders }) => {
+    set({ orders });
+  },
+
   completeOrder: (order: Order) => {
+    const cardDigits = order.paymentInfo?.cardNumber?.replace(/\s/g, '') || '';
+    const sanitized: Order = {
+      ...order,
+      paymentInfo: order.paymentInfo
+        ? {
+            ...order.paymentInfo,
+            cardNumber: cardDigits ? `************${cardDigits.slice(-4)}` : '',
+            cvv: ''
+          }
+        : undefined
+    };
     set(state => ({
-      orders: [order, ...state.orders]
+      orders: [sanitized, ...state.orders]
     }));
   },
 
@@ -193,18 +198,7 @@ const storeImplementation: StateCreator<
   },
 });
 
-export const useOrdersStore = create<OrdersStore>()(
-  persist(
-    storeImplementation,
-    {
-      name: 'bean-bite-orders',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        orders: state.orders
-      })
-    } as PersistOptions<OrdersStore, OrdersPersist>
-  )
-);
+export const useOrdersStore = create<OrdersStore>()(storeImplementation);
 
 // Selector hooks
 export const useOrderHistory = () => useOrdersStore(state => state.orders);

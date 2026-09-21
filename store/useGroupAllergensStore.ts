@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist, PersistOptions } from 'zustand/middleware';
 import { Coffee, Pastry, GroupMember } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
 import { allergenGroups } from '@/data/allergenGroups';
@@ -20,12 +19,7 @@ interface GroupAllergensStore {
   checkAllergenConflicts: (itemAllergens: string[], members: GroupMember[]) => GroupMember[];
 }
 
-type AllergensPersist = {
-  excludedAllergens: string[];
-};
-
 export const useAllergensStore = create<GroupAllergensStore>()(
-  persist(
     (set, get) => ({
       // Initial state
       excludedAllergens: [],
@@ -153,12 +147,7 @@ export const useAllergensStore = create<GroupAllergensStore>()(
           member.allergens.some(allergen => itemAllergens.includes(allergen))
         );
       }
-    }),
-    {
-      name: 'bean-bite-allergens',
-      partialize: (state) => ({ excludedAllergens: state.excludedAllergens })
-    } as PersistOptions<GroupAllergensStore, AllergensPersist>
-  )
+    })
 );
 
 // Selector hooks

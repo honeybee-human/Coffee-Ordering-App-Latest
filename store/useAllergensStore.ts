@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist, PersistOptions } from 'zustand/middleware';
 import { Coffee, Pastry, GroupMember } from '@/types';
 import { useGroupsStore } from './useGroupsStore';
 import { allergenGroups } from '@/data/allergenGroups';
@@ -10,6 +9,7 @@ interface GroupAllergensStore {
   autoFilterEnabled: boolean;
 
   // Actions
+  hydrate: (payload: { excludedAllergens: string[]; autoFilterEnabled: boolean }) => void;
   setExcludedAllergens: (allergens: string[]) => void;
   toggleAllergenFilter: (allergen: string) => void;
   toggleAutoFilter: () => void;
@@ -23,16 +23,14 @@ interface GroupAllergensStore {
   checkAllergenConflicts: (itemAllergens: string[], members: GroupMember[]) => GroupMember[];
 }
 
-type AllergensPersist = {
-  excludedAllergens: string[];
-  autoFilterEnabled: boolean;
-};
-
-export const useAllergensStore = create<GroupAllergensStore>()(persist(
-  (set, get) => ({
+export const useAllergensStore = create<GroupAllergensStore>()((set, get) => ({
     // State
     excludedAllergens: [],
     autoFilterEnabled: false,
+
+    hydrate: ({ excludedAllergens, autoFilterEnabled }) => {
+      set({ excludedAllergens, autoFilterEnabled });
+    },
 
     // Actions
     setExcludedAllergens: (allergens: string[]) => {
@@ -169,15 +167,7 @@ export const useAllergensStore = create<GroupAllergensStore>()(persist(
         set({ excludedAllergens: [] });
       }
     },
-  }),
-  {
-    name: 'allergens-storage',
-    partialize: (state): AllergensPersist => ({
-      excludedAllergens: state.excludedAllergens,
-      autoFilterEnabled: state.autoFilterEnabled,
-    }),
-  } as PersistOptions<GroupAllergensStore, AllergensPersist>
-));
+}));
 
 export const useAllergenFilters = () => useAllergensStore(state => state.excludedAllergens);
 export const useAutoFilterEnabled = () => useAllergensStore(state => state.autoFilterEnabled);

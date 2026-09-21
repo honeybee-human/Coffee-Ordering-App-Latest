@@ -6,12 +6,12 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/ui/collap
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/ui/dialog';
 import { useIsMobile } from '@/ui/use-mobile';
 import { allergenGroups, individualAllergens } from '@/data/allergenGroups';
-import { coffeeMenu, pastryMenu } from '@/data/menu';
 import { AllergenFilterTrigger } from './AllergenFilterTrigger';
 import { AllergenSearchBar } from './AllergenSearchBar';
 import { AllergenCategorySection } from './AllergenCategorySection';
 import { Badge } from '@/ui/badge';
 import { Checkbox } from '@/ui/checkbox';
+import { useMenuStore } from '@/store/useMenuStore';
 
 interface AllergenFilterProps {
   filtersOpen: boolean;
@@ -41,6 +41,8 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
   const internalFilterRef = useRef<HTMLDivElement>(null);
   const filterRef = externalFilterRef || internalFilterRef;
   const isMobile = useIsMobile();
+  const coffeeMenu = useMenuStore(state => state.coffee);
+  const pastryMenu = useMenuStore(state => state.pastry);
   
   // Search state for adding allergens
   const [searchQuery, setSearchQuery] = useState('');
@@ -52,7 +54,7 @@ export const AllergenFilter: React.FC<AllergenFilterProps> = ({
     const coffeeAllergens = coffeeMenu.flatMap(item => item.allergens || []);
     const pastryAllergens = pastryMenu.flatMap(item => item.allergens || []);
     return [...new Set([...coffeeAllergens, ...pastryAllergens])].sort();
-  }, []);
+  }, [coffeeMenu, pastryMenu]);
 
   // Calculate hidden count based on currently checked allergens that exist in menu
   const hiddenCount = useMemo(() => {
