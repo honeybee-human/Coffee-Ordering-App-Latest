@@ -63,7 +63,7 @@ export async function seedMenu() {
   ];
 
   for (const doc of docs) {
-    await MenuItemModel.findOneAndUpdate({ id: doc.id }, doc, { upsert: true, new: true });
+    await MenuItemModel.findOneAndUpdate({ id: doc.id }, doc, { upsert: true, returnDocument: 'after' });
   }
 }
 

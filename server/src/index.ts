@@ -158,7 +158,7 @@ app.put('/api/allergens', async (req, res) => {
   const settings = await AllergenSettingsModel.findOneAndUpdate(
     { key: 'default' },
     { key: 'default', excludedAllergens, autoFilterEnabled },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: 'after' }
   );
   res.json({
     excludedAllergens: settings.excludedAllergens,
