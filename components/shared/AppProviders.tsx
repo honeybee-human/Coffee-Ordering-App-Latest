@@ -1,27 +1,49 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useGroupsStore } from '@/store/useGroupsStore';
+import { fetchBootstrap } from '@/lib/api';
+import { hydrateFromApi } from '@/store/hydrateFromApi';
+import { setApiSyncing, startApiSync } from '@/store/apiSync';
 
 const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Handle storage events for cross-tab synchronization
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
-    const handleStorageChange = (event: StorageEvent) => {
-      if (event.key === 'groups-store') {
-        // Reload the page to get the latest data from storage
-        window.location.reload();
+    let cancelled = false;
+
+    const load = async () => {
+      setApiSyncing(true);
+      try {
+        const payload = await fetchBootstrap();
+        if (!cancelled) {
+          hydrateFromApi(payload);
+        }
+      } catch (error) {
+        console.warn('API unavailable; using in-memory defaults', error);
+        if (!cancelled) {
+          useGroupsStore.getState().initialize();
+        }
+      } finally {
+        if (!cancelled) {
+          setApiSyncing(false);
+          startApiSync();
+          setReady(true);
+        }
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
+    void load();
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
+      cancelled = true;
     };
   }, []);
 
-  // Initialize stores if needed
-  useEffect(() => {
-    // Initialize the groups store to create default group if none exist
-    useGroupsStore.getState().initialize();
-  }, []);
+  if (!ready) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-muted-foreground">
+        Loading SafePlate…
+      </div>
+    );
+  }
 
   return <>{children}</>;
 };

@@ -2,7 +2,7 @@
 
 SafePlate is a conceptual Business to Consumer (B2C) restaurant ordering app designed to manage group orders and provide real-time allergen warnings. If developed for public release, it would be offered free to promote accessibility and prevent severe allergy-related emergencies.
 
-The project currently reads JSON files to render restaurant menus and ordering options. A future enhancement will allow dynamic theming based on each restaurant’s brand colors and style. For demonstration purposes, the prototype uses a fictional café, Bean Bite, to showcase end-to-end functionality and UI design.
+The app serves Bean Bite, a fictional café used to demonstrate group ordering and allergen-aware checkout. Menu data is seeded into MongoDB from JSON; groups, carts, favorites, orders, and allergen settings persist through an Express API.
 
 https://coffee-ordering-app-latest-sux3.vercel.app/
 
@@ -22,7 +22,11 @@ https://coffee-ordering-app-latest-sux3.vercel.app/
 - Vite (build tool)
 - Tailwind CSS (styling)
 - Radix UI (UI components)
-- Zustand (state management)
+- Zustand (client state)
+- Express.js (API)
+- MongoDB
+- Mongoose
+- Docker / Docker Compose
 
 ## Screenshots
 ### Landing Page
@@ -65,63 +69,74 @@ https://coffee-ordering-app-latest-sux3.vercel.app/
 
 ### Prerequisites
 
-- Node.js (v16 or higher)
-- npm or yarn
+- Node.js 18 or higher and npm
+- Docker Desktop (or Docker Engine + Compose) for the full stack
 
-### Installation
+Copy the example environment file before starting the API. Do not commit a real `.env`.
 
-1. Clone the repository
-2. Install dependencies:
+```bash
+cp .env.example .env
+```
+
+`.env.example` includes:
+
+```
+MONGODB_URI=mongodb://localhost:27017/safeplate
+PORT=4000
+```
+
+### Full stack with Docker Compose
+
+This is the supported local path: MongoDB, the Express API, and the production frontend (nginx proxies `/api` to the API).
+
+```bash
+docker compose up --build
+```
+
+- App: http://localhost:3000
+- API: http://localhost:4000/api/health
+- MongoDB: localhost:27017 (database `safeplate`)
+
+### Frontend and API without Compose
+
+1. Start MongoDB locally (or `docker compose up mongo`).
+2. Install dependencies and run both processes:
 
 ```bash
 npm install
-# or
-yarn install
+npm run server    # Express + Mongoose API on http://localhost:4000
+npm run dev       # Vite frontend on http://localhost:3000 (proxies /api)
 ```
 
-### Development
-
-Start the development server:
+Or run both together:
 
 ```bash
-npm run dev
-# or
-yarn dev
+npm run dev:full
 ```
 
-The application will be available at http://localhost:3000
+`npm run dev` starts only the frontend. Persisted data requires the API and MongoDB.
 
 ### Building for Production
 
-Create a production build:
-
 ```bash
 npm run build
-# or
-yarn build
-```
-
-Preview the production build:
-
-```bash
 npm run preview
-# or
-yarn preview
 ```
 
 ## Project Structure
 
 - `/components` - UI components
-- `/data` - Static data (menu items)
-- `/hooks` - Custom React hooks
-- `/store` - Zustand stores
+- `/data` - Menu JSON used to seed MongoDB
+- `/server` - Express + Mongoose API
+- `/store` - Zustand stores (hydrated from the API)
 - `/styles` - Global CSS and styling
 - `/types` - TypeScript type definitions
 - `/utils` - Utility functions
+- `docker-compose.yml` - MongoDB, API, and frontend
 
 ## State Management
 
-The application uses Zustand for lightweight, composable state management. Key stores include:
+The application uses Zustand for lightweight, composable UI state. Key stores include:
 
 - `useNavigationStore` – current page, navigation actions
 - `useGroupsStore` – groups, members, cart per group, active group
@@ -129,9 +144,19 @@ The application uses Zustand for lightweight, composable state management. Key s
 - `useOrdersStore` – completed orders and order actions
 - `useFavoritesStore` – item and cart-set favorites
 - `useAllergensStore` – excluded allergens and auto-filter settings
+- `useMenuStore` – coffee and pastry menus loaded from the API
 
-Some stores use persistence via `zustand/persist` to `localStorage` for durability across sessions.
+UI-only stores (navigation, modals, checkout form, customization drafts) stay in memory.
 
 ## Data Persistence
 
-Application data is persisted in the browser's `localStorage` for durability across sessions. Persisted stores include groups, favorites, orders, and allergen settings.
+MongoDB is the source of truth. On load the client hydrates Zustand from `GET /api/bootstrap`, then writes changes back through the Express API:
+
+- Menu items (seeded from `data/coffee-menu.json` and `data/pastry-menu.json`)
+- Groups, members, and carts
+- Active group and the global member list
+- Item favorites and saved cart sets
+- Orders (card numbers stored as last-4 only; CVV is not stored)
+- Allergen filter settings
+
+`localStorage` is no longer used for those resources.

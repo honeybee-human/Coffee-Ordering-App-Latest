@@ -12,7 +12,7 @@ import { CheckoutPage } from '@/components/pages/CheckoutPage';
 import { FavoritesPage } from '@/components/pages/FavoritesPage';
 import { OrderHistoryPage } from '@/components/pages/OrderHistoryPage';
 import { GroupManagement } from '@/components/features/GroupManagement';
-import { coffeeMenu, pastryMenu } from '@/data/menu';
+import { useMenuStore } from '@/store/useMenuStore';
 import { Cart } from '@/components/pages/Cart';
 
 export const PageRouter: React.FC = () => {
@@ -24,6 +24,8 @@ export const PageRouter: React.FC = () => {
   const { showAllergenWarning } = useModalsStore();
   const { completeOrder } = useOrdersStore();
   const { clearCart } = useGroupsStore();
+  const coffeeMenu = useMenuStore(state => state.coffee);
+  const pastryMenu = useMenuStore(state => state.pastry);
 
   // Reset scroll position to top whenever the page changes
   useEffect(() => {

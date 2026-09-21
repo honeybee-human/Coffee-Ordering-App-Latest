@@ -8,7 +8,6 @@ import { CartItem, GroupMember, PastryCustomization as PastryCustomizationType, 
 import { getComprehensiveAllergens } from '@/utils/allergens';
 
 import { Group } from '@/types';
-import { pastryMenu } from '@/data/menu';
 import { GroupMemberAssignment } from '@/components/features/GroupMemberAssignment';
 import { PastryCustomizationComponent } from '@/components/features/PastryCustomization';
 import { ImageWithFallback } from '@/components/figma/ImageWithFallback';
@@ -18,6 +17,7 @@ import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useModalsStore } from '@/store/useModalsStore';
 import { useGroupMemberAssignmentStore } from '@/store/useGroupMemberAssignmentStore';
 import { useCurrentItemStore } from '@/store/useCurrentItemStore';
+import { useMenuStore } from '@/store/useMenuStore';
 
 // Constants
 const DEFAULT_CUSTOMIZATIONS: PastryCustomizationType = {
@@ -107,6 +107,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
   initialCustomizations,
   onSave
 }) => {
+  const pastryMenu = useMenuStore(state => state.pastry);
   // Use currentItem if available, otherwise find from menu
   const currentItem = useCurrentItemStore(state => state.currentItem);
   const pastry = useMemo(() => {
@@ -114,7 +115,7 @@ export const PastryDetailPage: React.FC<PastryDetailPageProps> = ({
       return currentItem.item as Pastry;
     }
     return pastryMenu.find(p => p.id === pastryId);
-  }, [pastryId, currentItem]);
+  }, [pastryId, currentItem, pastryMenu]);
   
   const [customizations, setCustomizations] = useState<PastryCustomizationType>(initialCustomizations || DEFAULT_CUSTOMIZATIONS);
   const [showNoGroupModal, setShowNoGroupModal] = useState(false);
