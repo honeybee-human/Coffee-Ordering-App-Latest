@@ -7,7 +7,6 @@ RUN npm ci
 
 COPY data ./data
 COPY server ./server
-COPY tsconfig.json ./
 
 ENV PORT=4000
 EXPOSE 4000

@@ -9,6 +9,9 @@ import { AllMembersTab } from './AllMembersTab';
 import { GroupMembersSection } from './GroupMembersSection';
 import { CardHeader, CardTitle, CardContent, Card } from '@/ui/card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/ui/select';
+import { fetchBootstrap, resetRemoteData } from '@/lib/api';
+import { setApiSyncing } from '@/store/apiSync';
+import { hydrateFromApi } from '@/store/hydrateFromApi';
 import { useGroupsStore, useAllMembers } from '@/store/useGroupsStore';
 import { useFavoritesStore } from '@/store/useFavoritesStore';
 import { useOrdersStore } from '@/store/useOrdersStore';
@@ -47,11 +50,20 @@ export const GroupManagement: React.FC = () => {
   const { toggleAutoFilter, updateFiltersFromGroupMembers, clearAllergenFilters } = useAllergensStore();
   const autoFilterEnabled = useAutoFilterEnabled();
 
-  const handleResetAllData = useCallback(() => {
-    resetAllData();
-    resetFavorites();
-    clearAllergenFilters();
-    clearOrderHistory(); // Clear order history when resetting all data
+  const handleResetAllData = useCallback(async () => {
+    setApiSyncing(true);
+    try {
+      await resetRemoteData();
+      hydrateFromApi(await fetchBootstrap());
+    } catch (error) {
+      console.warn('Remote reset unavailable; clearing local state', error);
+      resetAllData();
+      resetFavorites();
+      clearAllergenFilters();
+      clearOrderHistory();
+    } finally {
+      setApiSyncing(false);
+    }
   }, [resetAllData, resetFavorites, clearAllergenFilters, clearOrderHistory]);
 
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);

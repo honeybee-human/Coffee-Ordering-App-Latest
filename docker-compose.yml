@@ -6,6 +6,12 @@ services:
       - "27017:27017"
     volumes:
       - safeplate_mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
 
   api:
     build:
@@ -18,7 +24,8 @@ services:
     ports:
       - "4000:4000"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
 
   web:
     build:

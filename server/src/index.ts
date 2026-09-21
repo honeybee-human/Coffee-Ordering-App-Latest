@@ -49,7 +49,8 @@ async function getGroupsPayload() {
 }
 
 app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, mongo: mongoReady() });
+  const mongo = mongoReady();
+  res.status(mongo ? 200 : 503).json({ ok: mongo, mongo });
 });
 
 app.get('/api/menu', async (_req, res) => {
@@ -220,6 +221,11 @@ app.post('/api/reset', async (_req, res) => {
     { upsert: true }
   );
   res.json({ ok: true, group });
+});
+
+app.use((error: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error('API error', error);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
 async function start() {
