@@ -1,0 +1,14 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY data ./data
+COPY server ./server
+
+ENV PORT=4000
+EXPOSE 4000
+
+CMD ["npx", "tsx", "server/src/index.ts"]
